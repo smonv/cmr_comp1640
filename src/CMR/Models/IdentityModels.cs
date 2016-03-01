@@ -19,6 +19,7 @@ namespace CMR.Models
         }
 
         public virtual ICollection<FacultyAssignment> Faculties { get; set; }
+        public virtual ICollection<CourseAssignment> Courses { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -35,5 +36,7 @@ namespace CMR.Models
 
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<FacultyAssignment> FacultyAssignments { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<CourseAssignment> CourseAssignments { get; set; }
     }
 }
