@@ -1,0 +1,49 @@
+﻿@model CMR.ViewModels.AssignViewModel
+    @{
+        ViewBag.Title = "Assign";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+
+    <h2>Assign @Model.Course.Code - @Model.Course.Name</h2>
+    @{
+        string message = TempData["message"] as string;
+        if (message != null)
+        {
+            <p>@message</p>
+        }
+    }
+    <h3>Course Leaders</h3>
+    @if (Model.Course.Managers.Any())
+    {
+        foreach (var manager in Model.Course.Managers)
+        {
+            <p>@manager.Role - @manager.Manager.UserName</p>
+        }
+    }
+    <h4>Assign Course</h4>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            @Html.DropDownList("staff",
+    Model.Staffs.Select(u => new SelectListItem
+    {
+        Text = u.UserName,
+        Value = u.Id
+    }),
+    "Please select")
+        </div>
+        <div class="form-group">
+            @Html.DropDownList("role", new SelectList(
+            new List<Object>
+                {
+                    new { value = "cl", text = "Course Leader"},
+                    new {value = "cm", text = "Course Manager"}
+                }, "value", "text"), "Please select role")
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Assign" class="btn btn-default" />
+            </div>
+        </div>
+    }

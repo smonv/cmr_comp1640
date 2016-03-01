@@ -8,6 +8,8 @@ using System.Web;
 using System.Web.Mvc;
 using CMR.Models;
 using CMR.ViewModels;
+using CMR.Helpers;
+using Microsoft.AspNet.Identity;
 
 namespace CMR.Controllers
 {
@@ -16,12 +18,14 @@ namespace CMR.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Courses
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Index()
         {
             return View(db.Courses.ToList());
         }
 
         // GET: Courses/Details/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -37,6 +41,7 @@ namespace CMR.Controllers
         }
 
         // GET: Courses/Create
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create()
         {
             FacultyCourseModel fcm = new FacultyCourseModel();
@@ -51,6 +56,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create([Bind(Include = "Id,Code,Name")] Course course, string[] selectedFaculties)
         {
             if (ModelState.IsValid)
@@ -65,6 +71,7 @@ namespace CMR.Controllers
         }
 
         // GET: Courses/Edit/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -90,6 +97,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Edit([Bind(Include = "Id,Code,Name")] Course course, string[] selectedFaculties)
         {
             if (ModelState.IsValid)
@@ -102,6 +110,7 @@ namespace CMR.Controllers
         }
 
         // GET: Courses/Delete/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -119,6 +128,7 @@ namespace CMR.Controllers
         // POST: Courses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult DeleteConfirmed(int id)
         {
             Course course = db.Courses.Find(id);
@@ -157,6 +167,56 @@ namespace CMR.Controllers
                     }
                 }
             }
+        }
+
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        public ActionResult Assign(int? id)
+        {
+            AssignViewModel am = new AssignViewModel();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Course course = db.Courses.Find(id);
+            if(course == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            }
+            am.Course = course;
+            var roleId = db.Roles.Single(r => r.Name == "Staff").Id;
+            List<ApplicationUser> staffs = db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            am.Staffs = staffs;
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+            return View(am);
+        }
+
+        [HttpPost, ActionName("Assign")]
+        [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        public ActionResult AssignConfirm(int id, string staff, string role)
+        {
+            Course course = db.Courses.Find(id);
+            ApplicationUser user = db.Users.Find(staff);
+            CourseAssignment ca = new CourseAssignment();
+            ca.Course = course;
+            ca.Manager = user;
+            ca.Role = role;
+            ca.Start = DateTime.Now;
+            ca.End = DateTime.Now;
+            db.CourseAssignments.Add(ca);
+            db.SaveChanges();
+            TempData["message"] = "Assign Completed";
+            return RedirectToAction("Assign", new { id = id });
+        }
+
+        [AccessDeniedAuthorize(Roles = "Staff")]
+        public ActionResult Assigned()
+        {
+            ApplicationUser currentUser = db.Users.Find(User.Identity.GetUserId());
+            return View(currentUser);
         }
 
         protected override void Dispose(bool disposing)

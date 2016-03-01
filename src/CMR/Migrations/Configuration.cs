@@ -21,6 +21,7 @@ namespace CMR.Migrations
             SeedRole(context);
             SeedUser(context);
             SeedFaculties(context);
+            SeedCourse(context);
         }
 
         public void SeedRole(ApplicationDbContext context)
@@ -108,6 +109,20 @@ namespace CMR.Migrations
             {
                 context.Faculties.AddOrUpdate(f);
             }
+        }
+
+        public void SeedCourse(ApplicationDbContext context)
+        {
+            Course[] courses =
+            {
+                new Course { Code = "COMP1640", Name = "Enterprise Web Software Development" },
+                new Course { Code = "COMP1648", Name = "Development, Frameworks and Methods" },
+                new Course { Code = "COMP1639", Name = "Database Engineering" },
+                new Course { Code = "COMP1649", Name = "Interaction Design" },
+                new Course { Code = "COMP1661", Name = "Application Development for Mobile Devices" },
+                new Course { Code = "COMP1689", Name = "Programming Frameworks" },
+                new Course { Code = "COMP1108", Name = "Project (Computing) - for External Programmes" }
+            };
         }
     }
 }
