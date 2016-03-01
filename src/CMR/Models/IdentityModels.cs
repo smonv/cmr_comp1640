@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Collections.Generic;
 
 namespace CMR.Models
 {
@@ -16,6 +17,8 @@ namespace CMR.Models
             // Add custom user claims here
             return userIdentity;
         }
+
+        public virtual ICollection<FacultyAssignment> Faculties { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -29,5 +32,8 @@ namespace CMR.Models
         {
             return new ApplicationDbContext();
         }
+
+        public DbSet<Faculty> Faculties { get; set; }
+        public DbSet<FacultyAssignment> FacultyAssignments { get; set; }
     }
 }

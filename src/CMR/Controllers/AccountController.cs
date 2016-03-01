@@ -52,6 +52,12 @@ namespace CMR.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public ActionResult Denied()
+        {
+            return View();
+        }
+
         //
         // GET: /Account/Login
         [AllowAnonymous]

@@ -20,10 +20,12 @@ namespace CMR.Migrations
             base.Seed(context);
             SeedRole(context);
             SeedUser(context);
+            SeedFaculties(context);
         }
 
         public void SeedRole(ApplicationDbContext context)
         {
+            
             var store = new RoleStore<IdentityRole>(context);
             var manager = new RoleManager<IdentityRole>(store);
             string[] roles = { "Administrator", "Staff", "Guest" };
@@ -77,13 +79,34 @@ namespace CMR.Migrations
                 new ApplicationUser { UserName = "guest3", Email = "guest3@test.com" },
             };
 
-            foreach(ApplicationUser guest in guests)
+            foreach (ApplicationUser guest in guests)
             {
                 var result = manager.Create(guest, "password");
                 if (result.Succeeded)
                 {
                     manager.AddToRole(guest.Id, "Guest");
                 }
+            }
+        }
+
+        public void SeedFaculties(ApplicationDbContext context)
+        {
+            Faculty[] faculties =
+            {
+                new Faculty { Name = "Accounting and Management" },
+                new Faculty { Name = "Business, Government and the International Economy" },
+                new Faculty { Name = "Entrepreneurial Management" },
+                new Faculty { Name = "Finance" },
+                new Faculty { Name = "Marketing" },
+                new Faculty { Name = "Negotiation, Organizations & Markets" },
+                new Faculty { Name = "Organizational Behavior" },
+                new Faculty { Name = "Strategy" },
+                new Faculty { Name = "Technology and Operations Management" },
+                new Faculty { Name = "General Management" }
+            };
+            foreach (Faculty f in faculties)
+            {
+                context.Faculties.AddOrUpdate(f);
             }
         }
     }

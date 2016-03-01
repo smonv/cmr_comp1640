@@ -1,0 +1,38 @@
+﻿@model CMR.ViewModels.FacultyAssignmentModel
+@{
+    ViewBag.Title = "Assign Faculty";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    string message = TempData["message"] as string;
+    if (message != null)
+    {
+        <p>@message</p>
+    }
+}
+<h2>@ViewBag.Title</h2>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        @Html.DropDownList("staff",
+            Model.Staffs.Select(u => new SelectListItem
+            {
+                Text = u.UserName,
+                Value = u.Id
+            }),
+            "Please select staff")
+    </div>
+    <div class="form-group">
+        @Html.DropDownList("role", new SelectList(
+            new List<Object>
+                {
+                    new { value = "pvc", text = "Pro-Vice Chancellor"},
+                    new {value = "dlt", text = "Director of Learning and Quality"}
+                }, "value", "text"), "Please select role")
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Assign" class="btn btn-default" />
+    </div>
+}
+
