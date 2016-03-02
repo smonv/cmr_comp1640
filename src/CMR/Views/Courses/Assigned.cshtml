@@ -10,7 +10,8 @@
 {
     foreach (var ca in Model.Courses)
     {
-        @Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id })
+        <p>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </p>
+        <p>@ca.Start @ca.End</p> <a href="/Reports/Create/@ca.Id">Create Report</a>
         <br />
     }
 }
