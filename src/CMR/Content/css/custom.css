@@ -30,7 +30,6 @@ body {
   height: 100%;
   width: calc(100% - 250px);
   padding-top: 15px;
-  background-color: #f9f9f9;
   min-height: calc(100% - 50px);
   -webkit-transition: width 200ms;
   transition: width 200ms;
