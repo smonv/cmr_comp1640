@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using CMR.Models;
 using CMR.ViewModels;
 using CMR.Helpers;
+using Microsoft.AspNet.Identity;
 
 namespace CMR.Controllers
 {
@@ -41,7 +42,7 @@ namespace CMR.Controllers
         // GET: Reports/Create
         public ActionResult Create(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
@@ -65,8 +66,10 @@ namespace CMR.Controllers
             CourseAssignment ca = db.CourseAssignments.Find(id);
             if (ModelState.IsValid)
             {
-                report.Course = ca;
+                report.Assignment = ca;
                 db.Reports.Add(report);
+                ReportNotification rn = CreateNotify(ca, report);
+                db.ReportNotifications.Add(rn);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -100,7 +103,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Title,Content,IsApproved")] Report report)
+        public ActionResult Edit([Bind(Include = "Id,Title,Content")] Report report)
         {
             if (ModelState.IsValid)
             {
@@ -135,6 +138,27 @@ namespace CMR.Controllers
             db.Reports.Remove(report);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        private ReportNotification CreateNotify(CourseAssignment ca, Report r)
+        {
+            ReportNotification rn = new ReportNotification();
+            rn.Message = "New report in " + ca.Course.Code + " : " + ca.Start + " - " + ca.End;
+            rn.Read = false;
+            rn.Report = r;
+            return rn;
+        }
+
+        public ActionResult Notification()
+        {
+            ApplicationUser currentUser = db.Users.Find(User.Identity.GetUserId());
+            string userId = User.Identity.GetUserId();
+            List<ReportNotification> rns = db.ReportNotifications
+                .Where(rn => rn.Read == false)
+                .Where(rn => rn.Report.Assignment.Course.Managers.Any(m => m.Manager.Id == userId))
+                //.Where(r => r.Report.Assignment.Role == "cm")
+                .ToList<ReportNotification>();
+            return View(rns);
         }
 
         protected override void Dispose(bool disposing)

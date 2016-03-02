@@ -1,0 +1,12 @@
+﻿@model IEnumerable<CMR.Models.ReportNotification>
+@{
+    ViewBag.Title = "Notification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Notification</h2>
+
+@foreach(CMR.Models.ReportNotification rn in Model)
+{
+    <p>@rn.Message</p>
+}

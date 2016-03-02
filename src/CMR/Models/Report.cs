@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CMR.Models
@@ -11,6 +12,7 @@ namespace CMR.Models
         public string Content { get; set; }
         public Boolean IsApproved { get; set; }
 
-        public virtual CourseAssignment Course { get; set; }
+        public virtual CourseAssignment Assignment { get; set; }
+        public virtual ICollection<ReportNotification> Notifications { get; set; }
     }
 }

@@ -194,6 +194,14 @@
     <Compile Include="Migrations\201603021259421_Add_Report.Designer.cs">
       <DependentUpon>201603021259421_Add_Report.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603021334481_Add_Report_Notification.cs" />
+    <Compile Include="Migrations\201603021334481_Add_Report_Notification.Designer.cs">
+      <DependentUpon>201603021334481_Add_Report_Notification.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201603021401240_Report_Change_Course_To_Assignment.cs" />
+    <Compile Include="Migrations\201603021401240_Report_Change_Course_To_Assignment.Designer.cs">
+      <DependentUpon>201603021401240_Report_Change_Course_To_Assignment.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Course.cs" />
@@ -203,6 +211,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Report.cs" />
+    <Compile Include="Models\ReportNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\AssignViewModel.cs" />
@@ -301,6 +310,7 @@
     <Content Include="Views\Reports\Details.cshtml" />
     <Content Include="Views\Reports\Edit.cshtml" />
     <Content Include="Views\Reports\Index.cshtml" />
+    <Content Include="Views\Reports\Notification.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -330,6 +340,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603021259421_Add_Report.resx">
       <DependentUpon>201603021259421_Add_Report.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603021334481_Add_Report_Notification.resx">
+      <DependentUpon>201603021334481_Add_Report_Notification.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603021401240_Report_Change_Course_To_Assignment.resx">
+      <DependentUpon>201603021401240_Report_Change_Course_To_Assignment.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
