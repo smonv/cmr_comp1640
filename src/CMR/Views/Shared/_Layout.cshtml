@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Course management report</title>
     @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/css/custom.css")
     @Styles.Render("~/Content/css/animate.css")
@@ -12,7 +12,7 @@
 
 </head>
 <body>
-    <div class="navbar navbar-default navbar-fixed-top animated fadeInDown">
+    <div class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
@@ -61,7 +61,7 @@
     <div class="container-fluid body-content">
         <div class="row">
 
-            <div class="nav-menu animated fadeInLeft" id="nav-menu">
+            <div class="nav-menu" id="nav-menu">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="profiles">
@@ -84,7 +84,7 @@
                     </div>
                     <ul>
                         <li><a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a></li>
-                        @if (User.IsInRole("Administrator"))
+                        @if (User.IsInRole("Administrator") || User.IsInRole("Staff")  )
                         {
                         <li class='has-sub'>
                             <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
@@ -118,7 +118,7 @@
                             </a>
                             <ul>
                                 <li>
-                                    <a href='/Courses'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
+                                    <a href='@Url.Action("Index","Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
                                 </li>
                                 @if (User.IsInRole("Administrator"))
                                 {
@@ -132,7 +132,6 @@
                                     <a href='/Courses/Assigned'><span class='glyphicon glyphicon-education'></span>Courses Assigned</a>
                                 </li>
                                 }
-
                             </ul>
                         </li>
 
