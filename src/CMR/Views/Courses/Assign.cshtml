@@ -1,73 +1,49 @@
-﻿        @model CMR.ViewModels.AssignViewModel
-        @{
+﻿@model CMR.ViewModels.AssignViewModel
+    @{
         ViewBag.Title = "Assign";
         Layout = "~/Views/Shared/_Layout.cshtml";
-        }
+    }
 
-<ol class="breadcrumb">
-    <li><a href="/Home">Home</a></li>
-    <li><a href="/Courses">Course</a></li>
-    <li class="active">Assign</li>
-</ol>
-<div class="panel panel-default">
-    <div class="panel-heading">Assign @Model.Course.Code - @Model.Course.Name</div>
-    <div class="panel-body">
-
-
-        @{
+    <h2>Assign @Model.Course.Code - @Model.Course.Name</h2>
+    @{
         string message = TempData["message"] as string;
         if (message != null)
         {
-        <div class="alert alert-success" role="alert">@message</div>
+            <p>@message</p>
         }
-        }
-
-        <h4>Assign Course</h4>
-        @using (Html.BeginForm())
+    }
+    <h3>Course Leaders</h3>
+    @if (Model.Course.Managers.Any())
+    {
+        foreach (var manager in Model.Course.Managers)
         {
+            <p>@manager.Role - @manager.Manager.UserName</p>
+        }
+    }
+    <h4>Assign Course</h4>
+    @using (Html.BeginForm())
+    {
         @Html.AntiForgeryToken()
-        <div class="row">
-            <div class="form-group col-md-4">
-                @Html.DropDownList("staff",
-                Model.Staffs.Select(u => new SelectListItem
+        <div class="form-group">
+            @Html.DropDownList("staff",
+    Model.Staffs.Select(u => new SelectListItem
+    {
+        Text = u.UserName,
+        Value = u.Id
+    }),
+    "Please select")
+        </div>
+        <div class="form-group">
+            @Html.DropDownList("role", new SelectList(
+            new List<Object>
                 {
-                Text = u.UserName,
-                Value = u.Id
-                }),
-                "Please select", new { @class="form-control" })
-            </div>
-            <div class="form-group col-md-4">
-                @Html.DropDownList("role", new SelectList(
-                new List<Object>
-                    {
                     new { value = "cl", text = "Course Leader"},
                     new {value = "cm", text = "Course Manager"}
-                    }, "value", "text"), "Please select role", new { @class="form-control" })
-            </div>
-            <div class="form-group col-md-4">
-                <input type="submit" value="Assign" class="btn btn-success pull-right" />
+                }, "value", "text"), "Please select role")
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Assign" class="btn btn-default" />
             </div>
         </div>
-            }
-       
-        <h4>Course Leaders</h4>
-
-        <table class="table table-striped">
-            <tr>
-                <th>Staff name</th>
-                <th>Manager role</th>
-            </tr>
-            @if (Model.Course.Managers.Any())
-            {
-
-            foreach (var manager in Model.Course.Managers)
-            {
-            <tr>
-                <td>@manager.Manager.UserName</td>
-                <td>@manager.Role</td>
-            </tr>
-            }
-            }
-        </table>
-    </div>
-</div>
+    }
