@@ -4,14 +4,35 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>@ViewBag.Title</h2>
+<ol class="breadcrumb">
+    <li><a href="/Home">Home</a></li>
+    <li><a href="/Courses">Course</a></li>
+    <li class="active">Assigned</li>
+</ol>
+<div class="panel panel-default">
+    <div class="panel-heading">@ViewBag.Title</div>
+    <div class="panel-body">
 
-@if (Model.Courses.Any())
-{
-    foreach (var ca in Model.Courses)
-    {
-        <p>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </p>
-        <p>@ca.Start @ca.End</p> <a href="/Reports/Create/@ca.Id">Create Report</a>
-        <br />
-    }
-}
+        <table class="table">
+            <tr>
+                <th>Course</th>
+                <th>Start</th>
+                <th>End</th>
+                <th></th>
+            </tr>
+            @if (Model.Courses.Any())
+            {
+            foreach (var ca in Model.Courses)
+            {
+            <tr>
+                <td>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </td>
+                <td>@ca.Start</td>
+                <td>@ca.End</td>
+                <td><a href="/Reports/Create/@ca.Id">Create Report</a></td>
+            </tr>
+            }
+            }
+
+        </table>
+    </div>
+</div>

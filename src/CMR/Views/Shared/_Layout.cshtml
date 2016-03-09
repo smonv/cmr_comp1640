@@ -117,11 +117,11 @@
                                 <span class="glyphicon glyphicon-book"></span>Courses
                             </a>
                             <ul>
+                                @if (User.IsInRole("Administrator"))
+                                {
                                 <li>
                                     <a href='@Url.Action("Index","Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
                                 </li>
-                                @if (User.IsInRole("Administrator"))
-                                {
                                 <li>
                                     <a href='/Courses/Create'><span class="glyphicon glyphicon-edit"></span>Create Course</a>
                                 </li>
@@ -134,7 +134,21 @@
                                 }
                             </ul>
                         </li>
-
+                           
+                            <li class='has-sub'>
+                                @if (User.IsInRole("Staff"))
+                                {
+                                <a href='#' class="list-item">
+                                    <span class="glyphicon glyphicon-book"></span>Reports
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href='@Url.Action("Index","Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
+                                    </li>
+                                </ul>
+                                }
+                            </li>
+                            
                         }
 
                         <li><a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>About</a></li>
