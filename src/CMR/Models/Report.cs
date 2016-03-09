@@ -13,6 +13,5 @@ namespace CMR.Models
         public Boolean IsApproved { get; set; }
 
         public virtual CourseAssignment Assignment { get; set; }
-        public virtual ICollection<ReportNotification> Notifications { get; set; }
     }
 }
