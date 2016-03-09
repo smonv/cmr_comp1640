@@ -25,23 +25,17 @@
                 <a class="hidden-md hidden-lg hidden-sm" id="btn-burger-navbar-left-xs">
                     <span class="glyphicon glyphicon-menu-hamburger"></span>
                 </a>
-                @*@Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })*@
             </div>
             <div class="navbar-collapse collapse" id="navbar-collapse-1">
                 <ul class="nav navbar-nav hidden-xs">
                     @if (User.IsInRole("Staff") || User.IsInRole("Administrator"))
                     {
-                    <li class="active ">
-                        <button id="btn-burger-navbar-left">
-                            <span class="glyphicon glyphicon-menu-hamburger"></span>
-                        </button>
-                    </li>
+                        <li class="active ">
+                            <button id="btn-burger-navbar-left">
+                                <span class="glyphicon glyphicon-menu-hamburger"></span>
+                            </button>
+                        </li>
                     }
-
-                    @*
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
 
                 </ul>
                 <form class="navbar-form navbar-left" role="search">
@@ -56,129 +50,123 @@
             </div>
         </div>
     </div>
-    @if (User.IsInRole("Staff") || User.IsInRole("Administrator"))
+    @if (User.Identity.IsAuthenticated)
     {
-    <div class="container-fluid body-content">
-        <div class="row">
+        <div class="container-fluid body-content">
+            <div class="row">
 
-            <div class="nav-menu" id="nav-menu">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="profiles">
-                            <img src="~/Content/images/Saber-Alter.jpg" alt="" class="img-circle pull-left">
-                            <div class="profile-bar pull-right">
-                                <div class="row">
-                                    <a class="profile-title">@User.Identity.Name</a>
+                <div class="nav-menu" id="nav-menu">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="profiles">
+                                <img src="~/Content/images/Saber-Alter.jpg" alt="" class="img-circle pull-left">
+                                <div class="profile-bar pull-right">
+                                    <div class="row">
+                                        <a class="profile-title">@User.Identity.Name</a>
+                                    </div>
+                                    <div class="row">
+                                        @{
+                                            if (User.IsInRole("Administrator"))
+                                            {
+                                                <a class="profile-role">Administrator</a>
+                                            }
+                                            if (User.IsInRole("Staff"))
+                                            {
+                                                <a class="profile-role">Staff</a>
+                                            }
+
+                                        }
+                                    </div>
                                 </div>
-                                <div class="row">
-                                    <a class="profile-role">Admin</a>
-                                </div>
+                                <div class="clearfix"></div>
                             </div>
-                            <div class="clearfix"></div>
                         </div>
                     </div>
-                </div>
-                <div id='cssmenu'>
-                    <div class="title-menu">
-                        Main
-                    </div>
-                    <ul>
-                        <li><a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a></li>
-                        @if (User.IsInRole("Administrator") || User.IsInRole("Staff")  )
-                        {
-                        <li class='has-sub'>
-                            <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
-                            <ul>
+                    <div id='cssmenu'>
+                        <div class="title-menu">
+                            Main
+                        </div>
+                        <ul>
+                            <li><a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a></li>
+                            @if (User.IsInRole("Administrator"))
+                            {
                                 <li class='has-sub'>
-                                    <a href='#'>Administrators</a>
+                                    <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
                                     <ul>
-                                        <li><a href='#'>Sub CL</a></li>
-                                        <li><a href='#'>Sub CL</a></li>
+                                        <li class='has-sub'>
+                                            <a href='#'>Administrators</a>
+                                            <ul>
+                                                <li><a href='#'>Sub CL</a></li>
+                                                <li><a href='#'>Sub CL</a></li>
+                                            </ul>
+                                        </li>
+                                        <li class='has-sub'>
+                                            <a href='#'>Staffs</a>
+                                            <ul>
+                                                <li><a href='#'>Sub Courses</a></li>
+                                                <li><a href='#'>Sub Courses</a></li>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </li>
-                                <li class='has-sub'>
-                                    <a href='#'>Staffs</a>
-                                    <ul>
-                                        <li><a href='#'>Sub Courses</a></li>
-                                        <li><a href='#'>Sub Courses</a></li>
-                                    </ul>
-                                </li>
-                                <li class='has-sub'>
-                                    <a href='#'>Students</a>
-                                    <ul>
-                                        <li><a href='#'>Sub Courses</a></li>
-                                        <li><a href='#'>Sub Courses</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class='has-sub'>
-                            <a href='#' class="list-item">
-                                <span class="glyphicon glyphicon-book"></span>Courses
-                            </a>
-                            <ul>
-                                @if (User.IsInRole("Administrator"))
-                                {
-                                <li>
-                                    <a href='@Url.Action("Index","Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
-                                </li>
-                                <li>
-                                    <a href='/Courses/Create'><span class="glyphicon glyphicon-edit"></span>Create Course</a>
-                                </li>
-                                }
-                                @if (User.IsInRole("Staff"))
-                                {
-                                <li>
-                                    <a href='/Courses/Assigned'><span class='glyphicon glyphicon-education'></span>Courses Assigned</a>
-                                </li>
-                                }
-                            </ul>
-                        </li>
-                           
+                            }
+                            <li class='has-sub'>
+                                <a href='#' class="list-item">
+                                    <span class="glyphicon glyphicon-book"></span>Courses
+                                </a>
+                                <ul>
+                                    @if (User.IsInRole("Administrator"))
+                                    {
+                                        <li>
+                                            <a href='@Url.Action("Index","Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
+                                        </li>
+                                            <li>
+                                                <a href='/Courses/Create'><span class="glyphicon glyphicon-edit"></span>Create Course</a>
+                                            </li>
+                                    }
+                                    @if (User.IsInRole("Staff"))
+                                    {
+                                        <li>
+                                            <a href='/Courses/Assigned'><span class='glyphicon glyphicon-education'></span>Courses Assigned</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+
                             <li class='has-sub'>
                                 @if (User.IsInRole("Staff"))
                                 {
-                                <a href='#' class="list-item">
-                                    <span class="glyphicon glyphicon-book"></span>Reports
-                                </a>
-                                <ul>
-                                    <li>
-                                        <a href='@Url.Action("Index","Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
-                                    </li>
-                                </ul>
+                                    <a href='#' class="list-item">
+                                        <span class="glyphicon glyphicon-book"></span>Reports
+                                    </a>
+                                        <ul>
+                                            <li>
+                                                <a href='@Url.Action("Index","Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
+                                            </li>
+                                        </ul>
                                 }
                             </li>
-                            
-                        }
-
-                        <li><a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>About</a></li>
-                        <li><a href='#' class="list-item"><span class="glyphicon glyphicon-bullhorn"></span>Contact</a></li>
-                    </ul>
-                    <div class="title-menu">
-                        Extension
+                            <li><a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>About</a></li>
+                            <li><a href='#' class="list-item"><span class="glyphicon glyphicon-bullhorn"></span>Contact</a></li>
+                        </ul>
                     </div>
-                    <ul>
-                        <li><a href='#' class="list-item"><span class="glyphicon glyphicon-envelope"></span>Mails<span class="badge pull-right">42</span></a></li>
-                        <li><a href='#' class="list-item"><span class="glyphicon glyphicon-bell"></span>Message<span class="badge pull-right">42</span></a></li>
-                        
-                    </ul>
+                </div>
+                <div class="container-fluid pull-right container-right animated fadeInUp">
+                    @RenderBody()
                 </div>
             </div>
-            <div class="container-fluid pull-right container-right animated fadeInUp">
-                @RenderBody()
-            </div>
         </div>
-    </div>
-    }else{
+                                            }
+                                            else {
 
-    <div class="container body-content">
-        @RenderBody()
-    </div>
-    <hr />
-    <footer>
-        <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-    </footer>
-    }
+                                                <div class="container body-content">
+                                                    @RenderBody()
+                                                </div>
+                                                <hr />
+                                                <footer>
+                                                    <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+                                                </footer>
+                                            }
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/Content/js/custom.js")

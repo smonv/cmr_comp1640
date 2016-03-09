@@ -12,9 +12,9 @@
 
 
 <div class="panel panel-default">
-    <div class="panel-heading">Create Report for @Model.CourseAssignment.Course.Name</div>
+    <div class="panel-heading">Create Report for @Model.CourseAssignment.Course.Code - @Model.CourseAssignment.Course.Name</div>
     <div class="panel-body">
-        <h4>From @Model.CourseAssignment.Start to @Model.CourseAssignment.End</h4>
+        <h4>From @Model.CourseAssignment.Start.ToString("MM/yyyy") to @Model.CourseAssignment.End.ToString("MM/yyyy")</h4>
 
         @using (Html.BeginForm())
         {

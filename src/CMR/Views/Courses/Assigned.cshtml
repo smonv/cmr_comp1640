@@ -26,8 +26,8 @@
             {
             <tr>
                 <td>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </td>
-                <td>@ca.Start</td>
-                <td>@ca.End</td>
+                <td>@ca.Start.ToString("MM/yyyy")</td>
+                <td>@ca.End.ToString("MM/yyyy")</td>
                 <td><a href="/Reports/Create/@ca.Id">Create Report</a></td>
             </tr>
             }
