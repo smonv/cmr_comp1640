@@ -5,6 +5,10 @@ using System.Web.Mvc;
 using CMR.Models;
 using CMR.ViewModels;
 using CMR.Helpers;
+using System.Net.Mail;
+using System.IO;
+using Microsoft.AspNet.Identity;
+using System.Threading.Tasks;
 
 namespace CMR.Controllers
 {
@@ -56,7 +60,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Title,Content")] Report report, int id)
+        public async Task<ActionResult> Create([Bind(Include = "Id,Title,Content")] Report report, int id)
         {
             CourseAssignment ca = db.CourseAssignments.Find(id);
             if (ModelState.IsValid)
@@ -64,7 +68,20 @@ namespace CMR.Controllers
                 report.Assignment = ca;
                 db.Reports.Add(report);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                Mailer mailer = new Mailer();
+                var emailMessage = new MailMessage();
+                ApplicationUser cm = report.Assignment.Course.Managers.Single(u => u.Role == "cm").Manager;
+                emailMessage.To.Add(new MailAddress(cm.Email));
+                emailMessage.Subject = report.Title + " " + report.Assignment.Start.ToString("yyyy") + " - " + report.Assignment.End.ToString("yyyy");
+                var reportUrl = Url.Action("Details", "Reports", new { id = report.Id }, protocol: Request.Url.Scheme);
+                string body = report.Assignment.Course.Name + " " +
+                    report.Assignment.Start.ToString("yyyy") + " - " +
+                    report.Assignment.End.ToString("yyyy") +
+                    " have new report. Click <a href='" + reportUrl + "'>here</a>";
+                emailMessage.Body = body;
+                emailMessage = mailer.BuildMessage(emailMessage);
+                await mailer.client.SendMailAsync(emailMessage);
+                return Redirect("/Courses/Assigned");
             }
             else
             {
@@ -140,6 +157,19 @@ namespace CMR.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private string RenderRazorViewToString(Controller controller, string viewName, object model)
+        {
+            controller.ViewData.Model = model;
+            using (var sw = new StringWriter())
+            {
+                var viewResult = ViewEngines.Engines.FindPartialView(controller.ControllerContext, viewName);
+                var viewContext = new ViewContext(controller.ControllerContext, viewResult.View, controller.ViewData, controller.TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+                viewResult.ViewEngine.ReleaseView(controller.ControllerContext, viewResult.View);
+                return sw.GetStringBuilder().ToString();
+            }
         }
     }
 }

@@ -178,6 +178,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AccessDeniedAuthorizeAttribute.cs" />
+    <Compile Include="Helpers\Mailer.cs" />
     <Compile Include="Migrations\201603010735501_Identity.cs" />
     <Compile Include="Migrations\201603010735501_Identity.Designer.cs">
       <DependentUpon>201603010735501_Identity.cs</DependentUpon>
@@ -249,6 +250,7 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="Mailer.config" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
