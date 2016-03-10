@@ -5,8 +5,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Edit Report of @Model.Course.Course.Name</h2>
-<h3>@Model.Course.Start - @Model.Course.End</h3>
+<h2>Edit Report of @Model.Assignment.Course.Name</h2>
+<h3>@Model.Assignment.Start.ToString("MM/yyyy") - @Model.Assignment.End.ToString("MM/yyyy")</h3>
 
 @using (Html.BeginForm())
 {
