@@ -11,15 +11,34 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using CMR.Models;
+using System.Net.Mail;
+using System.Net;
+using System.Configuration;
 
 namespace CMR
 {
     public class EmailService : IIdentityMessageService
     {
-        public Task SendAsync(IdentityMessage message)
+        public async Task SendAsync(IdentityMessage message)
         {
-            // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            MailMessage email = new MailMessage(new MailAddress("noreply@cmr.com", "do not reply"), new MailAddress(message.Destination));
+            email.Subject = message.Subject;
+            email.Body = message.Body;
+            email.IsBodyHtml = true;
+            var creadential = new NetworkCredential(
+                    userName: ConfigurationManager.AppSettings["MailerUserName"],
+                    password: ConfigurationManager.AppSettings["MailerPassword"]
+                );
+
+            var client = new SmtpClient();
+            client.Host = ConfigurationManager.AppSettings["MailerHost"];
+            client.Port = Int32.Parse(ConfigurationManager.AppSettings["MailerPort"]);
+            client.EnableSsl = Boolean.Parse(ConfigurationManager.AppSettings["MailerSSL"]);
+            //client.UseDefaultCredentials = false;
+            client.Credentials = creadential;
+
+            await client.SendMailAsync(email);
+
         }
     }
 
@@ -40,7 +59,7 @@ namespace CMR
         {
         }
 
-        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context) 
+        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)
         {
             var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
             // Configure validation logic for usernames
@@ -81,7 +100,7 @@ namespace CMR
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)
             {
-                manager.UserTokenProvider = 
+                manager.UserTokenProvider =
                     new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
             return manager;

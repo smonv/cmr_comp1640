@@ -9,6 +9,8 @@ using System.Net.Mail;
 using System.IO;
 using Microsoft.AspNet.Identity;
 using System.Threading.Tasks;
+using System.Web;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace CMR.Controllers
 {
@@ -68,19 +70,15 @@ namespace CMR.Controllers
                 report.Assignment = ca;
                 db.Reports.Add(report);
                 db.SaveChanges();
-                Mailer mailer = new Mailer();
-                var emailMessage = new MailMessage();
                 ApplicationUser cm = report.Assignment.Course.Managers.Single(u => u.Role == "cm").Manager;
-                emailMessage.To.Add(new MailAddress(cm.Email));
-                emailMessage.Subject = report.Title + " " + report.Assignment.Start.ToString("yyyy") + " - " + report.Assignment.End.ToString("yyyy");
+                string subject = report.Title + " " + report.Assignment.Start.ToString("yyyy") + " - " + report.Assignment.End.ToString("yyyy");
                 var reportUrl = Url.Action("Details", "Reports", new { id = report.Id }, protocol: Request.Url.Scheme);
                 string body = report.Assignment.Course.Name + " " +
                     report.Assignment.Start.ToString("yyyy") + " - " +
                     report.Assignment.End.ToString("yyyy") +
                     " have new report. Click <a href='" + reportUrl + "'>here</a>";
-                emailMessage.Body = body;
-                emailMessage = mailer.BuildMessage(emailMessage);
-                await mailer.client.SendMailAsync(emailMessage);
+                var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                await userManager.SendEmailAsync(cm.Id, subject, body);
                 return Redirect("/Courses/Assigned");
             }
             else
