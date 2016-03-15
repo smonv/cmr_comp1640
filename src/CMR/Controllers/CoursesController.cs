@@ -178,7 +178,7 @@ namespace CMR.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Course course = db.Courses.Find(id);
-            if(course == null)
+            if (course == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
@@ -196,19 +196,40 @@ namespace CMR.Controllers
         [HttpPost, ActionName("Assign")]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult AssignConfirm(int id, string staff, string role)
+        public ActionResult AssignConfirm(int id, string cl, string cm, string start, string end)
         {
             Course course = db.Courses.Find(id);
-            ApplicationUser user = db.Users.Find(staff);
-            CourseAssignment ca = new CourseAssignment();
-            ca.Course = course;
-            ca.Manager = user;
-            ca.Role = role;
-            ca.Start = DateTime.Now;
-            ca.End = DateTime.Now;
-            db.CourseAssignments.Add(ca);
-            db.SaveChanges();
-            TempData["message"] = "Assign Completed";
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+            DateTime StartYear = new DateTime(Convert.ToInt32(start), 1, 1);
+            DateTime EndYear = new DateTime(Convert.ToInt32(end), 1, 1);
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    ApplicationUser leader = db.Users.Find(cl);
+                    if (leader != null)
+                    {
+                        AssignAddOrUpdate(course, leader, "cl", StartYear, EndYear);
+                    }
+
+                    ApplicationUser manager = db.Users.Find(cm);
+                    if (manager != null)
+                    {
+                        AssignAddOrUpdate(course, manager, "cm", StartYear, EndYear);
+                    }
+                    transaction.Commit();
+                    TempData["message"] = "Assign Completed";
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    TempData["message"] = "Assign Error";
+                }
+            }
+
             return RedirectToAction("Assign", new { id = id });
         }
 
@@ -217,6 +238,22 @@ namespace CMR.Controllers
         {
             ApplicationUser currentUser = db.Users.Find(User.Identity.GetUserId());
             return View(currentUser);
+        }
+
+        public void AssignAddOrUpdate(Course course, ApplicationUser user, string role, DateTime start, DateTime end)
+        {
+            CourseAssignment courseLeader = new CourseAssignment(course, user, role, start, end);
+            if (db.CourseAssignments.Where(ca => ca.Course.Id == course.Id).Where(ca => ca.Role == role).Where(ca => ca.Start.Year == start.Year).Count() > 0)
+            {
+                CourseAssignment oldCA = db.CourseAssignments.Where(ca => ca.Course.Id == course.Id).Where(ca => ca.Start.Year == start.Year).Single(ca => ca.Role == role);
+                oldCA.Manager = user;
+                db.SaveChanges();
+            }
+            else
+            {
+                db.CourseAssignments.Add(courseLeader);
+                db.SaveChanges();
+            }
         }
 
         protected override void Dispose(bool disposing)
