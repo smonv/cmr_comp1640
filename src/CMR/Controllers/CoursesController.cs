@@ -203,31 +203,39 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            DateTime StartYear = new DateTime(Convert.ToInt32(start), 1, 1);
-            DateTime EndYear = new DateTime(Convert.ToInt32(end), 1, 1);
-            using (var transaction = db.Database.BeginTransaction())
+            ConvertHelper ch = new ConvertHelper();
+            DateTime? StartYear = ch.YearStringToDateTime(start);
+            DateTime? EndYear = ch.YearStringToDateTime(end);
+            if (StartYear.HasValue && EndYear.HasValue)
             {
-                try
+                using (var transaction = db.Database.BeginTransaction())
                 {
-                    ApplicationUser leader = db.Users.Find(cl);
-                    if (leader != null)
+                    try
                     {
-                        AssignAddOrUpdate(course, leader, "cl", StartYear, EndYear);
-                    }
+                        ApplicationUser leader = db.Users.Find(cl);
+                        if (leader != null)
+                        {
+                            AssignAddOrUpdate(course, leader, "cl", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
+                        }
 
-                    ApplicationUser manager = db.Users.Find(cm);
-                    if (manager != null)
-                    {
-                        AssignAddOrUpdate(course, manager, "cm", StartYear, EndYear);
+                        ApplicationUser manager = db.Users.Find(cm);
+                        if (manager != null)
+                        {
+                            AssignAddOrUpdate(course, manager, "cm", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
+                        }
+                        transaction.Commit();
+                        TempData["message"] = "Assign Completed";
                     }
-                    transaction.Commit();
-                    TempData["message"] = "Assign Completed";
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        TempData["message"] = "Assign Error";
+                    }
                 }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    TempData["message"] = "Assign Error";
-                }
+            }
+            else
+            {
+                TempData["message"] = "Assign Error! Please enter Academic Year";
             }
 
             return RedirectToAction("Assign", new { id = id });

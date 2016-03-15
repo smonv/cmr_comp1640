@@ -178,6 +178,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AccessDeniedAuthorizeAttribute.cs" />
+    <Compile Include="Helpers\ConvertHelper.cs" />
     <Compile Include="Migrations\201603010735501_Identity.cs" />
     <Compile Include="Migrations\201603010735501_Identity.Designer.cs">
       <DependentUpon>201603010735501_Identity.cs</DependentUpon>
