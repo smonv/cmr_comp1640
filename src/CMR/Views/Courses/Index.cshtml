@@ -24,19 +24,22 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Name)
                 </th>
-                <th>Action</th>
+                <th class="hidden-xs">Action</th>
             </tr>
 
             @foreach (var item in Model) {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Code)
+                    <a href="@Url.Action("Details", new {id=item.Id})">
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </a>
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                <td >
+                    <a href="@Url.Action("Details", new {id=item.Id})">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </a>
                 </td>
-
-                <td>
+                <td class="hidden-xs">
                     <a href="@Url.Action("Delete", new {id=item.Id})" class="btn btn-danger pull-right">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </a>

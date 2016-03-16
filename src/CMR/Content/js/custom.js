@@ -53,3 +53,6 @@ $('#btn-burger-navbar-left-xs').on('click', function(){
     $('.container-right').addClass('hide-full');
   }
 });
+
+
+$(".breadcrumb").addClass("hidden-xs");
