@@ -4,42 +4,41 @@
     ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<ol class="breadcrumb">
+    <li><a href="/Home">Home</a></li>
+    <li><a href="/Reports">Reports</a></li>
+    <li class="active">New report</li>
+</ol>
 
-<h2>Create Report for @Model.CourseAssignment.Course.Name</h2>
-<h3>@Model.CourseAssignment.Start - @Model.CourseAssignment.End</h3>
 
-@using (Html.BeginForm()) 
-{
-    @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Report</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(m => m.Report.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(m => m.Report.Title, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(m => m.Report.Title, "", new { @class = "text-danger" })
+<div class="panel panel-default">
+    <div class="panel-heading">Create Report for @Model.CourseAssignment.Course.Code - @Model.CourseAssignment.Course.Name</div>
+    <div class="panel-body">
+        <h4>From @Model.CourseAssignment.Start.ToString("MM/yyyy") to @Model.CourseAssignment.End.ToString("MM/yyyy")</h4>
+
+        @using (Html.BeginForm())
+        {
+        @Html.AntiForgeryToken()
+
+        <div class="form">
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(m => m.Report.Title, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.Report.Title, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(m => m.Report.Title, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Report.Content, htmlAttributes: new { @class = "control-label" })
+                    @Html.TextAreaFor(m => m.Report.Content, new {@class = "form-control", @rows ="10"})
+                    @Html.ValidationMessageFor(m => m.Report.Content, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-success pull-right" />
             </div>
         </div>
-
-        <div class="form-group">
-            @Html.LabelFor(m => m.Report.Content, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(m => m.Report.Content, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(m => m.Report.Content, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </div>
+        }
     </div>
-}
-
-<div>
-    @Html.ActionLink("Back to List", "Index")
 </div>

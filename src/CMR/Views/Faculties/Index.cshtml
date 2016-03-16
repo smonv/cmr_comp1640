@@ -1,46 +1,53 @@
 ﻿@model IEnumerable<CMR.Models.Faculty>
 
-@{
+    @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<h2>Index</h2>
-
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Name)
-        </th>
-        <th>Manager</th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @if (item.Managers.Any())
-                {
-                    foreach (var manager in item.Managers)
-                    {
-                        <p>@manager.Role : @manager.Staff.UserName</p>
-                    }
-                }
-                @Html.ActionLink("Assign", "Assign", new { id = item.Id })
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-            </td>
-        </tr>
     }
 
-</table>
+    <ol class="breadcrumb">
+        <li><a href="/Home/Index">Home</a></li>
+        <li><a href="/Faculties/Index">Faculties</a></li>
+        <li class="active">List</li>
+    </ol>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            List Faculties
+            @Html.ActionLink("Add New", "Create",new{}, new{@class ="pull-right"})
+        </div>
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>Manager</th>
+                <th></th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @if (item.Managers.Any())
+                    {
+                    foreach (var manager in item.Managers)
+                    {
+                    <p>@manager.Role : @manager.Staff.UserName</p>
+                    }
+                    }
+                    
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }) |
+                    @Html.ActionLink("Assign", "Assign", new { id = item.Id })
+                </td>
+            </tr>
+            }
+
+        </table>
+    </div>

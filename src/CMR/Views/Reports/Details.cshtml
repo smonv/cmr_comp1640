@@ -4,40 +4,33 @@
     ViewBag.Title = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<ol class="breadcrumb">
+    <li><a href="/Home">Home</a></li>
+    <li><a href="/Reports">Reports</a></li>
+    <li class="active">Detail</li>
+</ol>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        @Html.DisplayFor(model => model.Title)
+        @Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new {@class ="pull-right"})
+    </div>
+    <div class="panel-body">
+        <form>
+            <div class="row">
+                <div class="form-group col-md-9">
+                    <label>@Html.DisplayNameFor(model => model.Title)</label>
+                    <p>@Html.DisplayFor(model => model.Title)</p>
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="pull-right">@Html.DisplayNameFor(model => model.IsApproved)</label>
+                    <span class="pull-right">@Html.DisplayFor(model => model.IsApproved)</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>@Html.DisplayNameFor(model => model.Content) </label>
+                <p> @Html.DisplayFor(model => model.Content)</p>
+            </div>
 
-<h2>Details</h2>
-
-<div>
-    <h4>Report</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Content)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Content)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.IsApproved)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IsApproved)
-        </dd>
-
-    </dl>
+        </form>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
