@@ -1,4 +1,4 @@
-﻿@model CMR.Models.Course
+﻿@model CMR.ViewModels.AssignViewModel
 
 @{
     ViewBag.Title = "Details";
@@ -12,25 +12,112 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        @Html.DisplayFor(model => model.Name)
-        <a href="@Url.Action("Edit", new {id=Model.Id})" class="btn btn-warning pull-right btn-top-up">
+        @Html.DisplayFor(m => m.Course.Name)
+        <a href="@Url.Action("Edit", new { id = Model.Course.Id })" class="btn btn-warning pull-right btn-top-up">
             <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
         </a>
-        <a href="@Url.Action("Delete", new {id=Model.Id})" class="btn btn-danger pull-right btn-top-up">
+        <a href="@Url.Action("Delete", new { id = Model.Course.Id })" class="btn btn-danger pull-right btn-top-up">
             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
         </a>
     </div>
     <div class="panel-body">
-        <form>
-            <div class="form-group">
-                <label>@Html.DisplayNameFor(model => model.Code): </label>
-                <span>@Html.DisplayFor(model => model.Code)</span>
-            </div>
-            <div class="form-group">
-                <label>@Html.DisplayNameFor(model => model.Name): </label>
-                <span>@Html.DisplayFor(model => model.Name)</span>
-            </div>
-        </form>
+        <div>
+            <label>@Html.DisplayNameFor(m => m.Course.Code): </label>
+            <span>@Html.DisplayFor(m => m.Course.Code)</span>
+        </div>
+        <div>
+            <label>@Html.DisplayNameFor(m => m.Course.Name): </label>
+            <span>@Html.DisplayFor(m => m.Course.Name)</span>
+        </div>
     </div>
 </div>
 
+<div class="panel panel-default">
+    <div class="panel-heading">Course Assignment</div>
+
+    @{
+        string message = TempData["message"] as string;
+        if (message != null)
+        {
+            <div class="alert alert-success" role="alert">@message</div>
+        }
+    }
+
+    <div class="panel-body">
+        @if (User.IsInRole("Administrator"))
+        {
+            <form method="post" action="@Url.Action("Assign", "Courses", new { id = Model.Course.Id })" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <p>Course Leader</p>
+                        @Html.DropDownList("cl",
+                Model.Staffs.Select(u => new SelectListItem
+                {
+                    Text = u.UserName,
+                    Value = u.Id
+                }),
+                "Please select", new { @class = "form-control" })
+                    </div>
+                    <div class="form-group col-md-3">
+                        <p>Course Manager</p>
+                        @Html.DropDownList("cm",
+                Model.Staffs.Select(u => new SelectListItem
+                {
+                    Text = u.UserName,
+                    Value = u.Id
+                }),
+                "Please select", new { @class = "form-control" })
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">Academic Year</div>
+                    <div class="form-group col-md-3">
+                        <input type="number" class="form-control" name="start" id="start" placeholder="Start" />
+                    </div>
+                    <div class="form-group col-md-3">
+                        <input type="number" class="form-control" name="end" id="end" placeholder="End" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <input type="submit" value="Assign" class="btn btn-success pull-left" />
+                    </div>
+                </div>
+            </form>
+        }
+        <table class="table table-striped">
+            <tr>
+                <th>Academic Year</th>
+                <th>Course Leader</th>
+                <th>Course Manager</th>
+                <th>Action</th>
+            </tr>
+            @if (Model.Course.Managers.Any())
+            {
+                var years = Model.Course.Managers.OrderBy(m => m.Start.Year).GroupBy(m => m.Start.Year);
+
+                foreach (var year in years)
+                {
+                    <tr>
+                        <td>@year.First().Start.Year - @year.First().End.Year</td>
+                        @foreach (var item in year)
+                    {
+
+                        if (item.Role == "cl")
+                        {
+                                <td>@item.Manager.UserName</td>
+                            }
+                            if (item.Role == "cm")
+                            {
+                                <td>@item.Manager.UserName</td>
+                            }
+
+                        }
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+</div>

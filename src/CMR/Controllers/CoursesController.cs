@@ -37,7 +37,12 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            return View(course);
+            AssignViewModel am = new AssignViewModel();
+            am.Course = course;
+            var roleId = db.Roles.Single(r => r.Name == "Staff").Id;
+            List<ApplicationUser> staffs = db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            am.Staffs = staffs;
+            return View(am);
         }
 
         // GET: Courses/Create
@@ -169,34 +174,10 @@ namespace CMR.Controllers
             }
         }
 
-        [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Assign(int? id)
-        {
-            AssignViewModel am = new AssignViewModel();
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Course course = db.Courses.Find(id);
-            if (course == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.NotFound);
-            }
-            am.Course = course;
-            var roleId = db.Roles.Single(r => r.Name == "Staff").Id;
-            List<ApplicationUser> staffs = db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
-            am.Staffs = staffs;
-            if (course == null)
-            {
-                return HttpNotFound();
-            }
-            return View(am);
-        }
-
-        [HttpPost, ActionName("Assign")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult AssignConfirm(int id, string cl, string cm, string start, string end)
+        public ActionResult Assign(int id, string cl, string cm, string start, string end)
         {
             Course course = db.Courses.Find(id);
             if (course == null)
@@ -238,7 +219,7 @@ namespace CMR.Controllers
                 TempData["message"] = "Assign Error! Please enter Academic Year";
             }
 
-            return RedirectToAction("Assign", new { id = id });
+            return RedirectToAction("Details", new { id = id });
         }
 
         [AccessDeniedAuthorize(Roles = "Staff")]
