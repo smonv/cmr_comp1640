@@ -1,46 +1,20 @@
-﻿@model CMR.Models.Report
+﻿@model CMR.ViewModels.ReportViewModel
 
 @{
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Edit Report of @Model.Assignment.Course.Name</h2>
-<h3>@Model.Assignment.Start.ToString("MM/yyyy") - @Model.Assignment.End.ToString("MM/yyyy")</h3>
+<ol class="breadcrumb">
+    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+    <li><a href="@Url.Action("Index", "Reports")">Reports</a></li>
+    <li class="active">Edit report</li>
+</ol>
 
-@using (Html.BeginForm())
-{
+<form method="post" action="@Url.Action("Edit", "Reports", new { id = Model.Report.Id })">
     @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Report</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.Id)
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Content, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
-        </div>
-    </div>
-}
+    @Html.Partial("_Form", Model)
+</form>
 
 <div>
     @Html.ActionLink("Back to List", "Index")

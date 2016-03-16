@@ -1,0 +1,173 @@
+﻿@model CMR.ViewModels.ReportViewModel
+<div class="panel panel-default">
+
+    <div class="panel-heading text-center">Course Monitoring Report</div>
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <td>Academic Session</td>
+                <td>@Model.CourseAssignment.Start.Year - @Model.CourseAssignment.End.Year</td>
+            </tr>
+            <tr>
+                <td>Course Code + Title</td>
+                <td>@Model.CourseAssignment.Course.Code - @Model.CourseAssignment.Course.Name</td>
+            </tr>
+            <tr>
+                <td>Course Leader</td>
+                <td>@Model.CourseAssignment.Manager.UserName</td>
+            </tr>
+            <tr>
+                <td>Student Count</td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" name="totalStudent" min="0" class="form-control" value="@(Model.Report != null ? Model.Report.TotalStudent : 0)" />
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel-heading">Statistical Data</div>
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <td></td>
+                <td>Cw1</td>
+                <td>Cw2</td>
+                <td>Exam</td>
+            </tr>
+            @{
+                var scw1 = Model.Report != null ? Model.Report.Statisticals.Single(s => s.Type == "cw1") : new CMR.Models.ReportStatistical();
+                var scw2 = Model.Report != null ? Model.Report.Statisticals.Single(s => s.Type == "cw2") : new CMR.Models.ReportStatistical();
+                var sexam = Model.Report != null ? Model.Report.Statisticals.Single(s => s.Type == "exam") : new CMR.Models.ReportStatistical();
+            }
+            <tr>
+                <td>Mean</td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="meanCw1"
+                               value="@scw1.Mean" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="meanCw2"
+                               value="@scw2.Mean" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="meanExam"
+                               value="@sexam.Mean" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Median</td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="medianCw1"
+                               value="@scw1.Median" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="medianCw2"
+                               value="@scw2.Median" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="medianExam"
+                               value="@sexam.Median" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel-heading">Grade Distribution Data</div>
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <td></td>
+                <td>0 - 39</td>
+                <td>40 - 69</td>
+                <td>70 - 100</td>
+            </tr>
+            @{
+                var dcw1 = Model.Report != null ? Model.Report.Distributions.Single(d => d.Type == "cw1") : new CMR.Models.ReportDistribution();
+                var dcw2 = Model.Report != null ? Model.Report.Distributions.Single(d => d.Type == "cw2") : new CMR.Models.ReportDistribution();
+                var dexam = Model.Report != null ? Model.Report.Distributions.Single(d => d.Type == "exam") : new CMR.Models.ReportDistribution();
+            }
+            <tr>
+                <td>Cw1</td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="badCw1" value="@dcw1.Bad" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="averageCw1" value="@dcw1.Average" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="goodCw1" value="@dcw1.Good" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Cw2</td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="badCw2" value="@dcw2.Bad" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="averageCw2" value="@dcw2.Average" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="goodCw2" value="@dcw2.Good" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Exam</td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="badExam" value="@dexam.Bad" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="averageExam" value="@dexam.Average" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <input type="number" min="0" max="100" class="form-control" name="goodExam" value="@dexam.Good" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel-heading">General comments</div>
+    <div class="panel-body">
+        <div class="form-group">
+            <textarea class="form-control" name="comment">@(Model.Report != null ? Model.Report.Comment : "")</textarea>
+        </div>
+    </div>
+    <div class="panel-heading">Action to be taken</div>
+    <div class="panel-body">
+        <div class="form-group">
+            <textarea class="form-control" name="action">@(Model.Report != null ? Model.Report.Action : "")</textarea>
+        </div>
+    </div>
+    <div class="panel-body">
+        <button type="submit" class="btn btn-default">@(ViewBag.Title == "Create" ? "Create" : "Update")</button>
+    </div>
+</div>

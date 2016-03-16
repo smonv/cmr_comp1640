@@ -16,6 +16,7 @@ namespace CMR.Models
 
         public virtual CourseAssignment Assignment { get; set; }
         public virtual ICollection<ReportStatistical> Statisticals { get; set; }
+        public virtual  ICollection<ReportDistribution> Distributions { get; set; } 
 
         public Report() { }
 
