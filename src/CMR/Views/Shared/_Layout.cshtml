@@ -54,7 +54,6 @@
     {
         <div class="container-fluid body-content">
             <div class="row">
-
                 <div class="nav-menu" id="nav-menu">
                     <div class="row">
                         <div class="col-md-12">
@@ -90,25 +89,25 @@
                             <li><a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a></li>
                             @if (User.IsInRole("Administrator"))
                             {
-                                <li class='has-sub'>
-                                    <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
-                                    <ul>
-                                        <li class='has-sub'>
-                                            <a href='#'>Administrators</a>
-                                            <ul>
-                                                <li><a href='#'>Sub CL</a></li>
-                                                <li><a href='#'>Sub CL</a></li>
-                                            </ul>
-                                        </li>
-                                        <li class='has-sub'>
-                                            <a href='#'>Staffs</a>
-                                            <ul>
-                                                <li><a href='#'>Sub Courses</a></li>
-                                                <li><a href='#'>Sub Courses</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
+                            <li class='has-sub'>
+                                <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
+                                <ul>
+                                    <li class='has-sub'>
+                                        <a href='#'>Administrators</a>
+                                        <ul>
+                                            <li><a href='#'>Sub CL</a></li>
+                                            <li><a href='#'>Sub CL</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class='has-sub'>
+                                        <a href='#'>Staffs</a>
+                                        <ul>
+                                            <li><a href='#'>Sub Courses</a></li>
+                                            <li><a href='#'>Sub Courses</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
                             }
                             <li class='has-sub'>
                                 <a href='#' class="list-item">
@@ -117,18 +116,18 @@
                                 <ul>
                                     @if (User.IsInRole("Administrator"))
                                     {
-                                        <li>
-                                            <a href='@Url.Action("Index","Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
-                                        </li>
-                                            <li>
-                                                <a href='/Courses/Create'><span class="glyphicon glyphicon-edit"></span>Create Course</a>
-                                            </li>
+                                    <li>
+                                        <a href='@Url.Action("Index", "Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
+                                    </li>
+                                    <li>
+                                        <a href='/Courses/Create'><span class="glyphicon glyphicon-edit"></span>Create Course</a>
+                                    </li>
                                     }
                                     @if (User.IsInRole("Staff"))
                                     {
-                                        <li>
-                                            <a href='/Courses/Assigned'><span class='glyphicon glyphicon-education'></span>Courses Assigned</a>
-                                        </li>
+                                    <li>
+                                        <a href='/Courses/Assigned'><span class='glyphicon glyphicon-education'></span>Courses Assigned</a>
+                                    </li>
                                     }
                                 </ul>
                             </li>
@@ -136,14 +135,14 @@
                             <li class='has-sub'>
                                 @if (User.IsInRole("Staff"))
                                 {
-                                    <a href='#' class="list-item">
-                                        <span class="glyphicon glyphicon-book"></span>Reports
-                                    </a>
-                                        <ul>
-                                            <li>
-                                                <a href='@Url.Action("Index","Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
-                                            </li>
-                                        </ul>
+                                <a href='#' class="list-item">
+                                    <span class="glyphicon glyphicon-book"></span>Reports
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href='@Url.Action("Index", "Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
+                                    </li>
+                                </ul>
                                 }
                             </li>
                             <li><a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>About</a></li>
@@ -152,21 +151,43 @@
                     </div>
                 </div>
                 <div class="container-fluid pull-right container-right animated fadeInUp">
+                    @{
+                        if (TempData["msgs"] != null)
+                        {
+                    <div class="alert alert-success" role="alert">
+                        @foreach (string msg in (List<string>)TempData["msgs"])
+                                {
+                                <p>@msg</p>
+                                }
+                    </div>
+                        }
+
+                        if (TempData["errors"] != null)
+                        {
+                    <div class="alert alert-danger" role="alert">
+                        @foreach (var error in (List<string>)TempData["errors"])
+                                {
+                                <p>@error</p>
+                                }
+                    </div>
+                            }
+                    }
                     @RenderBody()
                 </div>
             </div>
         </div>
-                                            }
-                                            else {
+                        }
+                        else
+                        {
 
-                                                <div class="container body-content">
-                                                    @RenderBody()
-                                                </div>
-                                                <hr />
-                                                <footer>
-                                                    <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-                                                </footer>
-                                            }
+                            <div class="container body-content">
+                                @RenderBody()
+                            </div>
+                            <hr />
+                            <footer>
+                                <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+                            </footer>
+                        }
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/Content/js/custom.js")

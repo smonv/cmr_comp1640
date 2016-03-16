@@ -10,6 +10,7 @@ using CMR.Models;
 using CMR.ViewModels;
 using CMR.Helpers;
 using Microsoft.AspNet.Identity;
+using System.Configuration;
 
 namespace CMR.Controllers
 {
@@ -184,39 +185,45 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            ConvertHelper ch = new ConvertHelper();
-            DateTime? StartYear = ch.YearStringToDateTime(start);
-            DateTime? EndYear = ch.YearStringToDateTime(end);
-            if (StartYear.HasValue && EndYear.HasValue)
+            List<string> errors = ValidateAssignYear(start, end);
+            if (errors.Count == 0)
             {
-                using (var transaction = db.Database.BeginTransaction())
+                List<string> msgs = new List<string>();
+                ConvertHelper ch = new ConvertHelper();
+                DateTime? StartYear = ch.YearStringToDateTime(start);
+                DateTime? EndYear = ch.YearStringToDateTime(end);
+                if (StartYear.HasValue && EndYear.HasValue)
                 {
-                    try
+                    using (var transaction = db.Database.BeginTransaction())
                     {
-                        ApplicationUser leader = db.Users.Find(cl);
-                        if (leader != null)
+                        try
                         {
-                            AssignAddOrUpdate(course, leader, "cl", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
-                        }
+                            ApplicationUser leader = db.Users.Find(cl);
+                            if (leader != null)
+                            {
+                                AssignAddOrUpdate(course, leader, "cl", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
+                            }
 
-                        ApplicationUser manager = db.Users.Find(cm);
-                        if (manager != null)
-                        {
-                            AssignAddOrUpdate(course, manager, "cm", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
+                            ApplicationUser manager = db.Users.Find(cm);
+                            if (manager != null)
+                            {
+                                AssignAddOrUpdate(course, manager, "cm", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
+                            }
+                            transaction.Commit();
+                            msgs.Add("Assign Completed");
                         }
-                        transaction.Commit();
-                        TempData["message"] = "Assign Completed";
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        TempData["message"] = "Assign Error";
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            msgs.Add("Assign Error");
+                        }
                     }
                 }
+                TempData["msgs"] = msgs;
             }
             else
             {
-                TempData["message"] = "Assign Error! Please enter Academic Year";
+                TempData["errors"] = errors;
             }
 
             return RedirectToAction("Details", new { id = id });
@@ -229,7 +236,7 @@ namespace CMR.Controllers
             return View(currentUser);
         }
 
-        public void AssignAddOrUpdate(Course course, ApplicationUser user, string role, DateTime start, DateTime end)
+        private void AssignAddOrUpdate(Course course, ApplicationUser user, string role, DateTime start, DateTime end)
         {
             CourseAssignment courseLeader = new CourseAssignment(course, user, role, start, end);
             if (db.CourseAssignments.Where(ca => ca.Course.Id == course.Id).Where(ca => ca.Role == role).Where(ca => ca.Start.Year == start.Year).Count() > 0)
@@ -243,6 +250,41 @@ namespace CMR.Controllers
                 db.CourseAssignments.Add(courseLeader);
                 db.SaveChanges();
             }
+        }
+
+        private List<string> ValidateAssignYear(string start, string end)
+        {
+            List<string> errors = new List<string>();
+            try
+            {
+                if (start == "" || end == "")
+                {
+                    errors.Add("Assign Error! Please enter Academic Year");
+                }
+                else {
+                    int minYear = Convert.ToInt32(ConfigurationManager.AppSettings["MinYear"]);
+                    int maxYear = Convert.ToInt32(ConfigurationManager.AppSettings["MaxYear"]);
+                    int intStart = Convert.ToInt32(start);
+                    int intEnd = Convert.ToInt32(end);
+                    if (intEnd < intStart)
+                    {
+                        errors.Add("End year must greator than Start year");
+                    }
+                    if (intStart < minYear || intStart > maxYear)
+                    {
+                        errors.Add("Assign Error! Start year out of range " + minYear + " - " + maxYear);
+                    }
+                    if (intEnd < minYear || intEnd > maxYear)
+                    {
+                        errors.Add("Assign Error! End year out of range " + minYear + " - " + maxYear);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add("Wrong Year");
+            }
+            return errors;
         }
 
         protected override void Dispose(bool disposing)

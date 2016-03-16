@@ -34,15 +34,6 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">Course Assignment</div>
-
-    @{
-        string message = TempData["message"] as string;
-        if (message != null)
-        {
-            <div class="alert alert-success" role="alert">@message</div>
-        }
-    }
-
     <div class="panel-body">
         @if (User.IsInRole("Administrator"))
         {
