@@ -64,7 +64,9 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(int id, int totalStudent, string comment, string action, int meanCW1, int meanCW2, int meanEXAM, int medianCW1, int medianCW2, int medianEXAM)
+        public async Task<ActionResult> Create(int id, int totalStudent, string comment, string action,
+            int meanCW1, int meanCW2, int meanEXAM, int medianCW1, int medianCW2, int medianEXAM,
+            int badCW1, int averageCW1, int goodCW1, int badCW2, int averageCW2, int goodCW2, int badEXAM, int averageEXAM, int goodEXAM)
         {
             Report report = new Report(totalStudent, comment, action);
 
@@ -83,6 +85,12 @@ namespace CMR.Controllers
                     statisticals.Add(cw2);
                     statisticals.Add(exam);
                     db.ReportStatistical.AddRange(statisticals);
+                    List<ReportDistribution> distribution = new List<ReportDistribution>(new ReportDistribution[] {
+                            new ReportDistribution(badCW1, averageCW1, goodCW1, "cw1", report),
+                            new ReportDistribution(badCW2, averageCW2, goodCW2, "cw2", report),
+                            new ReportDistribution(badEXAM, averageEXAM, goodEXAM, "exam", report)
+                    });
+                    db.ReportDistribution.AddRange(distribution);
                     db.SaveChanges();
                     transaction.Commit();
                     return Redirect("/Courses/Assigned");

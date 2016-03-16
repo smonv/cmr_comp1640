@@ -215,6 +215,10 @@
     <Compile Include="Migrations\201603161342322_Add_Report_Statistical.Designer.cs">
       <DependentUpon>201603161342322_Add_Report_Statistical.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603161415125_Add_Report_Distribution.cs" />
+    <Compile Include="Migrations\201603161415125_Add_Report_Distribution.Designer.cs">
+      <DependentUpon>201603161415125_Add_Report_Distribution.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Course.cs" />
@@ -224,6 +228,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Report.cs" />
+    <Compile Include="Models\ReportDistribution.cs" />
     <Compile Include="Models\ReportStatistical.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -367,6 +372,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603161342322_Add_Report_Statistical.resx">
       <DependentUpon>201603161342322_Add_Report_Statistical.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603161415125_Add_Report_Distribution.resx">
+      <DependentUpon>201603161415125_Add_Report_Distribution.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -40,5 +40,6 @@ namespace CMR.Models
         public DbSet<CourseAssignment> CourseAssignments { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ReportStatistical> ReportStatistical { get; set; }
+        public DbSet<ReportDistribution> ReportDistribution { get; set; }
     }
 }
