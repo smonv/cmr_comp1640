@@ -5,8 +5,8 @@
 }
 
 <ol class="breadcrumb">
-    <li><a href="/Home">Home</a></li>
-    <li><a href="/Courses">Course</a></li>
+    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+    <li><a href="@Url.Action("Index", "Courses")">Course</a></li>
     <li class="active">Assigned</li>
 </ol>
 <div class="panel panel-default">
@@ -16,21 +16,19 @@
         <table class="table">
             <tr>
                 <th>Course</th>
-                <th>Start</th>
-                <th>End</th>
+                <th>Academic Session</th>
                 <th></th>
             </tr>
             @if (Model.Courses.Any())
             {
-            foreach (var ca in Model.Courses)
-            {
-            <tr>
-                <td>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </td>
-                <td>@ca.Start.ToString("MM/yyyy")</td>
-                <td>@ca.End.ToString("MM/yyyy")</td>
-                <td><a href="/Reports/Create/@ca.Id">Create Report</a></td>
-            </tr>
-            }
+                foreach (var ca in Model.Courses)
+                {
+                    <tr>
+                        <td>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </td>
+                        <td>@ca.Start.Year - @ca.End.Year</td>
+                        <td><a href="@Url.Action("Create", "Reports", new {id = ca.Id})">Create Report</a></td>
+                    </tr>
+                }
             }
 
         </table>

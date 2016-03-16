@@ -24,7 +24,8 @@ namespace CMR.Controllers
         // GET: Reports
         public ActionResult Index()
         {
-            return View(db.Reports.ToList());
+            var userId = User.Identity.GetUserId();
+            return View(db.Reports.Where(r => r.Assignment.Manager.Id == userId).ToList());
         }
 
         // GET: Reports/Details/5
@@ -53,6 +54,11 @@ namespace CMR.Controllers
             if (ca == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            }
+            if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
+            {
+                TempData["errors"] = new List<string>(new string[] {"Report for this course and academic session already exists"});
+                return Redirect(Url.Action("Assigned", "Courses"));
             }
             var rvm = new ReportViewModel();
             rvm.CourseAssignment = ca;
