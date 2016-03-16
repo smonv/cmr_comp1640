@@ -8,8 +8,9 @@
     <li><a href="@Url.Action("Index", "Home")">Home</a></li>
     <li><a href="@Url.Action("Index", "Reports")">Reports</a></li>
     <li class="active">Details</li>
-    @if (!Model.IsApproved) {
-        <li class="pull-right">@Html.ActionLink("Edit", "Edit", new {id = Model.Id}, new {@class = "pull-right"})</li>
+    @if (!Model.IsApproved)
+    {
+        <li class="pull-right">@Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new { @class = "pull-right" })</li>
     }
 </ol>
 <div class="panel panel-default">
@@ -100,8 +101,17 @@
     <div class="panel-body">@(Model != null ? Model.Comment : "")</div>
     <div class="panel-heading">Action to be taken</div>
     <div class="panel-body">@(Model != null ? Model.Action : "")</div>
-    @if (!Model.IsApproved) {
+    @if (((CMR.Controllers.ReportsController)this.ViewContext.Controller).CheckCourseManager(Model))
+    {
         <div class="panel-heading">Action</div>
-        <div class="panel-body"></div>
+        <div class="panel-body">
+            @if (Model.IsApproved)
+            {
+                <a href="@Url.Action("UnApprove", "Reports", new {id = Model.Id})">Unapprove</a>
+            }
+            else {
+                <a href="@Url.Action("Approve", "Reports", new {id = Model.Id})">Approve</a>
+            }
+        </div>
     }
 </div>

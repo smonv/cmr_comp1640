@@ -20,7 +20,7 @@ namespace CMR.Controllers
     public class ReportsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-
+        List<string> errors = new List<string>();
         // GET: Reports
         public ActionResult Index()
         {
@@ -57,7 +57,8 @@ namespace CMR.Controllers
             }
             if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
-                TempData["errors"] = new List<string>(new string[] {"Report for this course and academic session already exists"});
+                errors.Add("Report for this course and academic session already exists");
+                TempData["errors"] = errors;
                 return Redirect(Url.Action("Assigned", "Courses"));
             }
             var rvm = new ReportViewModel();
@@ -74,10 +75,15 @@ namespace CMR.Controllers
             int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
             int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam, int averageExam, int goodExam)
         {
-            var errors = new List<string>();
             var report = new Report(totalStudent, comment, action);
 
             var ca = db.CourseAssignments.Find(id);
+            if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
+            {
+                errors.Add("Report for this course and academic session already exists");
+                TempData["errors"] = errors;
+                return Redirect(Url.Action("Assigned", "Courses"));
+            }
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
@@ -126,6 +132,12 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
+            if (report.IsApproved)
+            {
+                errors.Add("You cannot edit approved report");
+                TempData["errors"] = errors;
+                return Redirect(Url.Action("Index", "Reports"));
+            }
             var rvm = new ReportViewModel();
             rvm.Report = report;
             rvm.CourseAssignment = report.Assignment;
@@ -141,13 +153,17 @@ namespace CMR.Controllers
             int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
             int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam, int averageExam, int goodExam)
         {
-            var errors = new List<string>();
             var report = db.Reports.Find(id);
             if (report == null)
             {
                 return HttpNotFound();
             }
-
+            if (report.IsApproved)
+            {
+                errors.Add("You cannot edit approved report");
+                TempData["errors"] = errors;
+                return Redirect(Url.Action("Index", "Reports"));
+            }
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
@@ -239,6 +255,54 @@ namespace CMR.Controllers
             db.Reports.Remove(report);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        public ActionResult Approve(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Report report = db.Reports.Find(id);
+            if (report == null)
+            {
+                return HttpNotFound();
+            }
+            var userId = User.Identity.GetUserId();
+            if (!CheckCourseManager(report))
+            {
+                return Redirect(Url.Action("Denied", "Account"));
+            }
+            report.IsApproved = true;
+            db.SaveChanges();
+            return RedirectToAction("Details", new { id = id });
+        }
+
+        public ActionResult UnApprove(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Report report = db.Reports.Find(id);
+            if (report == null)
+            {
+                return HttpNotFound();
+            }
+            var userId = User.Identity.GetUserId();
+            if (!CheckCourseManager(report))
+            {
+                return Redirect(Url.Action("Denied", "Account"));
+            }
+            report.IsApproved = false;
+            db.SaveChanges();
+            return RedirectToAction("Details", new { id = id });
+        }
+
+        public bool CheckCourseManager(Report report)
+        {
+            var userId = User.Identity.GetUserId();
+            return report.Assignment.Course.Managers.Where(m => m.Role == "cm").Any(m => m.Manager.Id == userId);
         }
 
         protected override void Dispose(bool disposing)

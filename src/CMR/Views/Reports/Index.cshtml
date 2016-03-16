@@ -17,6 +17,7 @@
                 <tr>
                     <td>Title</td>
                     <td>Academic Session</td>
+                    <td>Approved</td>
                 </tr>
             </thead>
             <tbody>
@@ -25,6 +26,7 @@
                     <tr>
                         <td>@item.Assignment.Course.Code - @item.Assignment.Course.Name</td>
                         <td>@item.Assignment.Start.Year - @item.Assignment.End.Year</td>
+                        <td>@(item.IsApproved ? "Yes" : "No")</td>
                         <td style="max-width: 120px;">
                             <a href="@Url.Action("Delete", new {id = item.Id})" class="btn btn-danger pull-right">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
