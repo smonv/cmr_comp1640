@@ -10,35 +10,99 @@
     <li class="active">New report</li>
 </ol>
 
+<form method="post" action="@Url.Action("Create", "Reports", new { id = Model.CourseAssignment.Id })">
+    @Html.AntiForgeryToken()
+    <div class="panel panel-default">
 
-<div class="panel panel-default">
-    <div class="panel-heading">Create Report for @Model.CourseAssignment.Course.Code - @Model.CourseAssignment.Course.Name</div>
-    <div class="panel-body">
-        <h4>From @Model.CourseAssignment.Start.ToString("MM/yyyy") to @Model.CourseAssignment.End.ToString("MM/yyyy")</h4>
+        <div class="panel-heading text-center">Course Monitoring Report</div>
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <td>Academic Session</td>
+                    <td>@Model.CourseAssignment.Start.Year - @Model.CourseAssignment.End.Year</td>
+                </tr>
+                <tr>
+                    <td>Course Code + Title</td>
+                    <td>@Model.CourseAssignment.Course.Code - @Model.CourseAssignment.Course.Name</td>
+                </tr>
+                <tr>
+                    <td>Course Leader</td>
+                    <td>@Model.CourseAssignment.Manager.UserName</td>
+                </tr>
+                <tr>
+                    <td>Student Count</td>
+                    <td>
+                        <div class="form-group">
+                            <input type="number" name="totalStudent" min="0" class="form-control" value="0" />
+                        </div>
 
-        @using (Html.BeginForm())
-        {
-        @Html.AntiForgeryToken()
-
-        <div class="form">
-            <hr />
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel-heading">Statistical Data</div>
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <td></td>
+                    <td>CW1</td>
+                    <td>CW2</td>
+                    <td>EXAM</td>
+                </tr>
+                <tr>
+                    <td>Mean</td>
+                    <td>
+                        <div class="form-group">
+                            <input type="number" min="0" max="100" class="form-control" name="meanCW1" value="0" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="number" min="0" max="100" class="form-control" name="meanCW2" value="0" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="number" min="0" max="100" class="form-control" name="meanEXAM" value="0" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Median</td>
+                    <td>
+                        <div class="form-group">
+                            <input type="number" min="0" max="100" class="form-control" name="medianCW1" value="0" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group"> 
+                            <input type="number" min="0" max="100" class="form-control" name="medianCW2" value="0" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="number" min="0" max="100" class="form-control" name="medianEXAM" value="0" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel-heading">Grade Distribution Data</div>
+        <div class="panel-body"></div>
+        <div class="panel-heading">General comments</div>
+        <div class="panel-body">
             <div class="form-group">
-                @Html.LabelFor(m => m.Report.Title, htmlAttributes: new { @class = "control-label" })
-                    @Html.EditorFor(m => m.Report.Title, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(m => m.Report.Title, "", new { @class = "text-danger" })
-            </div>
-
-            <div class="form-group">
-                @Html.LabelFor(m => m.Report.Content, htmlAttributes: new { @class = "control-label" })
-                    @Html.TextAreaFor(m => m.Report.Content, new {@class = "form-control", @rows ="10"})
-                    @Html.ValidationMessageFor(m => m.Report.Content, "", new { @class = "text-danger" })
-            </div>
-
-            <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-success pull-right" />
+                <textarea class="form-control" name="comment"></textarea>
             </div>
         </div>
-        }
+        <div class="panel-heading">Action to be taken</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <textarea class="form-control" name="action"></textarea>
+            </div>
+        </div>
+        <div class="panel-body">
+            <button type="submit" class="btn btn-default">Create</button>
+        </div>
     </div>
-</div>
+</form>

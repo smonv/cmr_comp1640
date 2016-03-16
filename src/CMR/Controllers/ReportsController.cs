@@ -11,6 +11,8 @@ using Microsoft.AspNet.Identity;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.Identity.Owin;
+using System.Collections.Generic;
+using System;
 
 namespace CMR.Controllers
 {
@@ -62,33 +64,61 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "Id,Title,Content")] Report report, int id)
+        public async Task<ActionResult> Create(int id, int totalStudent, string comment, string action, int meanCW1, int meanCW2, int meanEXAM, int medianCW1, int medianCW2, int medianEXAM)
         {
+            Report report = new Report(totalStudent, comment, action);
+
             CourseAssignment ca = db.CourseAssignments.Find(id);
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    report.Assignment = ca;
+                    db.Reports.Add(report);
+                    List<ReportStatistical> statisticals = new List<ReportStatistical>();
+                    ReportStatistical cw1 = new ReportStatistical(meanCW1, medianCW1, "cw1", report);
+                    ReportStatistical cw2 = new ReportStatistical(meanCW2, medianCW2, "cw2", report);
+                    ReportStatistical exam = new ReportStatistical(meanEXAM, medianEXAM, "exam", report);
+                    statisticals.Add(cw1);
+                    statisticals.Add(cw2);
+                    statisticals.Add(exam);
+                    db.ReportStatistical.AddRange(statisticals);
+                    db.SaveChanges();
+                    transaction.Commit();
+                    return Redirect("/Courses/Assigned");
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ReportViewModel rvm = new ReportViewModel();
+                    rvm.CourseAssignment = ca;
+                    rvm.Report = report;
+                    return View(report);
+                }
+            }
             if (ModelState.IsValid)
             {
-                report.Assignment = ca;
-                db.Reports.Add(report);
-                db.SaveChanges();
+
+
+                /*
                 ApplicationUser cm = report.Assignment.Course.Managers.Single(u => u.Role == "cm").Manager;
-                string subject = report.Title + " " + report.Assignment.Start.ToString("yyyy") + " - " + report.Assignment.End.ToString("yyyy");
+                string subject = report.Assignment.Start.Year + " - " + report.Assignment.End.Year;
                 var reportUrl = Url.Action("Details", "Reports", new { id = report.Id }, protocol: Request.Url.Scheme);
                 string body = report.Assignment.Course.Name + " " +
-                    report.Assignment.Start.ToString("yyyy") + " - " +
-                    report.Assignment.End.ToString("yyyy") +
+                    report.Assignment.Start.Year + " - " +
+                    report.Assignment.End.Year +
                     " have new report. Click <a href='" + reportUrl + "'>here</a>";
                 var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
                 await userManager.SendEmailAsync(cm.Id, subject, body);
-                return Redirect("/Courses/Assigned");
+    */
+
             }
             else
             {
-                ReportViewModel rvm = new ReportViewModel();
-                rvm.CourseAssignment = ca;
-                rvm.Report = report;
+
             }
 
-            return View(report);
+
         }
 
         // GET: Reports/Edit/5
