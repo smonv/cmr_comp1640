@@ -41,5 +41,6 @@ namespace CMR.Models
         public DbSet<Report> Reports { get; set; }
         public DbSet<ReportStatistical> ReportStatistical { get; set; }
         public DbSet<ReportDistribution> ReportDistribution { get; set; }
+        public DbSet<ReportFeedback> ReportFeedbacks { get; set; }
     }
 }

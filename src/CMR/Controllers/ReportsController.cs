@@ -21,6 +21,7 @@ namespace CMR.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         List<string> errors = new List<string>();
+        List<string> msgs = new List<string>(); 
         // GET: Reports
         public ActionResult Index()
         {
@@ -275,6 +276,8 @@ namespace CMR.Controllers
             }
             report.IsApproved = true;
             db.SaveChanges();
+            msgs.Add("Report Approved");
+            TempData["msgs"] = msgs;
             return RedirectToAction("Details", new { id = id });
         }
 
@@ -296,6 +299,33 @@ namespace CMR.Controllers
             }
             report.IsApproved = false;
             db.SaveChanges();
+            msgs.Add("Report unapprove");
+            TempData["msgs"] = msgs;
+            return RedirectToAction("Details", new { id = id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Feedback(int id, string feedbackContent)
+        {
+            Report report = db.Reports.Find(id);
+            if (report == null)
+            {
+                return HttpNotFound();
+            }
+            if (feedbackContent != "")
+            {
+                db.ReportFeedbacks.Add(new ReportFeedback(feedbackContent, report));
+                db.SaveChanges();
+                msgs.Add("New feedback added");
+            }
+            else
+            {
+                errors.Add("Please enter feedback content!");
+                
+            }
+            TempData["msgs"] = msgs;
+            TempData["errors"] = errors;
             return RedirectToAction("Details", new { id = id });
         }
 

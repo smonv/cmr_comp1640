@@ -101,17 +101,37 @@
     <div class="panel-body">@(Model != null ? Model.Comment : "")</div>
     <div class="panel-heading">Action to be taken</div>
     <div class="panel-body">@(Model != null ? Model.Action : "")</div>
-    @if (((CMR.Controllers.ReportsController)this.ViewContext.Controller).CheckCourseManager(Model))
+    @if (User.IsInRole("Staff"))
     {
-        <div class="panel-heading">Action</div>
+        <div class="panel-heading">Feedback</div>
         <div class="panel-body">
-            @if (Model.IsApproved)
+            @foreach (var feedback in Model.Feedbacks)
             {
-                <a href="@Url.Action("UnApprove", "Reports", new {id = Model.Id})">Unapprove</a>
-            }
-            else {
-                <a href="@Url.Action("Approve", "Reports", new {id = Model.Id})">Approve</a>
+                <p>@feedback.Content</p>
             }
         </div>
+        if (((CMR.Controllers.ReportsController)this.ViewContext.Controller).CheckCourseManager(Model))
+        {
+            <div class="panel-heading">Action</div>
+            <div class="panel-body">
+                <form method="post" action="@Url.Action("Feedback", "Reports", new {id = Model.Id})">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <textarea class="form-control" name="feedbackContent"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Send Feedback</button>
+                    </div>
+                </form>
+                @if (Model.IsApproved)
+                {
+                    <a href="@Url.Action("UnApprove", "Reports", new {id = Model.Id})">Unapprove</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Approve", "Reports", new {id = Model.Id})">Approve</a>
+                }
+            </div>
+        }
     }
 </div>
