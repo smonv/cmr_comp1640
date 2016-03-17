@@ -21,12 +21,13 @@ namespace CMR.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         List<string> errors = new List<string>();
-        List<string> msgs = new List<string>(); 
+        List<string> msgs = new List<string>();
+         
         // GET: Reports
         public ActionResult Index()
         {
             var userId = User.Identity.GetUserId();
-            return View(db.Reports.Where(r => r.Assignment.Manager.Id == userId).ToList());
+            return View(db.Reports.Where(r => r.Assignment.Course.Managers.Any(m => m.Manager.Id == userId)).ToList());
         }
 
         // GET: Reports/Details/5
