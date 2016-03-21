@@ -14,7 +14,11 @@
             </tr>
             <tr>
                 <td>Course Leader</td>
-                <td>@Model.CourseAssignment.Manager.UserName</td>
+                @if (Model.CourseAssignment.Managers.Any())
+                {
+                    <td>@Model.CourseAssignment.Managers.Single(m => m.Role == "cl").User.UserName</td>
+                }
+
             </tr>
             <tr>
                 <td>Student Count</td>

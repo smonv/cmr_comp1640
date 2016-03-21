@@ -237,7 +237,6 @@ namespace CMR.Controllers
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            errors.Add(ex.Message);
                             errors.Add("Assign Error");
                         }
                     }
@@ -252,8 +251,12 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Assigned()
         {
-            ApplicationUser currentUser = db.Users.Find(User.Identity.GetUserId());
-            return View(currentUser);
+            var cUser = User.Identity.GetUserId();
+            List<CourseAssignmentManager> courseAssignments =
+                db.CourseAssignmentManagers.
+                Include(cam => cam.CourseAssignment).
+                Where(cam => cam.User.Id == cUser).ToList();
+            return View(courseAssignments);
         }
 
         private void AssignManagerAddOrUpdate(CourseAssignment ca, ApplicationUser user, string role)

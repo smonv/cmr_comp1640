@@ -22,7 +22,7 @@ namespace CMR.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
         List<string> errors = new List<string>();
         List<string> msgs = new List<string>();
-         
+
         // GET: Reports
         public ActionResult Index()
         {
@@ -39,11 +39,14 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Report report = db.Reports.Find(id);
-            if (report == null)
+            if (!db.Reports.Any(r => r.Id == id.Value))
             {
                 return HttpNotFound();
             }
+            Report report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
+            report.Assignment.Managers =
+                db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+            
             return View(report);
         }
 
@@ -54,18 +57,18 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
-            var ca = db.CourseAssignments.Find(id);
+            CourseAssignment ca = db.CourseAssignments.Find(id);
             if (ca == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
-            /*var courseManager = db.CourseAssignments.Where(c => c.Id == id).Single(c => c.Role == "cm").Manager;
-            if (courseManager.Id == User.Identity.GetUserId())
+
+            if (CheckCourseManager(ca))
             {
                 errors.Add("Course Manager cannot create report.");
                 TempData["errors"] = errors;
                 return Redirect(Url.Action("Assigned", "Courses"));
-            }*/
+            }
             if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
                 errors.Add("Report for this course and academic session already exists.");
@@ -74,6 +77,9 @@ namespace CMR.Controllers
             }
             var rvm = new ReportViewModel();
             rvm.CourseAssignment = ca;
+            rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
+                    .Where(cam => cam.CourseAssignment.Id == ca.Id)
+                    .ToList();
             return View(rvm);
         }
 
@@ -89,6 +95,12 @@ namespace CMR.Controllers
             var report = new Report(totalStudent, comment, action);
 
             var ca = db.CourseAssignments.Find(id);
+            if (CheckCourseManager(ca))
+            {
+                errors.Add("Course Manager cannot create report.");
+                TempData["errors"] = errors;
+                return Redirect(Url.Action("Assigned", "Courses"));
+            }
             if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
                 errors.Add("Report for this course and academic session already exists");
@@ -124,6 +136,8 @@ namespace CMR.Controllers
                     var rvm = new ReportViewModel();
                     rvm.CourseAssignment = ca;
                     rvm.Report = report;
+                    rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
+                        .Where(cam => cam.CourseAssignment.Id == ca.Id).ToList();
                     errors.Add(ex.Message);
                     TempData["errors"] = errors;
                     return View(rvm);
@@ -152,6 +166,8 @@ namespace CMR.Controllers
             var rvm = new ReportViewModel();
             rvm.Report = report;
             rvm.CourseAssignment = report.Assignment;
+            rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
+                        .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
             return View(rvm);
         }
 
@@ -164,17 +180,19 @@ namespace CMR.Controllers
             int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
             int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam, int averageExam, int goodExam)
         {
-            var report = db.Reports.Find(id);
-            if (report == null)
+            if (!db.Reports.Any(r => r.Id == id))
             {
                 return HttpNotFound();
             }
+            var report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id);
+
             if (report.IsApproved)
             {
                 errors.Add("You cannot edit approved report");
                 TempData["errors"] = errors;
                 return Redirect(Url.Action("Index", "Reports"));
             }
+
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
@@ -226,7 +244,7 @@ namespace CMR.Controllers
 
                     db.SaveChanges();
                     transaction.Commit();
-                    await SendEmail(report);
+                    //await SendEmail(report);
                     return RedirectToAction("Edit", new { id = report.Id });
                 }
                 catch (Exception ex)
@@ -235,6 +253,8 @@ namespace CMR.Controllers
                     var rvm = new ReportViewModel();
                     rvm.Report = report;
                     rvm.CourseAssignment = report.Assignment;
+                    rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
+                        .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
                     errors.Add(ex.Message);
                     TempData["errors"] = errors;
                     return View(rvm);
@@ -274,13 +294,18 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Report report = db.Reports.Find(id);
-            if (report == null)
+            
+            if (!db.Reports.Any(r => r.Id == id))
             {
                 return HttpNotFound();
             }
-            var userId = User.Identity.GetUserId();
-            if (!CheckCourseManager(report))
+
+            Report report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
+            report.Assignment.Managers =
+                db.CourseAssignmentManagers.Include(cam => cam.User).
+                Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+
+            if (!CheckCourseManager(report.Assignment))
             {
                 return Redirect(Url.Action("Denied", "Account"));
             }
@@ -297,13 +322,18 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Report report = db.Reports.Find(id);
-            if (report == null)
+
+            if (!db.Reports.Any(r => r.Id == id))
             {
                 return HttpNotFound();
             }
-            var userId = User.Identity.GetUserId();
-            if (!CheckCourseManager(report))
+
+            Report report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
+            report.Assignment.Managers =
+                db.CourseAssignmentManagers.Include(cam => cam.User).
+                Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+
+            if (!CheckCourseManager(report.Assignment))
             {
                 return Redirect(Url.Action("Denied", "Account"));
             }
@@ -332,18 +362,17 @@ namespace CMR.Controllers
             else
             {
                 errors.Add("Please enter feedback content!");
-                
+
             }
             TempData["msgs"] = msgs;
             TempData["errors"] = errors;
             return RedirectToAction("Details", new { id = id });
         }
 
-        public bool CheckCourseManager(Report report)
+        public bool CheckCourseManager(CourseAssignment ca)
         {
-            var userId = User.Identity.GetUserId();
-            //return report.Assignment.Course.Managers.Where(m => m.Role == "cm").Any(m => m.Manager.Id == userId);
-            return false;
+            var cUser = User.Identity.GetUserId();
+            return ca.Managers.Where(m => m.Role == "cm").Any(m => m.User.Id == cUser);
         }
 
         protected override void Dispose(bool disposing)

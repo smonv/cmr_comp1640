@@ -1,4 +1,5 @@
-﻿@model CMR.Models.ApplicationUser
+﻿@using Microsoft.AspNet.Identity
+@model IEnumerable<CMR.Models.CourseAssignmentManager>
 @{
     ViewBag.Title = "Assigned Courses";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -20,30 +21,70 @@
                 <th>Role</th>
                 <th></th>
             </tr>
-            @*@if (Model.Courses.Any())
+            @if (Model.Any())
             {
-                foreach (var ca in Model.Courses)
+                foreach (var cam in Model)
                 {
                     <tr>
-                        <td>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </td>
-                        <td>@ca.Start.Year - @ca.End.Year</td>
-                        @#1#switch (ca.Role)
+                        <td>
+                            @Html.ActionLink(cam.CourseAssignment.Course.Code + " - " + cam.CourseAssignment.Course.Name,
+                                "Details", new { id = cam.CourseAssignment.Course.Id })
+                        </td>
+                        <td>@cam.CourseAssignment.Start.Year - @cam.CourseAssignment.End.Year</td>
+                        @switch (cam.Role)
                         {
-                            case "cm":
-                                <td>Course Manager</td>
-                                if (ca.Reports.Any())
+                            case "cl":
+                                <td>Course Leader</td>;
+                                if (cam.CourseAssignment.Reports.Any())
                                 {
-                                    <td><a href="@Url.Action("Details", "Reports", new { id = ca.Reports.First().Id })"></a></td>
+                                    <td>
+                                        <a href="@Url.Action("Details", "Reports", new {id = cam.CourseAssignment.Reports.First().Id})">View Report</a>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <a href="@Url.Action("Create", "Reports", new {id = cam.CourseAssignment.Id})">Create report</a>
+                                    </td>
                                 }
                                 break;
-                            case "cl":
-                                <td>Course Leader</td>
-                                <td><a href="@Url.Action("Create", "Reports", new {id = ca.Id})">Create Report</a></td>
+                            case "cm":
+                                <td>Course Manager</td>;
+                                if (cam.CourseAssignment.Reports.Any())
+                                {
+                                    <td>
+                                        <a href="@Url.Action("Details", "Reports", new {id = cam.CourseAssignment.Reports.First().Id})"> View report</a>
+                                    </td>
+                                }
                                 break;
-                        }#1#
+                        }
                     </tr>
                 }
-            }*@
+            }
+            @*@if (Model.Courses.Any())
+                {
+                                foreach (var ca in Model.Courses)
+                                {
+                        <tr>
+                            <td>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </td>
+                            <td>@ca.Start.Year - @ca.End.Year</td>
+                                        @#1#switch (ca.Role)
+                            {
+                                case "cm":
+                                    <td>Course Manager</td>
+                                    if (ca.Reports.Any())
+                                        {
+                                        <td><a href="@Url.Action("Details", "Reports", new { id = ca.Reports.First().Id })"></a></td>
+                                    }
+                                        break;
+                                case "cl":
+                                    <td>Course Leader</td>
+                                    <td><a href="@Url.Action("Create", "Reports", new {id = ca.Id})">Create Report</a></td>
+                                    break;
+                                    }#1#
+                        </tr>
+                                }
+                            }*@
 
         </table>
     </div>

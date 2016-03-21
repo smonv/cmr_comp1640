@@ -27,7 +27,7 @@
             </tr>
             <tr>
                 <td>Course Leader</td>
-                <td>@Model.Assignment.Manager.UserName</td>
+                <td>@Model.Assignment.Managers.Single(m => m.Role == "cl").User.UserName</td>
             </tr>
             <tr>
                 <td>Student Count</td>
@@ -110,7 +110,7 @@
                 <p>@feedback.Content</p>
             }
         </div>
-        if (((CMR.Controllers.ReportsController)this.ViewContext.Controller).CheckCourseManager(Model))
+        if (((CMR.Controllers.ReportsController)this.ViewContext.Controller).CheckCourseManager(Model.Assignment))
         {
             <div class="panel-heading">Action</div>
             <div class="panel-body">
