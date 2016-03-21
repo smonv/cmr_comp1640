@@ -231,16 +231,16 @@ namespace CMR.Controllers
                             int sYear = startYear.GetValueOrDefault().Year;
                             int eYear = endYear.GetValueOrDefault().Year;
                             CourseAssignment ca = null;
-                            if (!db.CourseAssignments.Where(c => c.Start.Year == sYear).Any(c => c.End.Year == eYear))
+                            if (!db.CourseAssignments.Where(c => c.Start.Year == sYear).Where(c => c.End.Year == eYear).Any(c => c.Course.Id == course.Id))
                             {
-
                                 ca = new CourseAssignment(course, startYear.Value, endYear.Value);
                                 db.CourseAssignments.Add(ca);
                             }
                             else
                             {
                                 ca = db.CourseAssignments.Where(c => c.Start.Year == sYear)
-                                        .Single(c => c.End.Year == eYear);
+                                        .Where(c => c.End.Year == eYear).
+                                        Single(c => c.Course.Id == course.Id);
                             }
 
 
@@ -308,7 +308,7 @@ namespace CMR.Controllers
             {
                 if (start == "" || end == "")
                 {
-                    errors.Add("Assign Error! Please enter Academic Year");
+                    errors.Add("Please enter Academic Year");
                 }
                 else {
                     int minYear = Convert.ToInt32(ConfigurationManager.AppSettings["MinYear"]);
@@ -321,11 +321,11 @@ namespace CMR.Controllers
                     }
                     if (intStart < minYear || intStart > maxYear)
                     {
-                        errors.Add("Assign Error! Start year out of range " + minYear + " - " + maxYear);
+                        errors.Add("Start year out of range " + minYear + " - " + maxYear);
                     }
                     if (intEnd < minYear || intEnd > maxYear)
                     {
-                        errors.Add("Assign Error! End year out of range " + minYear + " - " + maxYear);
+                        errors.Add("End year out of range " + minYear + " - " + maxYear);
                     }
                 }
             }
