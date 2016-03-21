@@ -214,6 +214,7 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
+            ValidateAssignUser(cl, cm);
             ValidateAssignYear(start, end);
             if (errors.Count == 0)
             {
@@ -331,6 +332,20 @@ namespace CMR.Controllers
             catch (Exception ex)
             {
                 errors.Add("Wrong Year");
+            }
+        }
+
+        private void ValidateAssignUser(string cl, string cm)
+        {
+            if (cl == "" && cm == "")
+            {
+                errors.Add("Please select Course Leader or Manager or both.");
+            }
+            else {
+                if (cl == cm)
+                {
+                    errors.Add("Leader and Manager cannot be the same person.");
+                }
             }
         }
 
