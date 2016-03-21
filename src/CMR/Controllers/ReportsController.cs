@@ -27,7 +27,9 @@ namespace CMR.Controllers
         public ActionResult Index()
         {
             var userId = User.Identity.GetUserId();
-            return View(db.Reports.Where(r => r.Assignment.Course.Managers.Any(m => m.Manager.Id == userId)).ToList());
+            //return View(db.Reports.Where(r => r.Assignment.Course.Managers.Any(m => m.Manager.Id == userId)).ToList());
+
+            return View(db.Reports.ToList());
         }
 
         // GET: Reports/Details/5
@@ -52,14 +54,21 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
-            CourseAssignment ca = db.CourseAssignments.Find(id);
+            var ca = db.CourseAssignments.Find(id);
             if (ca == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
+            /*var courseManager = db.CourseAssignments.Where(c => c.Id == id).Single(c => c.Role == "cm").Manager;
+            if (courseManager.Id == User.Identity.GetUserId())
+            {
+                errors.Add("Course Manager cannot create report.");
+                TempData["errors"] = errors;
+                return Redirect(Url.Action("Assigned", "Courses"));
+            }*/
             if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
-                errors.Add("Report for this course and academic session already exists");
+                errors.Add("Report for this course and academic session already exists.");
                 TempData["errors"] = errors;
                 return Redirect(Url.Action("Assigned", "Courses"));
             }
@@ -333,7 +342,8 @@ namespace CMR.Controllers
         public bool CheckCourseManager(Report report)
         {
             var userId = User.Identity.GetUserId();
-            return report.Assignment.Course.Managers.Where(m => m.Role == "cm").Any(m => m.Manager.Id == userId);
+            //return report.Assignment.Course.Managers.Where(m => m.Role == "cm").Any(m => m.Manager.Id == userId);
+            return false;
         }
 
         protected override void Dispose(bool disposing)
@@ -347,7 +357,7 @@ namespace CMR.Controllers
 
         private async Task SendEmail(Report report)
         {
-            var cm = report.Assignment.Course.Managers.Single(u => u.Role == "cm").Manager;
+            //var cm = report.Assignment.Course.Managers.Single(u => u.Role == "cm").Manager;
             var subject = report.Assignment.Start.Year + " - " + report.Assignment.End.Year;
             var reportUrl = Url.Action("Details", "Reports", new { id = report.Id }, protocol: Request.Url.Scheme);
             var body = report.Assignment.Course.Name + " " +
@@ -355,7 +365,7 @@ namespace CMR.Controllers
                 report.Assignment.End.Year +
                 " have new report. Click <a href='" + reportUrl + "'>here</a>";
             var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            await userManager.SendEmailAsync(cm.Id, subject, body);
+            await userManager.SendEmailAsync("aaa", subject, body);
         }
     }
 }

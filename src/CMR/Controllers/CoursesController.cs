@@ -17,6 +17,8 @@ namespace CMR.Controllers
     public class CoursesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        List<string> errors = new List<string>();
+        List<string> msgs = new List<string>();
 
         // GET: Courses
         [AccessDeniedAuthorize(Roles = "Administrator")]
@@ -185,47 +187,65 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            List<string> errors = ValidateAssignYear(start, end);
+            ValidateAssignYear(start, end);
             if (errors.Count == 0)
             {
-                List<string> msgs = new List<string>();
+
                 ConvertHelper ch = new ConvertHelper();
-                DateTime? StartYear = ch.YearStringToDateTime(start);
-                DateTime? EndYear = ch.YearStringToDateTime(end);
-                if (StartYear.HasValue && EndYear.HasValue)
+                DateTime? startYear = ch.YearStringToDateTime(start);
+                DateTime? endYear = ch.YearStringToDateTime(end);
+                if (startYear.HasValue && endYear.HasValue)
                 {
                     using (var transaction = db.Database.BeginTransaction())
                     {
                         try
                         {
-                            ApplicationUser leader = db.Users.Find(cl);
-                            if (leader != null)
+                            int sYear = startYear.GetValueOrDefault().Year;
+                            int eYear = endYear.GetValueOrDefault().Year;
+                            CourseAssignment ca = null;
+                            if (!db.CourseAssignments.Where(c => c.Start.Year == sYear).Any(c => c.End.Year == eYear))
                             {
-                                AssignAddOrUpdate(course, leader, "cl", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
+
+                                ca = new CourseAssignment(course, startYear.Value, endYear.Value);
+                                db.CourseAssignments.Add(ca);
+                            }
+                            else
+                            {
+                                ca = db.CourseAssignments.Where(c => c.Start.Year == sYear)
+                                        .Single(c => c.End.Year == eYear);
                             }
 
-                            ApplicationUser manager = db.Users.Find(cm);
-                            if (manager != null)
+
+                            if (ca != null)
                             {
-                                AssignAddOrUpdate(course, manager, "cm", StartYear.GetValueOrDefault(), EndYear.GetValueOrDefault());
+                                ApplicationUser leader = db.Users.Find(cl);
+                                if (leader != null)
+                                {
+                                    AssignManagerAddOrUpdate(ca, leader, "cl");
+                                }
+
+                                ApplicationUser manager = db.Users.Find(cm);
+                                if (manager != null)
+                                {
+                                    AssignManagerAddOrUpdate(ca, manager, "cm");
+                                }
                             }
+                            db.SaveChanges();
                             transaction.Commit();
                             msgs.Add("Assign Completed");
                         }
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            msgs.Add("Assign Error");
+                            errors.Add(ex.Message);
+                            errors.Add("Assign Error");
                         }
                     }
                 }
-                TempData["msgs"] = msgs;
-            }
-            else
-            {
-                TempData["errors"] = errors;
-            }
 
+            }
+            TempData["msgs"] = msgs;
+            TempData["errors"] = errors;
             return RedirectToAction("Details", new { id = id });
         }
 
@@ -236,25 +256,23 @@ namespace CMR.Controllers
             return View(currentUser);
         }
 
-        private void AssignAddOrUpdate(Course course, ApplicationUser user, string role, DateTime start, DateTime end)
+        private void AssignManagerAddOrUpdate(CourseAssignment ca, ApplicationUser user, string role)
         {
-            CourseAssignment courseLeader = new CourseAssignment(course, user, role, start, end);
-            if (db.CourseAssignments.Where(ca => ca.Course.Id == course.Id).Where(ca => ca.Role == role).Where(ca => ca.Start.Year == start.Year).Count() > 0)
+            if (db.CourseAssignmentManagers.Where(c => c.CourseAssignment.Id == ca.Id).Any(c => c.Role == role))
             {
-                CourseAssignment oldCA = db.CourseAssignments.Where(ca => ca.Course.Id == course.Id).Where(ca => ca.Start.Year == start.Year).Single(ca => ca.Role == role);
-                oldCA.Manager = user;
-                db.SaveChanges();
+                CourseAssignmentManager cam =
+                    db.CourseAssignmentManagers.Where(c => c.CourseAssignment.Id == ca.Id).Single(c => c.Role == role);
+                cam.User = user;
             }
             else
             {
-                db.CourseAssignments.Add(courseLeader);
-                db.SaveChanges();
+                CourseAssignmentManager cam = new CourseAssignmentManager(role, user, ca);
+                db.CourseAssignmentManagers.Add(cam);
             }
         }
 
-        private List<string> ValidateAssignYear(string start, string end)
+        private void ValidateAssignYear(string start, string end)
         {
-            List<string> errors = new List<string>();
             try
             {
                 if (start == "" || end == "")
@@ -284,7 +302,6 @@ namespace CMR.Controllers
             {
                 errors.Add("Wrong Year");
             }
-            return errors;
         }
 
         protected override void Dispose(bool disposing)

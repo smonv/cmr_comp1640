@@ -5,8 +5,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <ol class="breadcrumb">
-    <li><a href="/Home/Index">Home</a></li>
-    <li><a href="/Courses">Course</a></li>
+    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+    <li><a href="@Url.Action("Index", "Courses")">Course</a></li>
     <li class="active">Detail</li>
 </ol>
 
@@ -93,18 +93,16 @@
                 {
                     <tr>
                         <td>@year.First().Start.Year - @year.First().End.Year</td>
-                        @foreach (var item in year)
-                    {
-
-                        if (item.Role == "cl")
+                        @foreach (var manager in year.SelectMany(item => item.Managers))
                         {
-                                <td>@item.Manager.UserName</td>
-                            }
-                            if (item.Role == "cm")
+                            if (manager.Role == "cl")
                             {
-                                <td>@item.Manager.UserName</td>
+                                <td>@manager.User.UserName</td>
                             }
-
+                            if (manager.Role == "cm")
+                            {
+                                <td>@manager.User.UserName</td>
+                            }
                         }
                     </tr>
                 }

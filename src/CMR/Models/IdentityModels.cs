@@ -19,7 +19,7 @@ namespace CMR.Models
         }
 
         public virtual ICollection<FacultyAssignment> Faculties { get; set; }
-        public virtual ICollection<CourseAssignment> Courses { get; set; }
+        public virtual ICollection<CourseAssignmentManager> CourseAssignments { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -38,6 +38,7 @@ namespace CMR.Models
         public DbSet<FacultyAssignment> FacultyAssignments { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseAssignment> CourseAssignments { get; set; }
+        public DbSet<CourseAssignmentManager> CourseAssignmentManagers { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ReportStatistical> ReportStatistical { get; set; }
         public DbSet<ReportDistribution> ReportDistribution { get; set; }

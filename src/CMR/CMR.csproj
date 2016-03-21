@@ -223,10 +223,15 @@
     <Compile Include="Migrations\201603162019222_Add_Report_Feedback.Designer.cs">
       <DependentUpon>201603162019222_Add_Report_Feedback.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603211328307_SplitCourseAssignmentManagerToAnotherTable.cs" />
+    <Compile Include="Migrations\201603211328307_SplitCourseAssignmentManagerToAnotherTable.Designer.cs">
+      <DependentUpon>201603211328307_SplitCourseAssignmentManagerToAnotherTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Course.cs" />
     <Compile Include="Models\CourseAssignment.cs" />
+    <Compile Include="Models\CourseAssignmentManager.cs" />
     <Compile Include="Models\Faculty.cs" />
     <Compile Include="Models\FacultyAssignment.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -384,6 +389,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603162019222_Add_Report_Feedback.resx">
       <DependentUpon>201603162019222_Add_Report_Feedback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603211328307_SplitCourseAssignmentManagerToAnotherTable.resx">
+      <DependentUpon>201603211328307_SplitCourseAssignmentManagerToAnotherTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
