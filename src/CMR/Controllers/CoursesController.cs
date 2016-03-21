@@ -67,15 +67,28 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create([Bind(Include = "Id,Code,Name")] Course course, string[] selectedFaculties)
         {
-            if (ModelState.IsValid)
+            if (selectedFaculties != null)
             {
-                db.Courses.Add(course);
-                db.SaveChanges();
-                UpdateFaculties(course, selectedFaculties, db);
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Courses.Add(course);
+                    db.SaveChanges();
+                    UpdateFaculties(course, selectedFaculties, db);
+                    return RedirectToAction("Index");
+                }
+            }
+            else
+            {
+                errors.Add("Please select faculty.");
+                TempData["errors"] = errors;
             }
 
-            return View(course);
+            FacultyCourseModel fcm = new FacultyCourseModel();
+            List<Faculty> faculties = db.Faculties.ToList<Faculty>();
+            fcm.Faculties = faculties;
+            fcm.Course = new Course();
+
+            return View(fcm);
         }
 
         // GET: Courses/Edit/5
@@ -108,13 +121,27 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Edit([Bind(Include = "Id,Code,Name")] Course course, string[] selectedFaculties)
         {
-            if (ModelState.IsValid)
+            if (selectedFaculties != null)
             {
-                db.Entry(course).State = EntityState.Modified;
-                UpdateFaculties(course, selectedFaculties, db);
-                db.SaveChanges();
+                if (ModelState.IsValid)
+                {
+                    db.Entry(course).State = EntityState.Modified;
+                    UpdateFaculties(course, selectedFaculties, db);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
             }
-            return RedirectToAction("Edit", new { id = course.Id });
+            else
+            {
+                errors.Add("Please select faculty.");
+                TempData["errors"] = errors;
+            }
+
+            FacultyCourseModel fcm = new FacultyCourseModel();
+            List<Faculty> faculties = db.Faculties.ToList<Faculty>();
+            fcm.Faculties = faculties;
+            fcm.Course = course;
+            return View(fcm);
         }
 
         // GET: Courses/Delete/5

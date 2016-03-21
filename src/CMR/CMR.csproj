@@ -227,6 +227,10 @@
     <Compile Include="Migrations\201603211328307_SplitCourseAssignmentManagerToAnotherTable.Designer.cs">
       <DependentUpon>201603211328307_SplitCourseAssignmentManagerToAnotherTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603211618515_AddCourseValidate.cs" />
+    <Compile Include="Migrations\201603211618515_AddCourseValidate.Designer.cs">
+      <DependentUpon>201603211618515_AddCourseValidate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Course.cs" />
@@ -392,6 +396,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603211328307_SplitCourseAssignmentManagerToAnotherTable.resx">
       <DependentUpon>201603211328307_SplitCourseAssignmentManagerToAnotherTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603211618515_AddCourseValidate.resx">
+      <DependentUpon>201603211618515_AddCourseValidate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
