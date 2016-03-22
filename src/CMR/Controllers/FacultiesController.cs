@@ -9,21 +9,26 @@ using System.Web.Mvc;
 using CMR.Models;
 using CMR.Helpers;
 using CMR.ViewModels;
+using Microsoft.AspNet.Identity;
 
 namespace CMR.Controllers
 {
-    [AccessDeniedAuthorize(Roles = "Administrator")]
+    
     public class FacultiesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        List<string> errors = new List<string>();
+        List<string> msgs = new List<string>();
 
         // GET: Faculties
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Index()
         {
             return View(db.Faculties.ToList());
         }
 
         // GET: Faculties/Details/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -35,10 +40,16 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            return View(faculty);
+            FacultyAssignmentModel fam = new FacultyAssignmentModel();
+            fam.Faculty = faculty;
+            var roleId = db.Roles.Single(r => r.Name == "Staff").Id;
+            List<ApplicationUser> staffs = db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            fam.Staffs = staffs;
+            return View(fam);
         }
 
         // GET: Faculties/Create
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create()
         {
             return View();
@@ -49,6 +60,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create([Bind(Include = "Id,Name")] Faculty faculty)
         {
             if (ModelState.IsValid)
@@ -62,6 +74,7 @@ namespace CMR.Controllers
         }
 
         // GET: Faculties/Edit/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -81,6 +94,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Edit([Bind(Include = "Id,Name")] Faculty faculty)
         {
             if (ModelState.IsValid)
@@ -93,6 +107,7 @@ namespace CMR.Controllers
         }
 
         // GET: Faculties/Delete/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -110,6 +125,7 @@ namespace CMR.Controllers
         // POST: Faculties/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult DeleteConfirmed(int id)
         {
             Faculty faculty = db.Faculties.Find(id);
@@ -118,47 +134,103 @@ namespace CMR.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: Faculties/Assign/5
-        public ActionResult Assign(int? id)
+        [AccessDeniedAuthorize(Roles = "Staff")]
+        public ActionResult Assigned()
         {
-            FacultyAssignmentModel fam = new FacultyAssignmentModel();
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Faculty f = db.Faculties.Find(id);
-            fam.Faculty = f;
-            var roleId = db.Roles.Single(r => r.Name == "Staff").Id;
-            List<ApplicationUser> staffs = db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList<ApplicationUser>();
-            fam.Staffs = staffs;
-            return View(fam);
+            var cUser = User.Identity.GetUserId();
+            List<FacultyAssignmentManager> facultyAssignments = db.FacultyAssignmentManagers.
+                Include(fam => fam.FacultyAssignment).
+                Where(fam => fam.User.Id == cUser).ToList();
+            return View(facultyAssignments);
         }
 
-
         // POST: Faculties/Assign/5
-        [HttpPost, ActionName("Assign")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AssignConfirmed(int id, string staff, string role)
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        public ActionResult Assign(int id, string pvc, string dlt)
         {
-            if (staff == "")
+            Faculty faculty = db.Faculties.Find(id);
+            if (faculty == null)
             {
-                TempData["message"] = "Please select staff!";
-                return RedirectToAction("Assign", new { id = id });
+                return HttpNotFound();
             }
-            if (role == "")
+
+            ValidateAssignUser(pvc, dlt);
+
+            if (errors.Count == 0)
             {
-                TempData["message"] = "Please select role";
-                return RedirectToAction("Assign", new { id = id });
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        FacultyAssignment fa = null;
+                        if (db.FacultyAssignments.Any(f => f.Faculty.Id == faculty.Id))
+                        {
+                            fa = db.FacultyAssignments.Single(f => f.Faculty.Id == faculty.Id);
+                        }
+                        else
+                        {
+                            fa = new FacultyAssignment(faculty);
+                            db.FacultyAssignments.Add(fa);
+                        }
+
+                        if (fa != null)
+                        {
+                            ApplicationUser pvcUser = db.Users.Find(pvc);
+                            if (pvcUser != null)
+                            {
+                                AssignAddOrUpdate(fa, pvcUser, "pvc");
+                            }
+                            ApplicationUser dltUser = db.Users.Find(dlt);
+                            if (dltUser != null)
+                            {
+                                AssignAddOrUpdate(fa,dltUser, "dlt");
+                            }
+                        }
+                        db.SaveChanges();
+                        transaction.Commit();
+                        msgs.Add("Assign Complete");
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        errors.Add("Error! Assign not complete.");
+                    }
+                }
             }
-            Faculty f = db.Faculties.Find(id);
-            ApplicationUser s = db.Users.Find(staff);
-            FacultyAssignment fa = new FacultyAssignment();
-            fa.Faculty = f;
-            fa.Staff = s;
-            fa.Role = role;
-            db.FacultyAssignments.Add(fa);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            TempData["errors"] = errors;
+            TempData["msgs"] = msgs;   
+            return RedirectToAction("Details", new {id = faculty.Id});
+        }
+
+        public void AssignAddOrUpdate(FacultyAssignment fa, ApplicationUser user, string role)
+        {
+            if (db.FacultyAssignmentManagers.Where(fam => fam.FacultyAssignment.Id == fa.Id)
+                .Any(fam => fam.Role == role))
+            {
+                FacultyAssignmentManager fam =
+                    db.FacultyAssignmentManagers.Where(f => f.FacultyAssignment.Id == fa.Id).Single(f => f.Role == role);
+                fam.User = user;
+            }
+            else
+            {
+                FacultyAssignmentManager fam = new FacultyAssignmentManager(role, user, fa);
+                db.FacultyAssignmentManagers.Add(fam);
+            }
+        }
+        private void ValidateAssignUser(string pvc, string dlt)
+        {
+            if (pvc == "" && dlt == "")
+            {
+                errors.Add("Please select Pro-Vice Chancellor or Director of Learning and Quality or both.");
+            }
+            else {
+                if (pvc == dlt)
+                {
+                    errors.Add("Pro-Vice Chancellor and Director of Learning and Quality cannot be the same person.");
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)
