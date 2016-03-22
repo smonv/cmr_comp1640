@@ -159,12 +159,6 @@
             </tr>
         </table>
     </div>
-    <div class="panel-heading">General comments</div>
-    <div class="panel-body">
-        <div class="form-group">
-            <textarea class="form-control" name="comment">@(Model.Report != null ? Model.Report.Comment : "")</textarea>
-        </div>
-    </div>
     <div class="panel-heading">Action to be taken</div>
     <div class="panel-body">
         <div class="form-group">
@@ -172,6 +166,6 @@
         </div>
     </div>
     <div class="panel-body">
-        <button type="submit" class="btn btn-default">@(ViewBag.Title == "Create" ? "Create" : "Update")</button>
+        <button type="submit" class="btn btn-primary">@(ViewBag.Title == "Create" ? "Create" : "Update")</button>
     </div>
 </div>

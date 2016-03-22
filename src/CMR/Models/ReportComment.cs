@@ -6,20 +6,22 @@ using System.Web;
 
 namespace CMR.Models
 {
-    public class ReportFeedback
+    public class ReportComment
     {
         public int Id { get; set; }
         [DataType(DataType.Text)]
         public string Content { get; set; }
 
         public virtual Report Report { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
-        public ReportFeedback() { }
+        public ReportComment() { }
 
-        public ReportFeedback(string content, Report report)
+        public ReportComment(string content, Report report, ApplicationUser user)
         {
-            this.Content = content;
-            this.Report = report;
+            Content = content;
+            Report = report;
+            User = user;
         }
     }
 }

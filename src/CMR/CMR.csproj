@@ -239,6 +239,14 @@
     <Compile Include="Migrations\201603220735165_FacultyAssignmentRemoveUnusedField.Designer.cs">
       <DependentUpon>201603220735165_FacultyAssignmentRemoveUnusedField.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603220824568_RenameReportFeedbackToReportComment.cs" />
+    <Compile Include="Migrations\201603220824568_RenameReportFeedbackToReportComment.Designer.cs">
+      <DependentUpon>201603220824568_RenameReportFeedbackToReportComment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201603220832354_AddUserToReportComment.cs" />
+    <Compile Include="Migrations\201603220832354_AddUserToReportComment.Designer.cs">
+      <DependentUpon>201603220832354_AddUserToReportComment.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Course.cs" />
@@ -251,7 +259,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Report.cs" />
     <Compile Include="Models\ReportDistribution.cs" />
-    <Compile Include="Models\ReportFeedback.cs" />
+    <Compile Include="Models\ReportComment.cs" />
     <Compile Include="Models\ReportStatistical.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -414,6 +422,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603220735165_FacultyAssignmentRemoveUnusedField.resx">
       <DependentUpon>201603220735165_FacultyAssignmentRemoveUnusedField.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603220824568_RenameReportFeedbackToReportComment.resx">
+      <DependentUpon>201603220824568_RenameReportFeedbackToReportComment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603220832354_AddUserToReportComment.resx">
+      <DependentUpon>201603220832354_AddUserToReportComment.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

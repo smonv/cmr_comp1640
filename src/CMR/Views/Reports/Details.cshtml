@@ -97,33 +97,39 @@
             </tr>
         </table>
     </div>
-    <div class="panel-heading">General comments</div>
-    <div class="panel-body">@(Model != null ? Model.Comment : "")</div>
+
     <div class="panel-heading">Action to be taken</div>
     <div class="panel-body">@(Model != null ? Model.Action : "")</div>
     @if (User.IsInRole("Staff"))
     {
-        <div class="panel-heading">Feedback</div>
+        <div class="panel-heading">Comments</div>
         <div class="panel-body">
-            @foreach (var feedback in Model.Feedbacks)
+            @if (Model.Comments.Any())
             {
-                <p>@feedback.Content</p>
+                foreach (var comment in Model.Comments)
+                {
+                    <p>@comment.User.UserName: @comment.Content</p>
+                }
             }
         </div>
-        if (((CMR.Controllers.ReportsController)this.ViewContext.Controller).CheckCourseManager(Model.Assignment))
-        {
-            <div class="panel-heading">Action</div>
-            <div class="panel-body">
-                <form method="post" action="@Url.Action("Feedback", "Reports", new {id = Model.Id})">
+        <div class="panel-body">
+            @{
+                var reportController = (CMR.Controllers.ReportsController) this.ViewContext.Controller;
+            }
+            @if (reportController.CanComment(Model)) {
+                <form method="post" action="@Url.Action("Comment", "Reports", new {id = Model.Id})">
                     @Html.AntiForgeryToken()
                     <div class="form-group">
-                        <textarea class="form-control" name="feedbackContent"></textarea>
+                        <textarea class="form-control" name="comment"></textarea>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Send Feedback</button>
+                        <button type="submit" class="btn btn-primary">Send</button>
                     </div>
                 </form>
-                @if (Model.IsApproved)
+            }
+            @if (reportController.CheckCourseManager(Model.Assignment))
+            {
+                if (Model.IsApproved)
                 {
                     <a href="@Url.Action("UnApprove", "Reports", new {id = Model.Id})">Unapprove</a>
                 }
@@ -131,7 +137,7 @@
                 {
                     <a href="@Url.Action("Approve", "Reports", new {id = Model.Id})">Approve</a>
                 }
-            </div>
-        }
+            }
+        </div>
     }
 </div>

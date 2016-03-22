@@ -46,7 +46,7 @@ namespace CMR.Controllers
             Report report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
             report.Assignment.Managers =
                 db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
-            
+
             return View(report);
         }
 
@@ -88,11 +88,11 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(int id, int totalStudent, string comment, string action,
+        public async Task<ActionResult> Create(int id, int totalStudent, string action,
             int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
             int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam, int averageExam, int goodExam)
         {
-            var report = new Report(totalStudent, comment, action);
+            var report = new Report(totalStudent, action);
 
             var ca = db.CourseAssignments.Find(id);
             ca.Managers = db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == ca.Id).ToList();
@@ -177,7 +177,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, int totalStudent, string comment, string action,
+        public async Task<ActionResult> Edit(int id, int totalStudent, string action,
             int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
             int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam, int averageExam, int goodExam)
         {
@@ -199,7 +199,6 @@ namespace CMR.Controllers
                 try
                 {
                     report.TotalStudent = totalStudent;
-                    report.Comment = comment;
                     report.Action = action;
                     foreach (var statistical in report.Statisticals)
                     {
@@ -295,7 +294,7 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            
+
             if (!db.Reports.Any(r => r.Id == id))
             {
                 return HttpNotFound();
@@ -347,33 +346,56 @@ namespace CMR.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Feedback(int id, string feedbackContent)
+        public ActionResult Comment(int id, string comment)
         {
             Report report = db.Reports.Find(id);
             if (report == null)
             {
                 return HttpNotFound();
             }
-            if (feedbackContent != "")
+            if (!CanComment(report))
             {
-                db.ReportFeedbacks.Add(new ReportFeedback(feedbackContent, report));
-                db.SaveChanges();
-                msgs.Add("New feedback added");
+                errors.Add("You don't have permission to comment.");
             }
-            else
-            {
-                errors.Add("Please enter feedback content!");
-
+            else {
+                if (comment != "")
+                {
+                    var cUser = db.Users.Find(User.Identity.GetUserId());
+                    db.ReportComments.Add(new ReportComment(comment, report, cUser));
+                    db.SaveChanges();
+                    msgs.Add("New comment added");
+                }
+                else
+                {
+                    errors.Add("Please enter comment content!");
+                }
             }
             TempData["msgs"] = msgs;
             TempData["errors"] = errors;
-            return RedirectToAction("Details", new { id = id });
+            return RedirectToAction("Details", new { id = report.Id });
         }
 
         public bool CheckCourseManager(CourseAssignment ca)
         {
             var cUser = User.Identity.GetUserId();
             return ca.Managers.Where(m => m.Role == "cm").Any(m => m.User.Id == cUser);
+        }
+
+        public bool CanComment(Report report)
+        {
+            var result = false;
+            var cUser = User.Identity.GetUserId();
+            result = db.CourseAssignmentManagers.
+                Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).
+                Any(cam => cam.User.Id == cUser);
+            if (!result)
+            {
+                result =
+                    db.FacultyAssignmentManagers.Where(
+                        fam => fam.FacultyAssignment.Faculty.Courses.Any(c => c.Id == report.Assignment.Course.Id))
+                        .Any(fam => fam.User.Id == cUser);
+            }
+            return result;
         }
 
         protected override void Dispose(bool disposing)
