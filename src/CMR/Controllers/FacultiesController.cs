@@ -9,23 +9,26 @@ using System.Web.Mvc;
 using CMR.Models;
 using CMR.Helpers;
 using CMR.ViewModels;
+using Microsoft.AspNet.Identity;
 
 namespace CMR.Controllers
 {
-    [AccessDeniedAuthorize(Roles = "Administrator")]
+    
     public class FacultiesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         List<string> errors = new List<string>();
-        List<string> msgs = new List<string>(); 
+        List<string> msgs = new List<string>();
 
         // GET: Faculties
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Index()
         {
             return View(db.Faculties.ToList());
         }
 
         // GET: Faculties/Details/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -46,6 +49,7 @@ namespace CMR.Controllers
         }
 
         // GET: Faculties/Create
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create()
         {
             return View();
@@ -56,6 +60,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create([Bind(Include = "Id,Name")] Faculty faculty)
         {
             if (ModelState.IsValid)
@@ -69,6 +74,7 @@ namespace CMR.Controllers
         }
 
         // GET: Faculties/Edit/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -88,6 +94,7 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Edit([Bind(Include = "Id,Name")] Faculty faculty)
         {
             if (ModelState.IsValid)
@@ -100,6 +107,7 @@ namespace CMR.Controllers
         }
 
         // GET: Faculties/Delete/5
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -117,6 +125,7 @@ namespace CMR.Controllers
         // POST: Faculties/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult DeleteConfirmed(int id)
         {
             Faculty faculty = db.Faculties.Find(id);
@@ -125,9 +134,20 @@ namespace CMR.Controllers
             return RedirectToAction("Index");
         }
 
+        [AccessDeniedAuthorize(Roles = "Staff")]
+        public ActionResult Assigned()
+        {
+            var cUser = User.Identity.GetUserId();
+            List<FacultyAssignmentManager> facultyAssignments = db.FacultyAssignmentManagers.
+                Include(fam => fam.FacultyAssignment).
+                Where(fam => fam.User.Id == cUser).ToList();
+            return View(facultyAssignments);
+        }
+
         // POST: Faculties/Assign/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Assign(int id, string pvc, string dlt)
         {
             Faculty faculty = db.Faculties.Find(id);
