@@ -62,7 +62,7 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
-
+            ca.Managers = db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == ca.Id).ToList();
             if (CheckCourseManager(ca))
             {
                 errors.Add("Course Manager cannot create report.");
@@ -95,6 +95,7 @@ namespace CMR.Controllers
             var report = new Report(totalStudent, comment, action);
 
             var ca = db.CourseAssignments.Find(id);
+            ca.Managers = db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == ca.Id).ToList();
             if (CheckCourseManager(ca))
             {
                 errors.Add("Course Manager cannot create report.");
@@ -127,7 +128,7 @@ namespace CMR.Controllers
                     }));
                     db.SaveChanges();
                     transaction.Commit();
-                    await SendEmail(report);
+                    //await SendEmail(report);
                     return Redirect("/Courses/Assigned");
                 }
                 catch (Exception ex)
