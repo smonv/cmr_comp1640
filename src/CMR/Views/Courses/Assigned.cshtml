@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNet.Identity
-@model IEnumerable<CMR.Models.CourseAssignmentManager>
+﻿@model IEnumerable<CMR.Models.CourseAssignmentManager>
 @{
     ViewBag.Title = "Assigned Courses";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -61,31 +60,6 @@
                     </tr>
                 }
             }
-            @*@if (Model.Courses.Any())
-                {
-                                foreach (var ca in Model.Courses)
-                                {
-                        <tr>
-                            <td>@Html.ActionLink(ca.Course.Code + " - " + ca.Course.Name, "Details", new { id = ca.Course.Id }) </td>
-                            <td>@ca.Start.Year - @ca.End.Year</td>
-                                        @#1#switch (ca.Role)
-                            {
-                                case "cm":
-                                    <td>Course Manager</td>
-                                    if (ca.Reports.Any())
-                                        {
-                                        <td><a href="@Url.Action("Details", "Reports", new { id = ca.Reports.First().Id })"></a></td>
-                                    }
-                                        break;
-                                case "cl":
-                                    <td>Course Leader</td>
-                                    <td><a href="@Url.Action("Create", "Reports", new {id = ca.Id})">Create Report</a></td>
-                                    break;
-                                    }#1#
-                        </tr>
-                                }
-                            }*@
-
         </table>
     </div>
 </div>
