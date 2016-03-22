@@ -1,27 +1,25 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web.Mvc;
-using CMR.Models;
-using CMR.ViewModels;
-using CMR.Helpers;
-using System.Net.Mail;
-using System.IO;
-using Microsoft.AspNet.Identity;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Mvc;
+using CMR.Helpers;
+using CMR.Models;
+using CMR.ViewModels;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using System.Collections.Generic;
-using System;
 
 namespace CMR.Controllers
 {
     [AccessDeniedAuthorize(Roles = "Staff")]
     public class ReportsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        List<string> errors = new List<string>();
-        List<string> msgs = new List<string>();
+        private readonly ApplicationDbContext db = new ApplicationDbContext();
+        private readonly List<string> _errors = new List<string>();
+        private readonly List<string> _msgs = new List<string>();
 
         // GET: Reports
         public ActionResult Index()
@@ -45,7 +43,9 @@ namespace CMR.Controllers
             }
             Report report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
             report.Assignment.Managers =
-                db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+                db.CourseAssignmentManagers.Include(cam => cam.User)
+                    .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id)
+                    .ToList();
 
             return View(report);
         }
@@ -62,24 +62,27 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
-            ca.Managers = db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == ca.Id).ToList();
+            ca.Managers =
+                db.CourseAssignmentManagers.Include(cam => cam.User)
+                    .Where(cam => cam.CourseAssignment.Id == ca.Id)
+                    .ToList();
             if (CheckCourseManager(ca))
             {
-                errors.Add("Course Manager cannot create report.");
-                TempData["errors"] = errors;
+                _errors.Add("Course Manager cannot create report.");
+                TempData["errors"] = _errors;
                 return Redirect(Url.Action("Assigned", "Courses"));
             }
             if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
-                errors.Add("Report for this course and academic session already exists.");
-                TempData["errors"] = errors;
+                _errors.Add("Report for this course and academic session already exists.");
+                TempData["errors"] = _errors;
                 return Redirect(Url.Action("Assigned", "Courses"));
             }
             var rvm = new ReportViewModel();
             rvm.CourseAssignment = ca;
             rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
-                    .Where(cam => cam.CourseAssignment.Id == ca.Id)
-                    .ToList();
+                .Where(cam => cam.CourseAssignment.Id == ca.Id)
+                .ToList();
             return View(rvm);
         }
 
@@ -90,22 +93,26 @@ namespace CMR.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(int id, int totalStudent, string action,
             int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
-            int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam, int averageExam, int goodExam)
+            int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam,
+            int averageExam, int goodExam)
         {
             var report = new Report(totalStudent, action);
 
             var ca = db.CourseAssignments.Find(id);
-            ca.Managers = db.CourseAssignmentManagers.Include(cam => cam.User).Where(cam => cam.CourseAssignment.Id == ca.Id).ToList();
+            ca.Managers =
+                db.CourseAssignmentManagers.Include(cam => cam.User)
+                    .Where(cam => cam.CourseAssignment.Id == ca.Id)
+                    .ToList();
             if (CheckCourseManager(ca))
             {
-                errors.Add("Course Manager cannot create report.");
-                TempData["errors"] = errors;
+                _errors.Add("Course Manager cannot create report.");
+                TempData["errors"] = _errors;
                 return Redirect(Url.Action("Assigned", "Courses"));
             }
             if (db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
-                errors.Add("Report for this course and academic session already exists");
-                TempData["errors"] = errors;
+                _errors.Add("Report for this course and academic session already exists");
+                TempData["errors"] = _errors;
                 return Redirect(Url.Action("Assigned", "Courses"));
             }
             using (var transaction = db.Database.BeginTransaction())
@@ -115,20 +122,22 @@ namespace CMR.Controllers
                     report.Assignment = ca;
                     db.Reports.Add(report);
 
-                    db.ReportStatistical.AddRange(new List<ReportStatistical>(new ReportStatistical[] {
+                    db.ReportStatistical.AddRange(new List<ReportStatistical>(new[]
+                    {
                         new ReportStatistical(meanCw1, medianCw1, "cw1", report),
                         new ReportStatistical(meanCw2, medianCw2, "cw2", report),
                         new ReportStatistical(meanExam, medianExam, "exam", report)
                     }));
 
-                    db.ReportDistribution.AddRange(new List<ReportDistribution>(new ReportDistribution[] {
+                    db.ReportDistribution.AddRange(new List<ReportDistribution>(new[]
+                    {
                         new ReportDistribution(badCw1, averageCw1, goodCw1, "cw1", report),
                         new ReportDistribution(badCw2, averageCw2, goodCw2, "cw2", report),
                         new ReportDistribution(badExam, averageExam, goodExam, "exam", report)
                     }));
                     db.SaveChanges();
                     transaction.Commit();
-                    //await SendEmail(report);
+                    await SendEmail(report, "Create", User.Identity.GetUserId());
                     return Redirect("/Courses/Assigned");
                 }
                 catch (Exception ex)
@@ -139,8 +148,8 @@ namespace CMR.Controllers
                     rvm.Report = report;
                     rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
                         .Where(cam => cam.CourseAssignment.Id == ca.Id).ToList();
-                    errors.Add(ex.Message);
-                    TempData["errors"] = errors;
+                    _errors.Add(ex.Message);
+                    TempData["errors"] = _errors;
                     return View(rvm);
                 }
             }
@@ -160,15 +169,15 @@ namespace CMR.Controllers
             }
             if (report.IsApproved)
             {
-                errors.Add("You cannot edit approved report");
-                TempData["errors"] = errors;
+                _errors.Add("You cannot edit approved report");
+                TempData["errors"] = _errors;
                 return Redirect(Url.Action("Index", "Reports"));
             }
             var rvm = new ReportViewModel();
             rvm.Report = report;
             rvm.CourseAssignment = report.Assignment;
             rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
-                        .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+                .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
             return View(rvm);
         }
 
@@ -179,7 +188,8 @@ namespace CMR.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, int totalStudent, string action,
             int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
-            int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam, int averageExam, int goodExam)
+            int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam,
+            int averageExam, int goodExam)
         {
             if (!db.Reports.Any(r => r.Id == id))
             {
@@ -189,8 +199,8 @@ namespace CMR.Controllers
 
             if (report.IsApproved)
             {
-                errors.Add("You cannot edit approved report");
-                TempData["errors"] = errors;
+                _errors.Add("You cannot edit approved report");
+                TempData["errors"] = _errors;
                 return Redirect(Url.Action("Index", "Reports"));
             }
 
@@ -217,7 +227,6 @@ namespace CMR.Controllers
                             statistical.Mean = meanExam;
                             statistical.Median = medianExam;
                         }
-
                     }
 
                     foreach (var distribution in report.Distributions)
@@ -244,8 +253,8 @@ namespace CMR.Controllers
 
                     db.SaveChanges();
                     transaction.Commit();
-                    //await SendEmail(report);
-                    return RedirectToAction("Edit", new { id = report.Id });
+                    await SendEmail(report, "Edit", User.Identity.GetUserId());
+                    return RedirectToAction("Edit", new {id = report.Id});
                 }
                 catch (Exception ex)
                 {
@@ -255,8 +264,8 @@ namespace CMR.Controllers
                     rvm.CourseAssignment = report.Assignment;
                     rvm.CourseAssignment.Managers = db.CourseAssignmentManagers.Include(cam => cam.User)
                         .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
-                    errors.Add(ex.Message);
-                    TempData["errors"] = errors;
+                    _errors.Add(ex.Message);
+                    TempData["errors"] = _errors;
                     return View(rvm);
                 }
             }
@@ -288,7 +297,7 @@ namespace CMR.Controllers
             return RedirectToAction("Index");
         }
 
-        public ActionResult Approve(int? id)
+        public async Task<ActionResult> Approve(int? id)
         {
             if (id == null)
             {
@@ -303,7 +312,7 @@ namespace CMR.Controllers
             Report report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
             report.Assignment.Managers =
                 db.CourseAssignmentManagers.Include(cam => cam.User).
-                Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+                    Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
 
             if (!CheckCourseManager(report.Assignment))
             {
@@ -311,12 +320,13 @@ namespace CMR.Controllers
             }
             report.IsApproved = true;
             db.SaveChanges();
-            msgs.Add("Report Approved");
-            TempData["msgs"] = msgs;
-            return RedirectToAction("Details", new { id = id });
+            _msgs.Add("Report Approved");
+            await SendEmail(report, "Approve", User.Identity.GetUserId());
+            TempData["msgs"] = _msgs;
+            return RedirectToAction("Details", new {id});
         }
 
-        public ActionResult UnApprove(int? id)
+        public async Task<ActionResult> UnApprove(int? id)
         {
             if (id == null)
             {
@@ -331,7 +341,7 @@ namespace CMR.Controllers
             Report report = db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
             report.Assignment.Managers =
                 db.CourseAssignmentManagers.Include(cam => cam.User).
-                Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+                    Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
 
             if (!CheckCourseManager(report.Assignment))
             {
@@ -339,14 +349,15 @@ namespace CMR.Controllers
             }
             report.IsApproved = false;
             db.SaveChanges();
-            msgs.Add("Report unapprove");
-            TempData["msgs"] = msgs;
-            return RedirectToAction("Details", new { id = id });
+            _msgs.Add("Report unapprove");
+            await SendEmail(report, "Unapprove", User.Identity.GetUserId());
+            TempData["msgs"] = _msgs;
+            return RedirectToAction("Details", new {id});
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Comment(int id, string comment)
+        public async Task<ActionResult> Comment(int id, string comment)
         {
             Report report = db.Reports.Find(id);
             if (report == null)
@@ -355,24 +366,26 @@ namespace CMR.Controllers
             }
             if (!CanComment(report))
             {
-                errors.Add("You don't have permission to comment.");
+                _errors.Add("You don't have permission to comment.");
             }
-            else {
+            else
+            {
                 if (comment != "")
                 {
                     var cUser = db.Users.Find(User.Identity.GetUserId());
                     db.ReportComments.Add(new ReportComment(comment, report, cUser));
                     db.SaveChanges();
-                    msgs.Add("New comment added");
+                    _msgs.Add("New comment added");
+                    await SendEmail(report, "Comment", User.Identity.GetUserId());
                 }
                 else
                 {
-                    errors.Add("Please enter comment content!");
+                    _errors.Add("Please enter comment content!");
                 }
             }
-            TempData["msgs"] = msgs;
-            TempData["errors"] = errors;
-            return RedirectToAction("Details", new { id = report.Id });
+            TempData["msgs"] = _msgs;
+            TempData["errors"] = _errors;
+            return RedirectToAction("Details", new {id = report.Id});
         }
 
         public bool CheckCourseManager(CourseAssignment ca)
@@ -407,17 +420,91 @@ namespace CMR.Controllers
             base.Dispose(disposing);
         }
 
-        private async Task SendEmail(Report report)
+        private async Task SendEmail(Report report, string action, string exceptUserId)
         {
-            //var cm = report.Assignment.Course.Managers.Single(u => u.Role == "cm").Manager;
-            var subject = report.Assignment.Start.Year + " - " + report.Assignment.End.Year;
-            var reportUrl = Url.Action("Details", "Reports", new { id = report.Id }, protocol: Request.Url.Scheme);
-            var body = report.Assignment.Course.Name + " " +
-                report.Assignment.Start.Year + " - " +
-                report.Assignment.End.Year +
-                " have new report. Click <a href='" + reportUrl + "'>here</a>";
+            List<CourseAssignmentManager> cams = db.CourseAssignmentManagers.Include(cam => cam.User)
+                .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+            List<FacultyAssignmentManager> fams = db.FacultyAssignmentManagers.Include(fam => fam.User)
+                .Where(fam => fam.FacultyAssignment.Faculty.Courses.Any(c => c.Id == report.Assignment.Course.Id))
+                .ToList();
+            ApplicationUser cl = cams.Single(cam => cam.Role == "cl").User;
+            ApplicationUser cm = cams.Single(cam => cam.Role == "cm").User;
+            ApplicationUser dlt = fams.Single(fam => fam.Role == "dlt").User;
+            List<ApplicationUser> receivers = new List<ApplicationUser>(new[] {cl, cm, dlt});
+
+            var reportUrl = Url.Action("Details", "Reports", new {id = report.Id}, Request.Url.Scheme);
+            var subject = "";
+            var body = "";
             var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            await userManager.SendEmailAsync("aaa", subject, body);
+            if (action == "Create")
+            {
+                subject = "New report in " + report.Assignment.Course.Code + " - "
+                          + report.Assignment.Course.Name + " : "
+                          + report.Assignment.Start.Year + " - " + report.Assignment.End.Year;
+
+                body = report.Assignment.Course.Name + " " +
+                       report.Assignment.Start.Year + " - " +
+                       report.Assignment.End.Year +
+                       " have new report. Click <a href='" + reportUrl + "'>here</a> to view details";
+            }
+            else if (action == "Approve")
+            {
+                subject = report.Assignment.Course.Code + " - "
+                          + report.Assignment.Course.Name + " : "
+                          + report.Assignment.Start.Year + " - " + report.Assignment.End.Year
+                          + " have been approved";
+
+                body = report.Assignment.Course.Name + " " +
+                       report.Assignment.Start.Year + " - " +
+                       report.Assignment.End.Year +
+                       " have been approved by " + cm.UserName + ". Click <a href='" + reportUrl +
+                       "'>here</a> to view details";
+            }
+            else if (action == "Unapprove")
+            {
+                subject = report.Assignment.Course.Code + " - "
+                          + report.Assignment.Course.Name + " : "
+                          + report.Assignment.Start.Year + " - " + report.Assignment.End.Year
+                          + " have been unapproved";
+
+                body = report.Assignment.Course.Name + " " +
+                       report.Assignment.Start.Year + " - " +
+                       report.Assignment.End.Year +
+                       " have been unapproved by " + cm.UserName + ". Click <a href='" + reportUrl +
+                       "'>here</a> to view details";
+            }
+            else if (action == "Edit")
+            {
+                subject = report.Assignment.Course.Code + " - "
+                          + report.Assignment.Course.Name + " : "
+                          + report.Assignment.Start.Year + " - " + report.Assignment.End.Year
+                          + " have been edited";
+
+                body = report.Assignment.Course.Name + " " +
+                       report.Assignment.Start.Year + " - " +
+                       report.Assignment.End.Year +
+                       " have been edited by " + cl.UserName + ". Click <a href='" + reportUrl +
+                       "'>here</a> to view details";
+            }
+            else if (action == "Comment")
+            {
+                subject = "New report comment in " + report.Assignment.Course.Code + " - "
+                          + report.Assignment.Course.Name + " : "
+                          + report.Assignment.Start.Year + " - " + report.Assignment.End.Year;
+
+                body = report.Assignment.Course.Name + " " +
+                       report.Assignment.Start.Year + " - " +
+                       report.Assignment.End.Year +
+                       " have new report comment. Click <a href='" + reportUrl + "'>here</a> to view details";
+            }
+
+            foreach (var receiver in receivers)
+            {
+                if (receiver.Id != exceptUserId)
+                {
+                    await userManager.SendEmailAsync(receiver.Id, subject, body);
+                }
+            }
         }
     }
 }
