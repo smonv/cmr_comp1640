@@ -1,30 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using CMR.Models;
 using CMR.Helpers;
+using CMR.Models;
 using CMR.ViewModels;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace CMR.Controllers
 {
-    
     public class FacultiesController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        List<string> errors = new List<string>();
-        List<string> msgs = new List<string>();
+        private readonly ApplicationDbContext _db = new ApplicationDbContext();
+        private readonly List<string> _errors = new List<string>();
+        private readonly List<string> _msgs = new List<string>();
 
         // GET: Faculties
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Index()
         {
-            return View(db.Faculties.ToList());
+            return View(_db.Faculties.ToList());
         }
 
         // GET: Faculties/Details/5
@@ -35,15 +35,15 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Faculty faculty = db.Faculties.Find(id);
+            var faculty = _db.Faculties.Find(id);
             if (faculty == null)
             {
                 return HttpNotFound();
             }
-            FacultyAssignmentModel fam = new FacultyAssignmentModel();
+            var fam = new FacultyAssignmentModel();
             fam.Faculty = faculty;
-            var roleId = db.Roles.Single(r => r.Name == "Staff").Id;
-            List<ApplicationUser> staffs = db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            var roleId = _db.Roles.Single(r => r.Name == "Staff").Id;
+            var staffs = _db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
             fam.Staffs = staffs;
             return View(fam);
         }
@@ -65,8 +65,8 @@ namespace CMR.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Faculties.Add(faculty);
-                db.SaveChanges();
+                _db.Faculties.Add(faculty);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -81,7 +81,7 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Faculty faculty = db.Faculties.Find(id);
+            var faculty = _db.Faculties.Find(id);
             if (faculty == null)
             {
                 return HttpNotFound();
@@ -99,8 +99,8 @@ namespace CMR.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(faculty).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(faculty).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(faculty);
@@ -114,7 +114,7 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Faculty faculty = db.Faculties.Find(id);
+            var faculty = _db.Faculties.Find(id);
             if (faculty == null)
             {
                 return HttpNotFound();
@@ -128,9 +128,9 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult DeleteConfirmed(int id)
         {
-            Faculty faculty = db.Faculties.Find(id);
-            db.Faculties.Remove(faculty);
-            db.SaveChanges();
+            var faculty = _db.Faculties.Find(id);
+            _db.Faculties.Remove(faculty);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 
@@ -138,7 +138,7 @@ namespace CMR.Controllers
         public ActionResult Assigned()
         {
             var cUser = User.Identity.GetUserId();
-            List<FacultyAssignmentManager> facultyAssignments = db.FacultyAssignmentManagers.
+            var facultyAssignments = _db.FacultyAssignmentManagers.
                 Include(fam => fam.FacultyAssignment).
                 Where(fam => fam.User.Id == cUser).ToList();
             return View(facultyAssignments);
@@ -148,9 +148,9 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Assign(int id, string pvc, string dlt)
+        public async Task<ActionResult> Assign(int id, string pvc, string dlt)
         {
-            Faculty faculty = db.Faculties.Find(id);
+            var faculty = _db.Faculties.Find(id);
             if (faculty == null)
             {
                 return HttpNotFound();
@@ -158,78 +158,94 @@ namespace CMR.Controllers
 
             ValidateAssignUser(pvc, dlt);
 
-            if (errors.Count == 0)
+            if (_errors.Count == 0)
             {
-                using (var transaction = db.Database.BeginTransaction())
+                using (var transaction = _db.Database.BeginTransaction())
                 {
                     try
                     {
                         FacultyAssignment fa = null;
-                        if (db.FacultyAssignments.Any(f => f.Faculty.Id == faculty.Id))
+                        if (_db.FacultyAssignments.Any(f => f.Faculty.Id == faculty.Id))
                         {
-                            fa = db.FacultyAssignments.Single(f => f.Faculty.Id == faculty.Id);
+                            fa = _db.FacultyAssignments.Single(f => f.Faculty.Id == faculty.Id);
                         }
                         else
                         {
                             fa = new FacultyAssignment(faculty);
-                            db.FacultyAssignments.Add(fa);
+                            _db.FacultyAssignments.Add(fa);
                         }
 
                         if (fa != null)
                         {
-                            ApplicationUser pvcUser = db.Users.Find(pvc);
+                            var pvcUser = _db.Users.Find(pvc);
                             if (pvcUser != null)
                             {
                                 AssignAddOrUpdate(fa, pvcUser, "pvc");
                             }
-                            ApplicationUser dltUser = db.Users.Find(dlt);
+                            var dltUser = _db.Users.Find(dlt);
                             if (dltUser != null)
                             {
-                                AssignAddOrUpdate(fa,dltUser, "dlt");
+                                AssignAddOrUpdate(fa, dltUser, "dlt");
                             }
                         }
-                        db.SaveChanges();
+                        _db.SaveChanges();
                         transaction.Commit();
-                        msgs.Add("Assign Complete");
+                        _msgs.Add("Assign Complete");
+                        await SendMail(new[] {pvc, dlt}, fa);
                     }
                     catch (Exception)
                     {
                         transaction.Rollback();
-                        errors.Add("Error! Assign not complete.");
+                        _errors.Add("Error! Assign not complete.");
                     }
                 }
             }
-            TempData["errors"] = errors;
-            TempData["msgs"] = msgs;   
+            TempData["errors"] = _errors;
+            TempData["msgs"] = _msgs;
             return RedirectToAction("Details", new {id = faculty.Id});
         }
 
         public void AssignAddOrUpdate(FacultyAssignment fa, ApplicationUser user, string role)
         {
-            if (db.FacultyAssignmentManagers.Where(fam => fam.FacultyAssignment.Id == fa.Id)
+            if (_db.FacultyAssignmentManagers.Where(fam => fam.FacultyAssignment.Id == fa.Id)
                 .Any(fam => fam.Role == role))
             {
-                FacultyAssignmentManager fam =
-                    db.FacultyAssignmentManagers.Where(f => f.FacultyAssignment.Id == fa.Id).Single(f => f.Role == role);
+                var fam =
+                    _db.FacultyAssignmentManagers.Where(f => f.FacultyAssignment.Id == fa.Id).Single(f => f.Role == role);
                 fam.User = user;
             }
             else
             {
-                FacultyAssignmentManager fam = new FacultyAssignmentManager(role, user, fa);
-                db.FacultyAssignmentManagers.Add(fam);
+                var fam = new FacultyAssignmentManager(role, user, fa);
+                _db.FacultyAssignmentManagers.Add(fam);
             }
         }
+
         private void ValidateAssignUser(string pvc, string dlt)
         {
             if (pvc == "" && dlt == "")
             {
-                errors.Add("Please select Pro-Vice Chancellor or Director of Learning and Quality or both.");
+                _errors.Add("Please select Pro-Vice Chancellor or Director of Learning and Quality or both.");
             }
-            else {
+            else
+            {
                 if (pvc == dlt)
                 {
-                    errors.Add("Pro-Vice Chancellor and Director of Learning and Quality cannot be the same person.");
+                    _errors.Add("Pro-Vice Chancellor and Director of Learning and Quality cannot be the same person.");
                 }
+            }
+        }
+
+        private async Task SendMail(string[] ids, FacultyAssignment fa)
+        {
+            var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            var faculty = fa.Faculty;
+            var subject = "You have been assigned to manage: " + faculty.Name;
+            var callbackUrl = Url.Action("Assigned", "Faculties", Request.Url.Scheme);
+            var body = "You can view your faculties in <a href='" + callbackUrl + "'>Faculties Assigned List</a>";
+            foreach (var id in ids)
+            {
+                await userManager.SendEmailAsync(id, subject, body);
             }
         }
 
@@ -237,7 +253,7 @@ namespace CMR.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _db.Dispose();
             }
             base.Dispose(disposing);
         }

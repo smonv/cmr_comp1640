@@ -1,30 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using CMR.Helpers;
 using CMR.Models;
 using CMR.ViewModels;
-using CMR.Helpers;
 using Microsoft.AspNet.Identity;
-using System.Configuration;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace CMR.Controllers
 {
     public class CoursesController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        List<string> errors = new List<string>();
-        List<string> msgs = new List<string>();
+        private readonly ApplicationDbContext _db = new ApplicationDbContext();
+        private readonly List<string> _errors = new List<string>();
+        private readonly List<string> _msgs = new List<string>();
 
         // GET: Courses
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Index()
         {
-            return View(db.Courses.ToList());
+            return View(_db.Courses.ToList());
         }
 
         // GET: Courses/Details/5
@@ -35,15 +36,15 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Course course = db.Courses.Find(id);
+            var course = _db.Courses.Find(id);
             if (course == null)
             {
                 return HttpNotFound();
             }
-            AssignViewModel am = new AssignViewModel();
+            var am = new AssignViewModel();
             am.Course = course;
-            var roleId = db.Roles.Single(r => r.Name == "Staff").Id;
-            List<ApplicationUser> staffs = db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            var roleId = _db.Roles.Single(r => r.Name == "Staff").Id;
+            var staffs = _db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
             am.Staffs = staffs;
             return View(am);
         }
@@ -52,8 +53,8 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create()
         {
-            FacultyCourseModel fcm = new FacultyCourseModel();
-            List<Faculty> faculties = db.Faculties.ToList<Faculty>();
+            var fcm = new FacultyCourseModel();
+            var faculties = _db.Faculties.ToList();
             fcm.Faculties = faculties;
             fcm.Course = new Course();
             return View(fcm);
@@ -71,20 +72,20 @@ namespace CMR.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Courses.Add(course);
-                    db.SaveChanges();
-                    UpdateFaculties(course, selectedFaculties, db);
+                    _db.Courses.Add(course);
+                    _db.SaveChanges();
+                    UpdateFaculties(course, selectedFaculties, _db);
                     return RedirectToAction("Index");
                 }
             }
             else
             {
-                errors.Add("Please select faculty.");
-                TempData["errors"] = errors;
+                _errors.Add("Please select faculty.");
+                TempData["errors"] = _errors;
             }
 
-            FacultyCourseModel fcm = new FacultyCourseModel();
-            List<Faculty> faculties = db.Faculties.ToList<Faculty>();
+            var fcm = new FacultyCourseModel();
+            var faculties = _db.Faculties.ToList();
             fcm.Faculties = faculties;
             fcm.Course = new Course();
 
@@ -99,11 +100,11 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            FacultyCourseModel fcm = new FacultyCourseModel();
-            List<Faculty> faculties = db.Faculties.ToList<Faculty>();
+            var fcm = new FacultyCourseModel();
+            var faculties = _db.Faculties.ToList();
             fcm.Faculties = faculties;
 
-            Course course = db.Courses.Find(id);
+            var course = _db.Courses.Find(id);
 
             if (course == null)
             {
@@ -125,20 +126,20 @@ namespace CMR.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Entry(course).State = EntityState.Modified;
-                    UpdateFaculties(course, selectedFaculties, db);
-                    db.SaveChanges();
+                    _db.Entry(course).State = EntityState.Modified;
+                    UpdateFaculties(course, selectedFaculties, _db);
+                    _db.SaveChanges();
                     return RedirectToAction("Index");
                 }
             }
             else
             {
-                errors.Add("Please select faculty.");
-                TempData["errors"] = errors;
+                _errors.Add("Please select faculty.");
+                TempData["errors"] = _errors;
             }
 
-            FacultyCourseModel fcm = new FacultyCourseModel();
-            List<Faculty> faculties = db.Faculties.ToList<Faculty>();
+            var fcm = new FacultyCourseModel();
+            var faculties = _db.Faculties.ToList();
             fcm.Faculties = faculties;
             fcm.Course = course;
             return View(fcm);
@@ -152,7 +153,7 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Course course = db.Courses.Find(id);
+            var course = _db.Courses.Find(id);
             if (course == null)
             {
                 return HttpNotFound();
@@ -166,9 +167,9 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult DeleteConfirmed(int id)
         {
-            Course course = db.Courses.Find(id);
-            db.Courses.Remove(course);
-            db.SaveChanges();
+            var course = _db.Courses.Find(id);
+            _db.Courses.Remove(course);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 
@@ -184,9 +185,9 @@ namespace CMR.Controllers
                 course.Faculties = new List<Faculty>();
             }
             var courseFaculties = course.Faculties.Select(f => f.Id);
-            foreach (Faculty f in db.Faculties.ToList<Faculty>())
+            foreach (var f in _db.Faculties.ToList())
             {
-                int pos = Array.IndexOf(selectedFaculties, f.Id.ToString());
+                var pos = Array.IndexOf(selectedFaculties, f.Id.ToString());
                 if (pos > -1)
                 {
                     if (!courseFaculties.Contains(f.Id))
@@ -207,98 +208,100 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Assign(int id, string cl, string cm, string start, string end)
+        public async Task<ActionResult> Assign(int id, string cl, string cm, string start, string end)
         {
-            Course course = db.Courses.Find(id);
+            var course = _db.Courses.Find(id);
             if (course == null)
             {
                 return HttpNotFound();
             }
             ValidateAssignUser(cl, cm);
             ValidateAssignYear(start, end);
-            if (errors.Count == 0)
+            if (_errors.Count == 0)
             {
-
-                ConvertHelper ch = new ConvertHelper();
-                DateTime? startYear = ch.YearStringToDateTime(start);
-                DateTime? endYear = ch.YearStringToDateTime(end);
+                var ch = new ConvertHelper();
+                var startYear = ch.YearStringToDateTime(start);
+                var endYear = ch.YearStringToDateTime(end);
                 if (startYear.HasValue && endYear.HasValue)
                 {
-                    using (var transaction = db.Database.BeginTransaction())
+                    using (var transaction = _db.Database.BeginTransaction())
                     {
                         try
                         {
-                            int sYear = startYear.GetValueOrDefault().Year;
-                            int eYear = endYear.GetValueOrDefault().Year;
+                            var sYear = startYear.GetValueOrDefault().Year;
+                            var eYear = endYear.GetValueOrDefault().Year;
                             CourseAssignment ca = null;
-                            if (!db.CourseAssignments.Where(c => c.Start.Year == sYear).Where(c => c.End.Year == eYear).Any(c => c.Course.Id == course.Id))
+                            if (
+                                !_db.CourseAssignments.Where(c => c.Start.Year == sYear)
+                                    .Where(c => c.End.Year == eYear)
+                                    .Any(c => c.Course.Id == course.Id))
                             {
                                 ca = new CourseAssignment(course, startYear.Value, endYear.Value);
-                                db.CourseAssignments.Add(ca);
+                                _db.CourseAssignments.Add(ca);
                             }
                             else
                             {
-                                ca = db.CourseAssignments.Where(c => c.Start.Year == sYear)
-                                        .Where(c => c.End.Year == eYear).
-                                        Single(c => c.Course.Id == course.Id);
+                                ca = _db.CourseAssignments.Where(c => c.Start.Year == sYear)
+                                    .Where(c => c.End.Year == eYear).
+                                    Single(c => c.Course.Id == course.Id);
                             }
 
 
                             if (ca != null)
                             {
-                                ApplicationUser leader = db.Users.Find(cl);
+                                var leader = _db.Users.Find(cl);
                                 if (leader != null)
                                 {
                                     AssignManagerAddOrUpdate(ca, leader, "cl");
                                 }
 
-                                ApplicationUser manager = db.Users.Find(cm);
+                                var manager = _db.Users.Find(cm);
                                 if (manager != null)
                                 {
                                     AssignManagerAddOrUpdate(ca, manager, "cm");
                                 }
                             }
-                            db.SaveChanges();
+                            _db.SaveChanges();
                             transaction.Commit();
-                            msgs.Add("Assign Completed");
+                            _msgs.Add("Assign Completed");
+                            await SendMail(new string[] {cl, cm}, ca);
                         }
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            errors.Add("Assign Error");
+                            _errors.Add("Assign Error");
                         }
                     }
                 }
-
             }
-            TempData["msgs"] = msgs;
-            TempData["errors"] = errors;
-            return RedirectToAction("Details", new { id = id });
+            TempData["msgs"] = _msgs;
+            TempData["errors"] = _errors;
+            return RedirectToAction("Details", new {id});
         }
 
         [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Assigned()
         {
             var cUser = User.Identity.GetUserId();
-            List<CourseAssignmentManager> courseAssignments =
-                db.CourseAssignmentManagers.
-                Include(cam => cam.CourseAssignment).
-                Where(cam => cam.User.Id == cUser).ToList();
+            var courseAssignments =
+                _db.CourseAssignmentManagers.
+                    Include(cam => cam.CourseAssignment).
+                    Where(cam => cam.User.Id == cUser).ToList();
             return View(courseAssignments);
         }
 
         private void AssignManagerAddOrUpdate(CourseAssignment ca, ApplicationUser user, string role)
         {
-            if (db.CourseAssignmentManagers.Where(c => c.CourseAssignment.Id == ca.Id).Any(c => c.Role == role))
+            if (_db.CourseAssignmentManagers.Where(c => c.CourseAssignment.Id == ca.Id).Any(c => c.Role == role))
             {
-                CourseAssignmentManager cam =
-                    db.CourseAssignmentManagers.Where(c => c.CourseAssignment.Id == ca.Id).Single(c => c.Role == role);
+                var cam =
+                    _db.CourseAssignmentManagers.Where(c => c.CourseAssignment.Id == ca.Id).Single(c => c.Role == role);
                 cam.User = user;
             }
             else
             {
-                CourseAssignmentManager cam = new CourseAssignmentManager(role, user, ca);
-                db.CourseAssignmentManagers.Add(cam);
+                var cam = new CourseAssignmentManager(role, user, ca);
+                _db.CourseAssignmentManagers.Add(cam);
             }
         }
 
@@ -308,30 +311,31 @@ namespace CMR.Controllers
             {
                 if (start == "" || end == "")
                 {
-                    errors.Add("Please enter Academic Year");
+                    _errors.Add("Please enter Academic Year");
                 }
-                else {
-                    int minYear = Convert.ToInt32(ConfigurationManager.AppSettings["MinYear"]);
-                    int maxYear = Convert.ToInt32(ConfigurationManager.AppSettings["MaxYear"]);
-                    int intStart = Convert.ToInt32(start);
-                    int intEnd = Convert.ToInt32(end);
+                else
+                {
+                    var minYear = Convert.ToInt32(ConfigurationManager.AppSettings["MinYear"]);
+                    var maxYear = Convert.ToInt32(ConfigurationManager.AppSettings["MaxYear"]);
+                    var intStart = Convert.ToInt32(start);
+                    var intEnd = Convert.ToInt32(end);
                     if (intEnd < intStart)
                     {
-                        errors.Add("End year must greator than Start year");
+                        _errors.Add("End year must greator than Start year");
                     }
                     if (intStart < minYear || intStart > maxYear)
                     {
-                        errors.Add("Start year out of range " + minYear + " - " + maxYear);
+                        _errors.Add("Start year out of range " + minYear + " - " + maxYear);
                     }
                     if (intEnd < minYear || intEnd > maxYear)
                     {
-                        errors.Add("End year out of range " + minYear + " - " + maxYear);
+                        _errors.Add("End year out of range " + minYear + " - " + maxYear);
                     }
                 }
             }
             catch (Exception ex)
             {
-                errors.Add("Wrong Year");
+                _errors.Add("Wrong Year");
             }
         }
 
@@ -339,21 +343,38 @@ namespace CMR.Controllers
         {
             if (cl == "" && cm == "")
             {
-                errors.Add("Please select Course Leader or Manager or both.");
+                _errors.Add("Please select Course Leader or Manager or both.");
             }
-            else {
+            else
+            {
                 if (cl == cm)
                 {
-                    errors.Add("Leader and Manager cannot be the same person.");
+                    _errors.Add("Leader and Manager cannot be the same person.");
                 }
             }
+        }
+
+        private async Task SendMail(string[] ids, CourseAssignment ca)
+        {
+            var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            Course course = ca.Course;
+            var subject = "You have been assigned to manage: " +
+                          course.Code + " - " + course.Name + " : " +
+                          ca.Start.Year + " - " + ca.End.Year;
+            var callbackUrl = Url.Action("Assigned", "Courses", Request.Url.Scheme);
+            var body = "You can view your courses in <a href='" + callbackUrl +"'>Course Assigned List</a>";
+            foreach (string id in ids)
+            {
+                await userManager.SendEmailAsync(id, subject, body);
+            }
+            
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                _db.Dispose();
             }
             base.Dispose(disposing);
         }
