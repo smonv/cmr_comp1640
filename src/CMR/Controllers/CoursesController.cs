@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
-using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
+using CMR.EmailModels;
 using CMR.Helpers;
 using CMR.Models;
 using CMR.ViewModels;
+using Hangfire;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
+using Postal;
 
 namespace CMR.Controllers
 {
@@ -115,8 +117,6 @@ namespace CMR.Controllers
         }
 
         // POST: Courses/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
@@ -208,7 +208,7 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public async Task<ActionResult> Assign(int id, string cl, string cm, string start, string end)
+        public ActionResult Assign(int id, string cl, string cm, string start, string end)
         {
             var course = _db.Courses.Find(id);
             if (course == null)
@@ -264,7 +264,7 @@ namespace CMR.Controllers
                             _db.SaveChanges();
                             transaction.Commit();
                             _msgs.Add("Assign Completed");
-                            await SendMail(new string[] {cl, cm}, ca);
+                            BuildMail(new[] {cl, cm}, ca);
                         }
                         catch (Exception ex)
                         {
@@ -354,20 +354,36 @@ namespace CMR.Controllers
             }
         }
 
-        private async Task SendMail(string[] ids, CourseAssignment ca)
+        private void BuildMail(string[] ids, CourseAssignment ca)
         {
-            var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            Course course = ca.Course;
-            var subject = "You have been assigned to manage: " +
-                          course.Code + " - " + course.Name + " : " +
-                          ca.Start.Year + " - " + ca.End.Year;
-            var callbackUrl = Url.Action("Assigned", "Courses", Request.Url.Scheme);
-            var body = "You can view your courses in <a href='" + callbackUrl +"'>Course Assigned List</a>";
-            foreach (string id in ids)
+            var course = ca.Course;
+            var subject = "Course Assignment";
+            var courseinfo = course.Code + " - " + course.Name + " : " +
+                             ca.Start.Year + " - " + ca.End.Year;
+            var callbackUrl = Url.Action("Assigned", "Courses", null, Request.Url.Scheme);
+
+            foreach (var user in ids.Select(id => _db.Users.Find(id)).Where(user => user != null))
             {
-                await userManager.SendEmailAsync(id, subject, body);
+                BackgroundJob.Enqueue(() => SendMail(user.Email, subject, callbackUrl, courseinfo));
             }
-            
+        }
+
+        public void SendMail(string to, string subject, string callbackUrl, string course)
+        {
+            var viewsPath = Path.GetFullPath(HostingEnvironment.MapPath(@"~/Views/Emails"));
+            var engines = new ViewEngineCollection();
+            engines.Add(new FileSystemRazorViewEngine(viewsPath));
+
+            var emailService = new Postal.EmailService(engines);
+
+            var email = new CourseAssignEmail
+            {
+                To = to,
+                Subject = subject,
+                CallbackUrl = callbackUrl,
+                CourseInfo = course
+            };
+            emailService.Send(email);
         }
 
         protected override void Dispose(bool disposing)
