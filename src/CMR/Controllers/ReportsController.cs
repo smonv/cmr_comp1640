@@ -319,6 +319,8 @@ namespace CMR.Controllers
                 return Redirect(Url.Action("Denied", "Account"));
             }
             report.IsApproved = true;
+            report.ApproveAt = DateTime.Now;
+
             _db.SaveChanges();
             _msgs.Add("Report Approved");
             BuildEmail(report, "Approve", User.Identity.GetUserId(), false);

@@ -28,6 +28,8 @@ namespace CMR.Models
         [Required]
         public DateTime CreateAt { get; set; }
 
+        public DateTime ApproveAt { get; set; }
+
         public virtual CourseAssignment Assignment { get; set; }
         public virtual ICollection<ReportStatistical> Statisticals { get; set; }
         public virtual ICollection<ReportDistribution> Distributions { get; set; }
