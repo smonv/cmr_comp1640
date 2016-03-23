@@ -190,6 +190,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
+    <Compile Include="Custom\HangfireAuthorizationFilter.cs" />
     <Compile Include="EmailModels\CourseAssignEmail.cs" />
     <Compile Include="EmailModels\FacultyAssignEmail.cs" />
     <Compile Include="EmailModels\ReportCommentNotifyEmail.cs" />
@@ -197,9 +198,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\AccessDeniedAuthorizeAttribute.cs" />
-    <Compile Include="Helpers\ConvertHelper.cs" />
-    <Compile Include="Helpers\HangfireBootstrapper.cs" />
+    <Compile Include="Custom\AccessDeniedAuthorizeAttribute.cs" />
+    <Compile Include="Custom\ConvertHelper.cs" />
+    <Compile Include="Custom\HangfireBootstrapper.cs" />
     <Compile Include="Jobs\NotifyReportCommentDeadline.cs" />
     <Compile Include="Migrations\201603010735501_Identity.cs" />
     <Compile Include="Migrations\201603010735501_Identity.Designer.cs">
