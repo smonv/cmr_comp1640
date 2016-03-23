@@ -137,7 +137,7 @@ namespace CMR.Controllers
                     }));
                     _db.SaveChanges();
                     transaction.Commit();
-                    BuildEmail(report, "Create", User.Identity.GetUserId());
+                    BuildEmail(report, "Create", User.Identity.GetUserId(), false);
                     return Redirect("/Courses/Assigned");
                 }
                 catch (Exception ex)
@@ -253,7 +253,7 @@ namespace CMR.Controllers
 
                     _db.SaveChanges();
                     transaction.Commit();
-                    BuildEmail(report, "Edit", User.Identity.GetUserId());
+                    BuildEmail(report, "Edit", User.Identity.GetUserId(), false);
                     return RedirectToAction("Edit", new {id = report.Id});
                 }
                 catch (Exception ex)
@@ -321,7 +321,7 @@ namespace CMR.Controllers
             report.IsApproved = true;
             _db.SaveChanges();
             _msgs.Add("Report Approved");
-            BuildEmail(report, "Approve", User.Identity.GetUserId());
+            BuildEmail(report, "Approve", User.Identity.GetUserId(), false);
             TempData["msgs"] = _msgs;
             return RedirectToAction("Details", new {id});
         }
@@ -350,7 +350,7 @@ namespace CMR.Controllers
             report.IsApproved = false;
             _db.SaveChanges();
             _msgs.Add("Report unapprove");
-            BuildEmail(report, "Unapprove", User.Identity.GetUserId());
+            BuildEmail(report, "Unapprove", User.Identity.GetUserId(), false);
             TempData["msgs"] = _msgs;
             return RedirectToAction("Details", new {id});
         }
@@ -376,7 +376,7 @@ namespace CMR.Controllers
                     _db.ReportComments.Add(new ReportComment(comment, report, cUser));
                     _db.SaveChanges();
                     _msgs.Add("New comment added");
-                    BuildEmail(report, "Comment", User.Identity.GetUserId());
+                    BuildEmail(report, "Comment", User.Identity.GetUserId(), false);
                 }
                 else
                 {
@@ -420,18 +420,8 @@ namespace CMR.Controllers
             base.Dispose(disposing);
         }
 
-        private void BuildEmail(Report report, string action, string exceptUserId)
+        private void BuildEmail(Report report, string action, string exceptUserId, bool onlyCourseAssignment)
         {
-            var cams = _db.CourseAssignmentManagers.Include(cam => cam.User)
-                .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
-            var fams = _db.FacultyAssignmentManagers.Include(fam => fam.User)
-                .Where(fam => fam.FacultyAssignment.Faculty.Courses.Any(c => c.Id == report.Assignment.Course.Id))
-                .ToList();
-            var cl = cams.Single(cam => cam.Role == "cl").User;
-            var cm = cams.Single(cam => cam.Role == "cm").User;
-            var dlt = fams.Single(fam => fam.Role == "dlt").User;
-            var receivers = new List<ApplicationUser>(new[] {cl, cm, dlt});
-
             var reportUrl = Url.Action("Details", "Reports", new {id = report.Id}, Request.Url.Scheme);
             var subject = "";
 
@@ -470,14 +460,33 @@ namespace CMR.Controllers
                           + report.Assignment.Start.Year + " - " + report.Assignment.End.Year;
             }
 
-            foreach (var receiver in receivers)
+            var cams = _db.CourseAssignmentManagers.Include(cam => cam.User)
+                .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+
+            foreach (var cam in cams)
             {
-                if (receiver.Id != exceptUserId)
+                if (cam.User != null)
                 {
-                    var user = _db.Users.Find(receiver.Id);
-                    if (user != null)
+                    if (cam.User.Id != exceptUserId)
                     {
-                        BackgroundJob.Enqueue(() => SendEmail(user.Email, subject, reportUrl));
+                        BackgroundJob.Enqueue(() => SendEmail(cam.User.Email, subject, reportUrl));
+                    }
+                }
+            }
+
+            if (!onlyCourseAssignment)
+            {
+                var fams = _db.FacultyAssignmentManagers.Include(fam => fam.User)
+                    .Where(fam => fam.FacultyAssignment.Faculty.Courses.Any(c => c.Id == report.Assignment.Course.Id))
+                    .ToList();
+                foreach (var fam in fams)
+                {
+                    if (fam.User != null)
+                    {
+                        if (fam.User.Id != exceptUserId)
+                        {
+                            BackgroundJob.Enqueue(() => SendEmail(fam.User.Email, subject, reportUrl));
+                        }
                     }
                 }
             }
