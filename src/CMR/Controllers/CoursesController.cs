@@ -82,7 +82,7 @@ namespace CMR.Controllers
             }
             else
             {
-                _errors.Add("Please select faculty.");
+                _errors.Add("Please select at least one faculty before create.");
                 TempData["errors"] = _errors;
             }
 
@@ -134,13 +134,14 @@ namespace CMR.Controllers
             }
             else
             {
-                _errors.Add("Please select faculty.");
+                _errors.Add("Please select at least one faculty before update.");
                 TempData["errors"] = _errors;
             }
 
             var fcm = new FacultyCourseModel();
             var faculties = _db.Faculties.ToList();
             fcm.Faculties = faculties;
+            course.Faculties = _db.Faculties.Where(f => f.Courses.Any(c => c.Id == course.Id)).ToList();
             fcm.Course = course;
             return View(fcm);
         }
