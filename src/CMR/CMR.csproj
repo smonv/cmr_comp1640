@@ -192,12 +192,15 @@
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="EmailModels\CourseAssignEmail.cs" />
     <Compile Include="EmailModels\FacultyAssignEmail.cs" />
+    <Compile Include="EmailModels\ReportCommentNotifyEmail.cs" />
     <Compile Include="EmailModels\ReportEmail.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AccessDeniedAuthorizeAttribute.cs" />
     <Compile Include="Helpers\ConvertHelper.cs" />
+    <Compile Include="Helpers\HangfireBootstrapper.cs" />
+    <Compile Include="Jobs\NotifyReportCommentDeadline.cs" />
     <Compile Include="Migrations\201603010735501_Identity.cs" />
     <Compile Include="Migrations\201603010735501_Identity.Designer.cs">
       <DependentUpon>201603010735501_Identity.cs</DependentUpon>
@@ -269,6 +272,10 @@
     <Compile Include="Migrations\201603231259128_AddMoreValidateForFaculty.cs" />
     <Compile Include="Migrations\201603231259128_AddMoreValidateForFaculty.Designer.cs">
       <DependentUpon>201603231259128_AddMoreValidateForFaculty.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201603231332020_AddCreateAtColumnForReport.cs" />
+    <Compile Include="Migrations\201603231332020_AddCreateAtColumnForReport.Designer.cs">
+      <DependentUpon>201603231332020_AddCreateAtColumnForReport.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -394,6 +401,8 @@
     <Content Include="Views\Emails\FacultyAssign.Html.cshtml" />
     <Content Include="Views\Emails\Report.cshtml" />
     <Content Include="Views\Emails\Report.Html.cshtml" />
+    <Content Include="Views\Emails\ReportCommentNotify.cshtml" />
+    <Content Include="Views\Emails\ReportCommentNotify.Html.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -464,6 +473,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603231259128_AddMoreValidateForFaculty.resx">
       <DependentUpon>201603231259128_AddMoreValidateForFaculty.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603231332020_AddCreateAtColumnForReport.resx">
+      <DependentUpon>201603231332020_AddCreateAtColumnForReport.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using CMR.Helpers;
+using CMR.Jobs;
+using Hangfire;
 using Newtonsoft.Json;
 
 namespace CMR
 {
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         protected void Application_Start()
         {
@@ -19,9 +19,18 @@ namespace CMR
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
-                Formatting = Newtonsoft.Json.Formatting.Indented,
-                ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
+
+            HangfireBootstrapper.Instance.Start();
+            RecurringJob.AddOrUpdate("NotifyReportCommendDeadline", () => NotifyReportCommentDeadline.Check(),
+                Cron.Hourly);
+        }
+
+        protected void Application_End()
+        {
+            HangfireBootstrapper.Instance.Stop();
         }
     }
 }
