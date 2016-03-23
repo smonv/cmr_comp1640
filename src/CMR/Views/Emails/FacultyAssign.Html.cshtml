@@ -1,0 +1,13 @@
+﻿@model CMR.EmailModels.FacultyAssignEmail
+Content-Type: text/html; charset=utf-8
+
+<html>
+<body>
+<div>
+    <p>You have been assigned to manage faculty: @Model.FacultyInfo</p>
+    <p>
+        Check out this: <a href="@Model.CallbackUrl">Faculty Assignment</a>
+    </p>
+</div>
+</body>
+</html>

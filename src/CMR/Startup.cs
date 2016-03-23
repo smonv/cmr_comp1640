@@ -1,7 +1,10 @@
-﻿using Microsoft.Owin;
+﻿using CMR;
+using Hangfire;
+using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartupAttribute(typeof(CMR.Startup))]
+[assembly: OwinStartup(typeof (Startup))]
+
 namespace CMR
 {
     public partial class Startup
@@ -9,6 +12,9 @@ namespace CMR
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+            GlobalConfiguration.Configuration.UseSqlServerStorage("DefaultConnection");
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
         }
     }
 }

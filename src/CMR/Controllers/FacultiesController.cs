@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
-using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
+using CMR.EmailModels;
 using CMR.Helpers;
 using CMR.Models;
 using CMR.ViewModels;
+using Hangfire;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
+using Postal;
 
 namespace CMR.Controllers
 {
@@ -148,7 +150,7 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public async Task<ActionResult> Assign(int id, string pvc, string dlt)
+        public ActionResult Assign(int id, string pvc, string dlt)
         {
             var faculty = _db.Faculties.Find(id);
             if (faculty == null)
@@ -191,7 +193,7 @@ namespace CMR.Controllers
                         _db.SaveChanges();
                         transaction.Commit();
                         _msgs.Add("Assign Complete");
-                        await SendMail(new[] {pvc, dlt}, fa);
+                        BuildMail(new[] {pvc, dlt}, fa);
                     }
                     catch (Exception)
                     {
@@ -211,7 +213,8 @@ namespace CMR.Controllers
                 .Any(fam => fam.Role == role))
             {
                 var fam =
-                    _db.FacultyAssignmentManagers.Where(f => f.FacultyAssignment.Id == fa.Id).Single(f => f.Role == role);
+                    _db.FacultyAssignmentManagers.Where(f => f.FacultyAssignment.Id == fa.Id)
+                        .Single(f => f.Role == role);
                 fam.User = user;
             }
             else
@@ -236,17 +239,34 @@ namespace CMR.Controllers
             }
         }
 
-        private async Task SendMail(string[] ids, FacultyAssignment fa)
+        private void BuildMail(string[] ids, FacultyAssignment fa)
         {
-            var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            var faculty = fa.Faculty;
-            var subject = "You have been assigned to manage: " + faculty.Name;
-            var callbackUrl = Url.Action("Assigned", "Faculties", Request.Url.Scheme);
-            var body = "You can view your faculties in <a href='" + callbackUrl + "'>Faculties Assigned List</a>";
-            foreach (var id in ids)
+            var faculty = fa.Faculty.Name;
+            var subject = "Faculty Assignment";
+            var callbackUrl = Url.Action("Assigned", "Faculties", null, Request.Url.Scheme);
+
+            foreach (var user in ids.Select(id => _db.Users.Find(id)).Where(user => user != null))
             {
-                await userManager.SendEmailAsync(id, subject, body);
+                BackgroundJob.Enqueue(() => SendMail(user.Email, subject, callbackUrl, faculty));
             }
+        }
+
+        public void SendMail(string to, string subject, string callbackUrl, string faculty)
+        {
+            var viewsPath = Path.GetFullPath(HostingEnvironment.MapPath(@"~/Views/Emails"));
+            var engines = new ViewEngineCollection();
+            engines.Add(new FileSystemRazorViewEngine(viewsPath));
+
+            var emailService = new Postal.EmailService(engines);
+
+            var email = new FacultyAssignEmail
+            {
+                To = to,
+                Subject = subject,
+                CallbackUrl = callbackUrl,
+                FacultyInfo = faculty
+            };
+            emailService.Send(email);
         }
 
         protected override void Dispose(bool disposing)

@@ -1,0 +1,13 @@
+﻿@model CMR.EmailModels.CourseAssignEmail
+Content-Type: text/html; charset=utf-8
+
+<html>
+<body>
+<div>
+    <p>You have been assigned to manage course: @Model.CourseInfo</p>
+    <p>
+        Check out this: <a href="@Model.CallbackUrl">Course Assignment</a>
+    </p>
+</div>
+</body>
+</html>
