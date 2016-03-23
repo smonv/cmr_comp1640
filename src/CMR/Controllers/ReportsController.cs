@@ -26,10 +26,8 @@ namespace CMR.Controllers
         // GET: Reports
         public ActionResult Index()
         {
-            var userId = User.Identity.GetUserId();
-            //return View(db.Reports.Where(r => r.Assignment.Course.Managers.Any(m => m.Manager.Id == userId)).ToList());
-
-            return View(_db.Reports.ToList());
+            var cUser = User.Identity.GetUserId();
+            return View(_db.Reports.Where(r => r.Assignment.Managers.Any(m => m.User.Id == cUser)).ToList());
         }
 
         // GET: Reports/Details/5
