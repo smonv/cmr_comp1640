@@ -25,10 +25,9 @@ namespace CMR.Models
         [DataType(DataType.Text)]
         public string Action { get; set; }
 
-        [Required]
         public DateTime CreateAt { get; set; }
 
-        public DateTime ApproveAt { get; set; }
+        public DateTime? ApproveAt { get; set; }
 
         public virtual CourseAssignment Assignment { get; set; }
         public virtual ICollection<ReportStatistical> Statisticals { get; set; }

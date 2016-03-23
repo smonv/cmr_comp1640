@@ -28,10 +28,10 @@ namespace CMR.Jobs
                     {
                         if (report.Comments.All(c => c.User.Id != dlt.User.Id))
                         {
-                            var timepass = DateTime.Today.Day - report.ApproveAt.Day;
+                            var timepass = DateTime.Today.Day - report.ApproveAt.GetValueOrDefault().Day;
                             if (timepass > 12 && timepass < 15)
                             {
-                                var timeleft = 14 - report.ApproveAt.Day;
+                                var timeleft = 14 - report.ApproveAt.GetValueOrDefault().Day;
 
                                 BuildMail(report, dlt.User, timeleft);
                             }

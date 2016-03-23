@@ -282,6 +282,10 @@
     <Compile Include="Migrations\201603231512524_AddApproveAtColumnToReport.Designer.cs">
       <DependentUpon>201603231512524_AddApproveAtColumnToReport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603231609431_NullableReportApproveAt.cs" />
+    <Compile Include="Migrations\201603231609431_NullableReportApproveAt.Designer.cs">
+      <DependentUpon>201603231609431_NullableReportApproveAt.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Course.cs" />
@@ -484,6 +488,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603231512524_AddApproveAtColumnToReport.resx">
       <DependentUpon>201603231512524_AddApproveAtColumnToReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603231609431_NullableReportApproveAt.resx">
+      <DependentUpon>201603231609431_NullableReportApproveAt.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
