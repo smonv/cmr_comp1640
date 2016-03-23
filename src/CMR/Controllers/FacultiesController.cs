@@ -67,6 +67,13 @@ namespace CMR.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (_db.Faculties.Any(f => f.Name == faculty.Name))
+                {
+                    _errors.Add(faculty.Name + " already exists.");
+                    TempData["errors"] = _errors;
+                    return RedirectToAction("Create");
+                }
+
                 _db.Faculties.Add(faculty);
                 _db.SaveChanges();
                 return RedirectToAction("Index");
@@ -104,6 +111,11 @@ namespace CMR.Controllers
                 _db.Entry(faculty).State = EntityState.Modified;
                 _db.SaveChanges();
                 return RedirectToAction("Index");
+            }
+            if (_db.Faculties.Any(f => f.Name == faculty.Name))
+            {
+                _errors.Add(faculty.Name + " already exists.");
+                TempData["errors"] = _errors;
             }
             return View(faculty);
         }
@@ -193,7 +205,7 @@ namespace CMR.Controllers
                         _db.SaveChanges();
                         transaction.Commit();
                         _msgs.Add("Assign Complete");
-                        BuildMail(new[] {pvc, dlt}, fa);
+                        BuildMail(new[] { pvc, dlt }, fa);
                     }
                     catch (Exception)
                     {
@@ -204,7 +216,7 @@ namespace CMR.Controllers
             }
             TempData["errors"] = _errors;
             TempData["msgs"] = _msgs;
-            return RedirectToAction("Details", new {id = faculty.Id});
+            return RedirectToAction("Details", new { id = faculty.Id });
         }
 
         public void AssignAddOrUpdate(FacultyAssignment fa, ApplicationUser user, string role)
