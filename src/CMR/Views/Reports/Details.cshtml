@@ -1,16 +1,22 @@
-﻿@model CMR.Models.Report
+﻿@using CMR.Controllers
+@using CMR.Models
+@model CMR.Models.Report
 
 @{
     ViewBag.Title = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <ol class="breadcrumb">
-    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
-    <li><a href="@Url.Action("Index", "Reports")">Reports</a></li>
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Reports")">Reports</a>
+    </li>
     <li class="active">Details</li>
     @if (!Model.IsApproved)
     {
-        <li class="pull-right">@Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new { @class = "pull-right" })</li>
+        <li class="pull-right">@Html.ActionLink("Edit", "Edit", new {id = Model.Id}, new {@class = "pull-right"})</li>
     }
 </ol>
 <div class="panel panel-default">
@@ -45,9 +51,9 @@
                 <td>Exam</td>
             </tr>
             @{
-                var scw1 = Model != null ? Model.Statisticals.Single(s => s.Type == "cw1") : new CMR.Models.ReportStatistical();
-                var scw2 = Model != null ? Model.Statisticals.Single(s => s.Type == "cw2") : new CMR.Models.ReportStatistical();
-                var sexam = Model != null ? Model.Statisticals.Single(s => s.Type == "exam") : new CMR.Models.ReportStatistical();
+                var scw1 = Model != null ? Model.Statisticals.Single(s => s.Type == "cw1") : new ReportStatistical();
+                var scw2 = Model != null ? Model.Statisticals.Single(s => s.Type == "cw2") : new ReportStatistical();
+                var sexam = Model != null ? Model.Statisticals.Single(s => s.Type == "exam") : new ReportStatistical();
             }
             <tr>
                 <td>Mean</td>
@@ -73,9 +79,9 @@
                 <td>70 - 100</td>
             </tr>
             @{
-                var dcw1 = Model != null ? Model.Distributions.Single(d => d.Type == "cw1") : new CMR.Models.ReportDistribution();
-                var dcw2 = Model != null ? Model.Distributions.Single(d => d.Type == "cw2") : new CMR.Models.ReportDistribution();
-                var dexam = Model != null ? Model.Distributions.Single(d => d.Type == "exam") : new CMR.Models.ReportDistribution();
+                var dcw1 = Model != null ? Model.Distributions.Single(d => d.Type == "cw1") : new ReportDistribution();
+                var dcw2 = Model != null ? Model.Distributions.Single(d => d.Type == "cw2") : new ReportDistribution();
+                var dexam = Model != null ? Model.Distributions.Single(d => d.Type == "exam") : new ReportDistribution();
             }
             <tr>
                 <td>Cw1</td>
@@ -114,9 +120,10 @@
         </div>
         <div class="panel-body">
             @{
-                var reportController = (CMR.Controllers.ReportsController) this.ViewContext.Controller;
+                var reportController = (ReportsController) ViewContext.Controller;
             }
-            @if (reportController.CanComment(Model)) {
+            @if (reportController.CanComment(Model))
+            {
                 <form method="post" action="@Url.Action("Comment", "Reports", new {id = Model.Id})">
                     @Html.AntiForgeryToken()
                     <div class="form-group">

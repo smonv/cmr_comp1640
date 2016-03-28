@@ -5,8 +5,12 @@
 }
 
 <ol class="breadcrumb">
-    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
-    <li><a href="@Url.Action("Index", "Faculties")">Faculties</a></li>
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Faculties")">Faculties</a>
+    </li>
     <li class="active">Assigned</li>
 </ol>
 
@@ -26,15 +30,15 @@
                 {
                     <tr>
                         <td>
-                            @Html.ActionLink(fam.FacultyAssignment.Faculty.Name, "Details", new { id = fam.FacultyAssignment.Faculty.Id })
+                            @Html.ActionLink(fam.FacultyAssignment.Faculty.Name, "Details", new {id = fam.FacultyAssignment.Faculty.Id})
                         </td>
                         @switch (fam.Role)
                         {
                             case "pvc":
-                                <td>Pro-Vice Chancellor</td>;
+                                <td>Pro-Vice Chancellor</td>
                                 break;
                             case "dlt":
-                                <td>Director of Learning and Quality</td>;
+                                <td>Director of Learning and Quality</td>
                                 break;
                         }
                     </tr>

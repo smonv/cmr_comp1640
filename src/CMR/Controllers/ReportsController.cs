@@ -7,7 +7,7 @@ using System.Net;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using CMR.EmailModels;
-using CMR.Helpers;
+using CMR.Custom;
 using CMR.Models;
 using CMR.ViewModels;
 using Hangfire;
@@ -310,17 +310,6 @@ namespace CMR.Controllers
                 return HttpNotFound();
             }
             return View(report);
-        }
-
-        // POST: Reports/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            var report = _db.Reports.Find(id);
-            _db.Reports.Remove(report);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
         }
 
         public ActionResult Approve(int? id)

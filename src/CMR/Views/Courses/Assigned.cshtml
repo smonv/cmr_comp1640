@@ -5,10 +5,15 @@
 }
 
 <ol class="breadcrumb">
-    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
-    <li><a href="@Url.Action("Index", "Courses")">Course</a></li>
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Courses")">Course</a>
+    </li>
     <li class="active">Assigned</li>
 </ol>
+
 <div class="panel panel-default">
     <div class="panel-heading">@ViewBag.Title</div>
     <div class="panel-body">
@@ -27,13 +32,14 @@
                     <tr>
                         <td>
                             @Html.ActionLink(cam.CourseAssignment.Course.Code + " - " + cam.CourseAssignment.Course.Name,
-                                "Details", new { id = cam.CourseAssignment.Course.Id })
+                                "Details", new {id = cam.CourseAssignment.Course.Id})
                         </td>
                         <td>@cam.CourseAssignment.Start.Year - @cam.CourseAssignment.End.Year</td>
                         @switch (cam.Role)
                         {
                             case "cl":
-                                <td>Course Leader</td>;
+                                <td>Course Leader</td>
+                                ;
                                 if (cam.CourseAssignment.Reports.Any())
                                 {
                                     <td>
@@ -48,7 +54,8 @@
                                 }
                                 break;
                             case "cm":
-                                <td>Course Manager</td>;
+                                <td>Course Manager</td>
+                                ;
                                 if (cam.CourseAssignment.Reports.Any())
                                 {
                                     <td>

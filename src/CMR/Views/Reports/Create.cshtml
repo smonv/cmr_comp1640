@@ -5,12 +5,16 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <ol class="breadcrumb">
-    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
-    <li><a href="@Url.Action("Index", "Reports")">Reports</a></li>
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Reports")">Reports</a>
+    </li>
     <li class="active">New report</li>
 </ol>
 
-<form method="post" action="@Url.Action("Create", "Reports", new { id = Model.CourseAssignment.Id })">
+<form method="post" action="@Url.Action("Create", "Reports", new {id = Model.CourseAssignment.Id})">
     @Html.AntiForgeryToken()
     @Html.Partial("_Form", Model)
 </form>

@@ -1,7 +1,7 @@
 ﻿using System.Web.Hosting;
 using Hangfire;
 
-namespace CMR.Helpers
+namespace CMR.Custom
 {
     public class HangfireBootstrapper : IRegisteredObject
     {

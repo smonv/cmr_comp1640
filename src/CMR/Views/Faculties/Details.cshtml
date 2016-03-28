@@ -6,15 +6,19 @@
 }
 
 <ol class="breadcrumb">
-    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
-    <li><a href="@Url.Action("Index", "Faculties")">Faculties</a></li>
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Faculties")">Faculties</a>
+    </li>
     <li class="active">List</li>
 </ol>
 
 <div class="panel panel-default">
     <div class="panel-heading">
         Details
-        @Html.ActionLink("Edit", "Edit", new { id = Model.Faculty.Id }, new { @class = "pull-right" })
+        @Html.ActionLink("Edit", "Edit", new {id = Model.Faculty.Id}, new {@class = "pull-right"})
 
     </div>
     <div class="panel-body">
@@ -68,32 +72,31 @@
         }
         <table class="table">
             <thead>
-                <tr>
-                    <td>Pro-Vice Chancellor</td>
-                    <td>Director of Learning and Quality</td>
-                </tr>
+            <tr>
+                <td>Pro-Vice Chancellor</td>
+                <td>Director of Learning and Quality</td>
+            </tr>
             </thead>
             <tbody>
-                @if (Model.Faculty.FacultyAssignment.Any())
+            @if (Model.Faculty.FacultyAssignment.Any())
             {
-
                 foreach (var assignment in Model.Faculty.FacultyAssignment)
                 {
-                        <tr>
-                            @foreach (var manager in assignment.Managers)
+                    <tr>
+                        @foreach (var manager in assignment.Managers)
+                        {
+                            if (manager.Role == "pvc")
                             {
-                                if (manager.Role == "pvc")
-                                {
-                                    <td>@manager.User.UserName</td>
-                                }
-                                if (manager.Role == "dlt")
-                                {
-                                    <td>@manager.User.UserName</td>
-                                }
+                                <td>@manager.User.UserName</td>
                             }
-                        </tr>
-                    }
+                            if (manager.Role == "dlt")
+                            {
+                                <td>@manager.User.UserName</td>
+                            }
+                        }
+                    </tr>
                 }
+            }
 
             </tbody>
         </table>

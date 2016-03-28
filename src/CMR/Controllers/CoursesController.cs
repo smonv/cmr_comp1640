@@ -8,7 +8,7 @@ using System.Net;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using CMR.EmailModels;
-using CMR.Helpers;
+using CMR.Custom;
 using CMR.Models;
 using CMR.ViewModels;
 using Hangfire;
@@ -144,34 +144,6 @@ namespace CMR.Controllers
             course.Faculties = _db.Faculties.Where(f => f.Courses.Any(c => c.Id == course.Id)).ToList();
             fcm.Course = course;
             return View(fcm);
-        }
-
-        // GET: Courses/Delete/5
-        [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            var course = _db.Courses.Find(id);
-            if (course == null)
-            {
-                return HttpNotFound();
-            }
-            return View(course);
-        }
-
-        // POST: Courses/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            var course = _db.Courses.Find(id);
-            _db.Courses.Remove(course);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
         }
 
         private void UpdateFaculties(Course course, string[] selectedFaculties, ApplicationDbContext context)

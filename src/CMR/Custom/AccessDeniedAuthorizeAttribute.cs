@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace CMR.Helpers
+namespace CMR.Custom
 {
     public class AccessDeniedAuthorizeAttribute : AuthorizeAttribute
     {

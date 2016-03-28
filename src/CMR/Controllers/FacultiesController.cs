@@ -7,7 +7,7 @@ using System.Net;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using CMR.EmailModels;
-using CMR.Helpers;
+using CMR.Custom;
 using CMR.Models;
 using CMR.ViewModels;
 using Hangfire;
@@ -118,34 +118,6 @@ namespace CMR.Controllers
                 TempData["errors"] = _errors;
             }
             return View(faculty);
-        }
-
-        // GET: Faculties/Delete/5
-        [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            var faculty = _db.Faculties.Find(id);
-            if (faculty == null)
-            {
-                return HttpNotFound();
-            }
-            return View(faculty);
-        }
-
-        // POST: Faculties/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            var faculty = _db.Faculties.Find(id);
-            _db.Faculties.Remove(faculty);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
         }
 
         [AccessDeniedAuthorize(Roles = "Staff")]
