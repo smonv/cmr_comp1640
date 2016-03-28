@@ -27,7 +27,15 @@ namespace CMR.Controllers
         public ActionResult Index()
         {
             var cUser = User.Identity.GetUserId();
-            return View(_db.Reports.Where(r => r.Assignment.Managers.Any(m => m.User.Id == cUser)).ToList());
+            var reports = _db.Reports.Where(r => r.Assignment.Managers.Any(m => m.User.Id == cUser)).ToList();
+            var enumerable = reports.Concat(
+                _db.Reports.Where(
+                    r =>
+                        r.Assignment.Course.Faculties.Any(
+                            f => f.FacultyAssignment.Any(fa => fa.Managers.Any(m => m.User.Id == cUser))))
+                    .Where(r => r.IsApproved)
+                    .ToList());
+            return View(enumerable);
         }
 
         // GET: Reports/Details/5
@@ -63,20 +71,20 @@ namespace CMR.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
             ca.Managers =
-                _db.CourseAssignmentManagers.Include(cam => cam.User)
+                _db.CourseAssignmentManagers.Include(cam => cam.User).Include(cam => cam.CourseAssignment.Course)
                     .Where(cam => cam.CourseAssignment.Id == ca.Id)
                     .ToList();
-            if (CheckCourseManager(ca))
+            if (CheckCourseManager(ca) || CheckDLT(ca.Course))
             {
-                _errors.Add("Course Manager cannot create report.");
+                _errors.Add("Only Course Leader can create report.");
                 TempData["errors"] = _errors;
-                return Redirect(Url.Action("Assigned", "Courses"));
+                return Redirect(Request.UrlReferrer?.ToString() ?? Url.Action("Assigned", "Courses"));
             }
             if (_db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
                 _errors.Add("Report for this course and academic session already exists.");
                 TempData["errors"] = _errors;
-                return Redirect(Url.Action("Assigned", "Courses"));
+                return Redirect(Request.UrlReferrer?.ToString() ?? Url.Action("Assigned", "Courses"));
             }
             var rvm = new ReportViewModel();
             rvm.CourseAssignment = ca;
@@ -101,19 +109,21 @@ namespace CMR.Controllers
             var ca = _db.CourseAssignments.Find(id);
             ca.Managers =
                 _db.CourseAssignmentManagers.Include(cam => cam.User)
+                    .Include(cam => cam.CourseAssignment)
+                    .Include(cam => cam.CourseAssignment.Course)
                     .Where(cam => cam.CourseAssignment.Id == ca.Id)
                     .ToList();
-            if (CheckCourseManager(ca))
+            if (CheckCourseManager(ca) || CheckDLT(ca.Course))
             {
-                _errors.Add("Course Manager cannot create report.");
+                _errors.Add("Only Course Leader can create report.");
                 TempData["errors"] = _errors;
-                return Redirect(Url.Action("Assigned", "Courses"));
+                return Redirect(Request.UrlReferrer?.ToString() ?? Url.Action("Assigned", "Courses"));
             }
             if (_db.Reports.Any(r => r.Assignment.Id == ca.Id))
             {
                 _errors.Add("Report for this course and academic session already exists");
                 TempData["errors"] = _errors;
-                return Redirect(Url.Action("Assigned", "Courses"));
+                return Redirect(Request.UrlReferrer?.ToString() ?? Url.Action("Assigned", "Courses"));
             }
             using (var transaction = _db.Database.BeginTransaction())
             {
@@ -162,17 +172,27 @@ namespace CMR.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var report = _db.Reports.Find(id);
-            if (report == null)
+            if (!_db.Reports.Any(r => r.Id == id))
             {
                 return HttpNotFound();
             }
+            var report = _db.Reports.Include(r => r.Assignment)
+                .Include(r => r.Assignment.Course)
+                .Single(r => r.Id == id);
+
             if (report.IsApproved)
             {
                 _errors.Add("You cannot edit approved report");
                 TempData["errors"] = _errors;
                 return Redirect(Url.Action("Index", "Reports"));
             }
+            if (CheckCourseManager(report.Assignment) || CheckDLT(report.Assignment.Course))
+            {
+                _errors.Add("Only Course Leader can edit report.");
+                TempData["errors"] = _errors;
+                return Redirect(Request.UrlReferrer?.ToString() ?? Url.Action("Index", "Reports"));
+            }
+
             var rvm = new ReportViewModel();
             rvm.Report = report;
             rvm.CourseAssignment = report.Assignment;
@@ -181,9 +201,6 @@ namespace CMR.Controllers
             return View(rvm);
         }
 
-        // POST: Reports/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, int totalStudent, string action,
@@ -195,13 +212,22 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            var report = _db.Reports.Include(r => r.Assignment).Single(r => r.Id == id);
+            var report = _db.Reports.Include(r => r.Assignment)
+                .Include(r => r.Assignment.Course)
+                .Single(r => r.Id == id);
 
             if (report.IsApproved)
             {
                 _errors.Add("You cannot edit approved report");
                 TempData["errors"] = _errors;
                 return Redirect(Url.Action("Index", "Reports"));
+            }
+
+            if (CheckCourseManager(report.Assignment) || CheckDLT(report.Assignment.Course))
+            {
+                _errors.Add("Only Course Leader can edit report.");
+                TempData["errors"] = _errors;
+                return Redirect(Request.UrlReferrer?.ToString() ?? Url.Action("Index", "Reports"));
             }
 
             using (var transaction = _db.Database.BeginTransaction())
@@ -393,7 +419,20 @@ namespace CMR.Controllers
         public bool CheckCourseManager(CourseAssignment ca)
         {
             var cUser = User.Identity.GetUserId();
-            return ca.Managers.Where(m => m.Role == "cm").Any(m => m.User.Id == cUser);
+            return
+                _db.CourseAssignmentManagers.Include(m => m.User)
+                    .Where(cam => cam.CourseAssignment.Id == ca.Id)
+                    .Where(m => m.Role == "cm")
+                    .Any(m => m.User.Id == cUser);
+        }
+
+        public bool CheckDLT(Course course)
+        {
+            var cUser = User.Identity.GetUserId();
+            var result =
+                _db.Faculties.Where(f => f.Courses.Any(c => c.Id == course.Id))
+                    .Any(f => f.FacultyAssignment.Any(fa => fa.Managers.Any(m => m.User.Id == cUser)));
+            return result;
         }
 
         public bool CanComment(Report report)
