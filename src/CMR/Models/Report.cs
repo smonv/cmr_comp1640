@@ -20,6 +20,8 @@ namespace CMR.Models
 
         public int Id { get; set; }
         public bool IsApproved { get; set; }
+
+        [Range(0, 5000)]
         public int TotalStudent { get; set; }
 
         [DataType(DataType.Text)]
