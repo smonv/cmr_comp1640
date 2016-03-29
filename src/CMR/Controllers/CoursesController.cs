@@ -31,7 +31,7 @@ namespace CMR.Controllers
         }
 
         // GET: Courses/Details/5
-        [AccessDeniedAuthorize(Roles = "Administrator")]
+        [AccessDeniedAuthorize(Roles = "Administrator,Staff")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -43,6 +43,14 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
+            if (!User.IsInRole("Administrator")) { 
+                var cUser = User.Identity.GetUserId();
+                if (!_db.CourseAssignments.Where(ca => ca.Course.Id == course.Id).Any(ca => ca.Managers.Any(m => m.User.Id == cUser)))
+                {
+                    return Redirect(Url.Action("Denied", "Account"));
+                }
+            }
+
             var am = new AssignViewModel();
             am.Course = course;
             var roleId = _db.Roles.Single(r => r.Name == "Staff").Id;

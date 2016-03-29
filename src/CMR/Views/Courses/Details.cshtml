@@ -36,62 +36,65 @@
     </div>
 </div>
 
+
 <div class="panel panel-default">
     <div class="panel-heading">Course Assignment</div>
     <div class="panel-body">
         @if (User.IsInRole("Administrator"))
         {
-            <form method="post" action="@Url.Action("Assign", "Courses", new {id = Model.Course.Id})" enctype="multipart/form-data">
-                @Html.AntiForgeryToken()
-                <div class="row">
-                    <div class="form-group col-md-3">
-                        <p>Course Leader</p>
-                        @Html.DropDownList("cl",
-                            Model.Staffs.Select(u => new SelectListItem
-                            {
-                                Text = u.UserName,
-                                Value = u.Id
-                            }),
-                            "Please select", new {@class = "form-control"})
-                    </div>
-                    <div class="form-group col-md-3">
-                        <p>Course Manager</p>
-                        @Html.DropDownList("cm",
-                            Model.Staffs.Select(u => new SelectListItem
-                            {
-                                Text = u.UserName,
-                                Value = u.Id
-                            }),
-                            "Please select", new {@class = "form-control"})
-                    </div>
+            if (User.IsInRole("Administrator"))
+            {
+                <form method="post" action="@Url.Action("Assign", "Courses", new {id = Model.Course.Id})" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <p>Course Leader</p>
+                            @Html.DropDownList("cl",
+                                Model.Staffs.Select(u => new SelectListItem
+                                {
+                                    Text = u.UserName,
+                                    Value = u.Id
+                                }),
+                                "Please select", new {@class = "form-control"})
+                        </div>
+                        <div class="form-group col-md-3">
+                            <p>Course Manager</p>
+                            @Html.DropDownList("cm",
+                                Model.Staffs.Select(u => new SelectListItem
+                                {
+                                    Text = u.UserName,
+                                    Value = u.Id
+                                }),
+                                "Please select", new {@class = "form-control"})
+                        </div>
 
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-12">Academic Year</div>
-                    <div class="form-group col-md-3">
-                        <input type="number" class="form-control" name="start" id="start" placeholder="Start"/>
                     </div>
-                    <div class="form-group col-md-3">
-                        <input type="number" class="form-control" name="end" id="end" placeholder="End"/>
+                    <div class="row">
+                        <div class="form-group col-md-12">Academic Year</div>
+                        <div class="form-group col-md-3">
+                            <input type="number" class="form-control" name="start" id="start" placeholder="Start"/>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <input type="number" class="form-control" name="end" id="end" placeholder="End"/>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-12">
-                        <input type="submit" value="Assign" class="btn btn-success pull-left"/>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <input type="submit" value="Assign" class="btn btn-success pull-left"/>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            }
         }
         <table class="table table-striped">
             <tr>
                 <th>Academic Year</th>
                 <th>Course Leader</th>
                 <th>Course Manager</th>
-                <th>Action</th>
             </tr>
-            @if (Model.Course.Managers.Any())
+            @if (Model.Course.CourseAssignments.Any())
             {
-                var years = Model.Course.Managers.OrderBy(m => m.Start.Year).GroupBy(m => m.Start.Year);
+                var years = Model.Course.CourseAssignments.OrderBy(m => m.Start.Year).GroupBy(m => m.Start.Year);
 
                 foreach (var year in years)
                 {

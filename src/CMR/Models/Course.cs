@@ -15,7 +15,7 @@ namespace CMR.Models
         [StringLength(100, MinimumLength = 3)]
         public string Name { get; set; }
 
-        public virtual ICollection<CourseAssignment> Managers { get; set; }
+        public virtual ICollection<CourseAssignment> CourseAssignments { get; set; }
         public virtual ICollection<Faculty> Faculties { get; set; }
     }
 }
