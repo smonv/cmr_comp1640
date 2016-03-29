@@ -6,8 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Web.Hosting;
 using System.Web.Mvc;
-using CMR.EmailModels;
 using CMR.Custom;
+using CMR.EmailModels;
 using CMR.Models;
 using CMR.ViewModels;
 using Hangfire;
@@ -166,18 +166,41 @@ namespace CMR.Controllers
                             var pvcUser = _db.Users.Find(pvc);
                             if (pvcUser != null)
                             {
-                                AssignAddOrUpdate(fa, pvcUser, "pvc");
+                                if (!CheckAssignExists(fa, pvcUser))
+                                {
+                                    AssignAddOrUpdate(fa, pvcUser, "pvc");
+                                }
+                                else
+                                {
+                                    _errors.Add(
+                                        "Pro-Vice Chancellor and Director of Learning and Quality cannot be the same person.");
+                                }
                             }
                             var dltUser = _db.Users.Find(dlt);
                             if (dltUser != null)
                             {
-                                AssignAddOrUpdate(fa, dltUser, "dlt");
+                                if (!CheckAssignExists(fa, dltUser))
+                                {
+                                    AssignAddOrUpdate(fa, dltUser, "dlt");
+                                }
+                                else
+                                {
+                                    _errors.Add(
+                                        "Pro-Vice Chancellor and Director of Learning and Quality cannot be the same person.");
+                                }
                             }
                         }
-                        _db.SaveChanges();
-                        transaction.Commit();
-                        _msgs.Add("Assign Complete");
-                        BuildMail(new[] { pvc, dlt }, fa);
+                        if (_errors.Count == 0)
+                        {
+                            _db.SaveChanges();
+                            transaction.Commit();
+                            _msgs.Add("Assign Complete");
+                            BuildMail(new[] {pvc, dlt}, fa);
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                        }
                     }
                     catch (Exception)
                     {
@@ -188,7 +211,7 @@ namespace CMR.Controllers
             }
             TempData["errors"] = _errors;
             TempData["msgs"] = _msgs;
-            return RedirectToAction("Details", new { id = faculty.Id });
+            return RedirectToAction("Details", new {id = faculty.Id});
         }
 
         public void AssignAddOrUpdate(FacultyAssignment fa, ApplicationUser user, string role)
@@ -206,6 +229,14 @@ namespace CMR.Controllers
                 var fam = new FacultyAssignmentManager(role, user, fa);
                 _db.FacultyAssignmentManagers.Add(fam);
             }
+        }
+
+        private bool CheckAssignExists(FacultyAssignment fa, ApplicationUser user)
+        {
+            var result =
+                _db.FacultyAssignmentManagers.Where(fam => fam.FacultyAssignment.Id == fa.Id)
+                    .Any(fam => fam.User.Id == user.Id);
+            return result;
         }
 
         private void ValidateAssignUser(string pvc, string dlt)

@@ -229,19 +229,41 @@ namespace CMR.Controllers
                                 var leader = _db.Users.Find(cl);
                                 if (leader != null)
                                 {
-                                    AssignManagerAddOrUpdate(ca, leader, "cl");
+                                    if (!CheckAssignExists(ca, leader))
+                                    {
+                                        AssignManagerAddOrUpdate(ca, leader, "cl");
+                                    }
+                                    else
+                                    {
+                                        _errors.Add("Leader and Manager cannot be the same person.");
+                                    }
                                 }
 
                                 var manager = _db.Users.Find(cm);
                                 if (manager != null)
                                 {
-                                    AssignManagerAddOrUpdate(ca, manager, "cm");
+                                    if (!CheckAssignExists(ca, manager))
+                                    {
+                                        AssignManagerAddOrUpdate(ca, manager, "cm");
+                                    }
+                                    else
+                                    {
+                                        _errors.Add("Leader and Manager cannot be the same person.");
+                                    }
+                                    
                                 }
                             }
-                            _db.SaveChanges();
-                            transaction.Commit();
-                            _msgs.Add("Assign Completed");
-                            BuildMail(new[] {cl, cm}, ca);
+                            if (_errors.Count == 0)
+                            {
+                                _db.SaveChanges();
+                                transaction.Commit();
+                                _msgs.Add("Assign Completed");
+                                BuildMail(new[] {cl, cm}, ca);
+                            }
+                            else
+                            {
+                                transaction.Rollback();
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -280,6 +302,14 @@ namespace CMR.Controllers
                 var cam = new CourseAssignmentManager(role, user, ca);
                 _db.CourseAssignmentManagers.Add(cam);
             }
+        }
+
+        private bool CheckAssignExists(CourseAssignment ca, ApplicationUser user)
+        {
+            var result =
+                _db.CourseAssignmentManagers.Where(cam => cam.CourseAssignment.Id == ca.Id)
+                    .Any(cam => cam.User.Id == user.Id);
+            return result;
         }
 
         private void ValidateAssignYear(string start, string end)
