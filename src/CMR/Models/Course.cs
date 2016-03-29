@@ -15,6 +15,10 @@ namespace CMR.Models
         [StringLength(100, MinimumLength = 3)]
         public string Name { get; set; }
 
+        [Required]
+        [DataType(DataType.Text)]
+        public string Description { get; set; }
+
         public virtual ICollection<CourseAssignment> CourseAssignments { get; set; }
         public virtual ICollection<Faculty> Faculties { get; set; }
     }

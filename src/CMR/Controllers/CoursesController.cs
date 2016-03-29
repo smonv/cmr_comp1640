@@ -76,7 +76,7 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Create([Bind(Include = "Id,Code,Name")] Course course, string[] selectedFaculties)
+        public ActionResult Create([Bind(Include = "Id,Code,Name,Description")] Course course, string[] selectedFaculties)
         {
             if (selectedFaculties != null)
             {
@@ -128,7 +128,7 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Edit([Bind(Include = "Id,Code,Name")] Course course, string[] selectedFaculties)
+        public ActionResult Edit([Bind(Include = "Id,Code,Name,Description")] Course course, string[] selectedFaculties)
         {
             if (selectedFaculties != null)
             {

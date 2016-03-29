@@ -35,6 +35,11 @@
                 @Html.ValidationMessageFor(m => m.Course.Name, "", new {@class = "text-danger"})
             </div>
             <div class="form-group">
+                @Html.LabelFor(m => m.Course.Description, new {@class = "control-label"})
+                @Html.TextAreaFor(m => m.Course.Description, new {@class = "form-control"})
+                @Html.ValidationMessageFor(m => m.Course.Description, "", new {@class = "text-danger"})
+            </div>
+            <div class="form-group">
                 Faculties
                 <hr/>
                 <div class="row">
