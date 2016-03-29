@@ -74,9 +74,9 @@ namespace CMR.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    _db.Courses.Add(course);
-                    _db.SaveChanges();
+                    _db.Courses.Add(course);                   
                     UpdateFaculties(course, selectedFaculties, _db);
+                    _db.SaveChanges();
                     return RedirectToAction("Index");
                 }
             }
@@ -152,11 +152,15 @@ namespace CMR.Controllers
             {
                 return;
             }
-            context.Entry(course).Collection(c => c.Faculties).Load();
-            if (course.Faculties == null)
+            if (_db.Faculties.Any(f => f.Courses.Any(c => c.Id == course.Id)))
             {
                 course.Faculties = new List<Faculty>();
             }
+            else
+            {
+                course.Faculties = _db.Faculties.Where(f => f.Courses.Any(c => c.Id == course.Id)).ToList();
+            }
+
             var courseFaculties = course.Faculties.Select(f => f.Id);
             foreach (var f in _db.Faculties.ToList())
             {
