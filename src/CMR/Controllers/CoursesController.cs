@@ -85,7 +85,7 @@ namespace CMR.Controllers
                     _db.Courses.Add(course);                   
                     UpdateFaculties(course, selectedFaculties, _db);
                     _db.SaveChanges();
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Details", new {id = course.Id});
                 }
             }
             else
@@ -137,7 +137,7 @@ namespace CMR.Controllers
                     _db.Entry(course).State = EntityState.Modified;
                     UpdateFaculties(course, selectedFaculties, _db);
                     _db.SaveChanges();
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Edit", new {id = course.Id});
                 }
             }
             else
@@ -160,17 +160,19 @@ namespace CMR.Controllers
             {
                 return;
             }
+
             if (_db.Faculties.Any(f => f.Courses.Any(c => c.Id == course.Id)))
             {
-                course.Faculties = new List<Faculty>();
+                context.Entry(course).Collection(c => c.Faculties).Load();
             }
             else
             {
-                course.Faculties = _db.Faculties.Where(f => f.Courses.Any(c => c.Id == course.Id)).ToList();
+                course.Faculties = new List<Faculty>();
             }
 
-            var courseFaculties = course.Faculties.Select(f => f.Id);
-            foreach (var f in _db.Faculties.ToList())
+            var courseFaculties = course.Faculties.Select(f => f.Id).ToList();
+            var faculties = _db.Faculties.ToList();
+            foreach (var f in faculties)
             {
                 var pos = Array.IndexOf(selectedFaculties, f.Id.ToString());
                 if (pos > -1)
