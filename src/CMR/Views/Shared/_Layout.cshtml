@@ -145,8 +145,19 @@
                                     </ul>
                                 }
                             </li>
-                            <li><a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>About</a></li>
-                            <li><a href='#' class="list-item"><span class="glyphicon glyphicon-bullhorn"></span>Contact</a></li>
+                            <li class='has-sub'>
+                                @if (User.IsInRole("Staff"))
+                                {
+                                <a href='#' class="list-item">
+                                    <span class="glyphicon glyphicon-briefcase"></span>Faculties
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href='@Url.Action("Assigned", "Faculties")'><span class="glyphicon glyphicon-list-alt"></span>Faculties Assigned</a>
+                                    </li>
+                                </ul>
+                                }
+                            </li>
                         </ul>
                     </div>
                 </div>

@@ -110,6 +110,9 @@ body {
   line-height: 20px;
   color: black;
 }
+.nothing{
+    color:white;
+}
 @media (max-width: 768px) {
   .nav-menu {
     width: 0px;

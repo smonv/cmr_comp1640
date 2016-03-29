@@ -16,33 +16,16 @@
 </ol>
 
 <div class="panel panel-default">
-    <div class="panel-heading">
-        Details
+    <div class="panel-heading">@Html.DisplayFor(m => m.Faculty.Name)
         @Html.ActionLink("Edit", "Edit", new {id = Model.Faculty.Id}, new {@class = "pull-right"})
-
     </div>
-    <div class="panel-body">
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(m => m.Faculty.Name)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(m => m.Faculty.Name)
-            </dd>
-        </dl>
-
-    </div>
-</div>
-<div class="panel panel-default">
-    <div class="panel-heading">Assignment</div>
     <div class="panel-body">
         @if (User.IsInRole("Administrator"))
         {
             <form method="post" action="@Url.Action("Assign", "Faculties", new {id = Model.Faculty.Id})">
                 @Html.AntiForgeryToken()
                 <div class="row">
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-5">
                         <p>Pro-Vice Chancellor</p>
                         @Html.DropDownList("pvc",
                             Model.Staffs.Select(u => new SelectListItem
@@ -51,7 +34,7 @@
                                 Value = u.Id
                             }), "Please select", new {@class = "form-control"})
                     </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-5">
                         <p>Director of Learning and Quality</p>
                         @Html.DropDownList("dlt",
                             Model.Staffs.Select(u => new SelectListItem
@@ -61,16 +44,14 @@
                             }),
                             "Please select", new {@class = "form-control"})
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-group col-md-12">
-                        <input type="submit" value="Assign" class="btn btn-success pull-left"/>
+                    <div class="form-group col-md-2">
+                        <p class="nothing">.</p>
+                        <input type="submit" value="Assign" class="btn btn-success pull-right" />
                     </div>
                 </div>
             </form>
         }
-        <table class="table">
+        <table class="table table-bordered">
             <thead>
             <tr>
                 <td>Pro-Vice Chancellor</td>

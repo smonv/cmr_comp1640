@@ -19,7 +19,7 @@
         List Faculties
         @Html.ActionLink("Add New", "Create", new {}, new {@class = "pull-right"})
     </div>
-    <table class="table">
+    <table class="table table-bordered">
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
@@ -38,7 +38,7 @@
                 </td>
                 <td>
                     @Html.ActionLink("Edit", "Edit", new {id = item.Id}) |
-                    @Html.ActionLink("Details", "Details", new {id = item.Id}) |
+                    @Html.ActionLink("Details", "Details", new {id = item.Id}) 
                 </td>
             </tr>
         }
