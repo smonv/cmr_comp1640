@@ -122,13 +122,13 @@ namespace CMR.Migrations
             {
                 Course[] courses =
                 {
-                new Course { Code = "COMP1640", Name = "Enterprise Web Software Development" },
-                new Course { Code = "COMP1648", Name = "Development, Frameworks and Methods" },
-                new Course { Code = "COMP1639", Name = "Database Engineering" },
-                new Course { Code = "COMP1649", Name = "Interaction Design" },
-                new Course { Code = "COMP1661", Name = "Application Development for Mobile Devices" },
-                new Course { Code = "COMP1689", Name = "Programming Frameworks" },
-                new Course { Code = "COMP1108", Name = "Project (Computing) - for External Programmes" }
+                new Course { Code = "COMP1640", Name = "Enterprise Web Software Development", Description = ".." },
+                new Course { Code = "COMP1648", Name = "Development, Frameworks and Methods", Description = ".." },
+                new Course { Code = "COMP1639", Name = "Database Engineering", Description = ".." },
+                new Course { Code = "COMP1649", Name = "Interaction Design", Description = ".." },
+                new Course { Code = "COMP1661", Name = "Application Development for Mobile Devices", Description = ".." },
+                new Course { Code = "COMP1689", Name = "Programming Frameworks", Description = ".." },
+                new Course { Code = "COMP1108", Name = "Project (Computing) - for External Programmes", Description = ".." }
             };
 
                 foreach (Course c in courses)
