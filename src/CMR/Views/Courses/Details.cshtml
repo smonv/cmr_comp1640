@@ -67,19 +67,24 @@
                                 }),
                                 "Please select", new {@class = "form-control"})
                         </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-md-12">Academic Year</div>
                         <div class="form-group col-md-3">
-                            <input type="number" class="form-control" name="start" id="start" placeholder="Start"/>
+                            <p>Academic Session</p>
+                            <select class="form-control" name="session" id="session">
+                                @{
+                                    var minYear = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["MinYear"]);
+                                    var maxYear = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["MaxYear"]);
+                                    var currentYear = DateTime.Now.Year;
+                                }
+                                @for (var i = minYear; i < maxYear; i++)
+                                {
+                                    var cYear = i;
+                                    var nYear = cYear + 1;
+                                    <option value="@cYear-@nYear" @Html.Raw(cYear == currentYear ? "selected" : "")>@cYear - @nYear</option>
+                                }
+                            </select>
                         </div>
                         <div class="form-group col-md-3">
-                            <input type="number" class="form-control" name="end" id="end" placeholder="End"/>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-md-12">
+                            <p>Action</p>
                             <input type="submit" value="Assign" class="btn btn-success pull-left"/>
                         </div>
                     </div>

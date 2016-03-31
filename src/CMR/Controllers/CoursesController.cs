@@ -195,13 +195,16 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Assign(int id, string cl, string cm, string start, string end)
+        public ActionResult Assign(int id, string cl, string cm, string session)
         {
             var course = _db.Courses.Find(id);
             if (course == null)
             {
                 return HttpNotFound();
             }
+            string[] years = session.Split('-');
+            string start = years[0];
+            string end = years[1];
             ValidateAssignUser(cl, cm);
             ValidateAssignYear(start, end);
             if (_errors.Count == 0)
