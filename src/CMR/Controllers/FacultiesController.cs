@@ -26,7 +26,9 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Index()
         {
-            return View(_db.Faculties.ToList());
+            var faculties =
+                _db.Faculties.Include(f => f.FacultyAssignment.Select(fa => fa.Managers.Select(m => m.User))).ToList();
+            return View(faculties);
         }
 
         // GET: Faculties/Details/5
