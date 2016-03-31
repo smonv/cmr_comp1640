@@ -25,9 +25,30 @@ namespace CMR.Controllers
 
         // GET: Courses
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Index()
+        public ActionResult Index(int? fid, string session)
         {
-            return View(_db.Courses.ToList());
+            var civm = new CourseIndexViewModel();
+            if (fid.HasValue)
+            {
+                civm.Courses =
+                    _db.Courses.Include(c => c.CourseAssignments.Select(ca => ca.Managers.Select(m => m.User)))
+                        .Where(c => c.Faculties.Any(f => f.Id == fid.Value))
+                        .ToList();
+            }
+            else
+            {
+                civm.Courses = _db.Courses.Include(c => c.CourseAssignments.Select(ca => ca.Managers.Select(m => m.User))).ToList();
+            }
+            if (!string.IsNullOrEmpty(session))
+            {
+                string[] years = session.Split('-');
+                var sYear = Convert.ToInt32(years[0]);
+                civm.SYear = sYear;
+            }
+
+
+            civm.Faculties = _db.Faculties.ToList();
+            return View(civm);
         }
 
         // GET: Courses/Details/5
@@ -43,7 +64,8 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            if (!User.IsInRole("Administrator")) { 
+            if (!User.IsInRole("Administrator"))
+            {
                 var cUser = User.Identity.GetUserId();
                 if (!_db.CourseAssignments.Where(ca => ca.Course.Id == course.Id).Any(ca => ca.Managers.Any(m => m.User.Id == cUser)))
                 {
@@ -82,10 +104,10 @@ namespace CMR.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    _db.Courses.Add(course);                   
+                    _db.Courses.Add(course);
                     UpdateFaculties(course, selectedFaculties, _db);
                     _db.SaveChanges();
-                    return RedirectToAction("Details", new {id = course.Id});
+                    return RedirectToAction("Details", new { id = course.Id });
                 }
             }
             else
@@ -137,7 +159,7 @@ namespace CMR.Controllers
                     _db.Entry(course).State = EntityState.Modified;
                     UpdateFaculties(course, selectedFaculties, _db);
                     _db.SaveChanges();
-                    return RedirectToAction("Edit", new {id = course.Id});
+                    return RedirectToAction("Edit", new { id = course.Id });
                 }
             }
             else
@@ -263,7 +285,7 @@ namespace CMR.Controllers
                                     {
                                         _errors.Add("Leader and Manager cannot be the same person.");
                                     }
-                                    
+
                                 }
                             }
                             if (_errors.Count == 0)
@@ -271,7 +293,7 @@ namespace CMR.Controllers
                                 _db.SaveChanges();
                                 transaction.Commit();
                                 _msgs.Add("Assign Completed");
-                                BuildMail(new[] {cl, cm}, ca);
+                                BuildMail(new[] { cl, cm }, ca);
                             }
                             else
                             {
@@ -288,7 +310,7 @@ namespace CMR.Controllers
             }
             TempData["msgs"] = _msgs;
             TempData["errors"] = _errors;
-            return RedirectToAction("Details", new {id});
+            return RedirectToAction("Details", new { id });
         }
 
         [AccessDeniedAuthorize(Roles = "Staff")]
