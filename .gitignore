@@ -4,3 +4,5 @@
 **/bin/
 **/obj/
 **/smtp.config
+**/*.Secret.config
+**/PublishProfiles
