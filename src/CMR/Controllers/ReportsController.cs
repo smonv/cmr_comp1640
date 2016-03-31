@@ -99,12 +99,12 @@ namespace CMR.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(int id, int totalStudent, string action,
-            int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
-            int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam,
-            int averageExam, int goodExam)
+        public ActionResult Create(int id, int? totalStudent, string action,
+            int? meanCw1, int? meanCw2, int? meanExam, int? medianCw1, int? medianCw2, int? medianExam,
+            int? badCw1, int? averageCw1, int? goodCw1, int? badCw2, int? averageCw2, int? goodCw2, int? badExam,
+            int? averageExam, int? goodExam)
         {
-            var report = new Report(totalStudent, action);
+            var report = new Report(totalStudent.GetValueOrDefault(), action);
 
             var ca = _db.CourseAssignments.Find(id);
             ca.Managers =
@@ -134,16 +134,16 @@ namespace CMR.Controllers
 
                     _db.ReportStatistical.AddRange(new List<ReportStatistical>(new[]
                     {
-                        new ReportStatistical(meanCw1, medianCw1, "cw1", report),
-                        new ReportStatistical(meanCw2, medianCw2, "cw2", report),
-                        new ReportStatistical(meanExam, medianExam, "exam", report)
+                        new ReportStatistical(meanCw1.GetValueOrDefault(), medianCw1.GetValueOrDefault(), "cw1", report),
+                        new ReportStatistical(meanCw2.GetValueOrDefault(), medianCw2.GetValueOrDefault(), "cw2", report),
+                        new ReportStatistical(meanExam.GetValueOrDefault(), medianExam.GetValueOrDefault(), "exam", report)
                     }));
 
                     _db.ReportDistribution.AddRange(new List<ReportDistribution>(new[]
                     {
-                        new ReportDistribution(badCw1, averageCw1, goodCw1, "cw1", report),
-                        new ReportDistribution(badCw2, averageCw2, goodCw2, "cw2", report),
-                        new ReportDistribution(badExam, averageExam, goodExam, "exam", report)
+                        new ReportDistribution(badCw1.GetValueOrDefault(), averageCw1.GetValueOrDefault(), goodCw1.GetValueOrDefault(), "cw1", report),
+                        new ReportDistribution(badCw2.GetValueOrDefault(), averageCw2.GetValueOrDefault(), goodCw2.GetValueOrDefault(), "cw2", report),
+                        new ReportDistribution(badExam.GetValueOrDefault(), averageExam.GetValueOrDefault(), goodExam.GetValueOrDefault(), "exam", report)
                     }));
                     _db.SaveChanges();
                     transaction.Commit();
@@ -203,10 +203,10 @@ namespace CMR.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, int totalStudent, string action,
-            int meanCw1, int meanCw2, int meanExam, int medianCw1, int medianCw2, int medianExam,
-            int badCw1, int averageCw1, int goodCw1, int badCw2, int averageCw2, int goodCw2, int badExam,
-            int averageExam, int goodExam)
+        public ActionResult Edit(int id, int? totalStudent, string action,
+            int? meanCw1, int? meanCw2, int? meanExam, int? medianCw1, int? medianCw2, int? medianExam,
+            int? badCw1, int? averageCw1, int? goodCw1, int? badCw2, int? averageCw2, int? goodCw2, int? badExam,
+            int? averageExam, int? goodExam)
         {
             if (!_db.Reports.Any(r => r.Id == id))
             {
@@ -234,24 +234,24 @@ namespace CMR.Controllers
             {
                 try
                 {
-                    report.TotalStudent = totalStudent;
+                    report.TotalStudent = totalStudent.GetValueOrDefault();
                     report.Action = action;
                     foreach (var statistical in report.Statisticals)
                     {
                         if (statistical.Type == "cw1")
                         {
-                            statistical.Mean = meanCw1;
-                            statistical.Median = medianCw1;
+                            statistical.Mean = meanCw1.GetValueOrDefault();
+                            statistical.Median = medianCw1.GetValueOrDefault();
                         }
                         else if (statistical.Type == "cw2")
                         {
-                            statistical.Mean = meanCw2;
-                            statistical.Median = medianCw2;
+                            statistical.Mean = meanCw2.GetValueOrDefault();
+                            statistical.Median = medianCw2.GetValueOrDefault();
                         }
                         else if (statistical.Type == "exam")
                         {
-                            statistical.Mean = meanExam;
-                            statistical.Median = medianExam;
+                            statistical.Mean = meanExam.GetValueOrDefault();
+                            statistical.Median = medianExam.GetValueOrDefault();
                         }
                     }
 
@@ -259,21 +259,21 @@ namespace CMR.Controllers
                     {
                         if (distribution.Type == "cw1")
                         {
-                            distribution.Bad = badCw1;
-                            distribution.Average = averageCw1;
-                            distribution.Good = goodCw1;
+                            distribution.Bad = badCw1.GetValueOrDefault();
+                            distribution.Average = averageCw1.GetValueOrDefault();
+                            distribution.Good = goodCw1.GetValueOrDefault();
                         }
                         else if (distribution.Type == "cw2")
                         {
-                            distribution.Bad = badCw2;
-                            distribution.Average = averageCw2;
-                            distribution.Good = goodCw2;
+                            distribution.Bad = badCw2.GetValueOrDefault();
+                            distribution.Average = averageCw2.GetValueOrDefault();
+                            distribution.Good = goodCw2.GetValueOrDefault();
                         }
                         else if (distribution.Type == "exam")
                         {
-                            distribution.Bad = badExam;
-                            distribution.Average = averageExam;
-                            distribution.Good = goodExam;
+                            distribution.Bad = badExam.GetValueOrDefault();
+                            distribution.Average = averageExam.GetValueOrDefault();
+                            distribution.Good = goodExam.GetValueOrDefault();
                         }
                     }
 
