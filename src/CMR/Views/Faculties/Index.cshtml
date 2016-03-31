@@ -24,8 +24,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>Manager</th>
-            <th></th>
+            <th>PVC</th>
+            <th>DLT</th>
+            <th>Action</th>
         </tr>
 
         @foreach (var item in Model)
@@ -35,6 +36,32 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
+                    @foreach (var fa in item.FacultyAssignment)
+                    {
+                        if (fa.Managers.Any(m => m.Role == "pvc"))
+                        {
+                            var pvc = fa.Managers.Single(m => m.Role == "pvc");
+                            <p>@pvc.User.UserName</p>
+                        }
+                        else
+                        {
+                            <p></p>
+                        }
+                    }
+                </td>
+                <td>
+                    @foreach (var fa in item.FacultyAssignment)
+                    {
+                        if (fa.Managers.Any(m => m.Role == "dlt"))
+                        {
+                            var dlt = fa.Managers.Single(m => m.Role == "dlt");
+                            <p>@dlt.User.UserName</p>
+                        }
+                        else
+                        {
+                            <p></p>
+                        }
+                    }
                 </td>
                 <td>
                     @Html.ActionLink("Edit", "Edit", new {id = item.Id}) |
