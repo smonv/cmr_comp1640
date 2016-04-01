@@ -6,8 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Web.Hosting;
 using System.Web.Mvc;
-using CMR.EmailModels;
 using CMR.Custom;
+using CMR.EmailModels;
 using CMR.Models;
 using CMR.ViewModels;
 using Hangfire;
@@ -17,7 +17,6 @@ using Postal;
 
 namespace CMR.Controllers
 {
-   
     public class ReportsController : Controller
     {
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
@@ -138,14 +137,18 @@ namespace CMR.Controllers
                     {
                         new ReportStatistical(meanCw1.GetValueOrDefault(), medianCw1.GetValueOrDefault(), "cw1", report),
                         new ReportStatistical(meanCw2.GetValueOrDefault(), medianCw2.GetValueOrDefault(), "cw2", report),
-                        new ReportStatistical(meanExam.GetValueOrDefault(), medianExam.GetValueOrDefault(), "exam", report)
+                        new ReportStatistical(meanExam.GetValueOrDefault(), medianExam.GetValueOrDefault(), "exam",
+                            report)
                     }));
 
                     _db.ReportDistribution.AddRange(new List<ReportDistribution>(new[]
                     {
-                        new ReportDistribution(badCw1.GetValueOrDefault(), averageCw1.GetValueOrDefault(), goodCw1.GetValueOrDefault(), "cw1", report),
-                        new ReportDistribution(badCw2.GetValueOrDefault(), averageCw2.GetValueOrDefault(), goodCw2.GetValueOrDefault(), "cw2", report),
-                        new ReportDistribution(badExam.GetValueOrDefault(), averageExam.GetValueOrDefault(), goodExam.GetValueOrDefault(), "exam", report)
+                        new ReportDistribution(badCw1.GetValueOrDefault(), averageCw1.GetValueOrDefault(),
+                            goodCw1.GetValueOrDefault(), "cw1", report),
+                        new ReportDistribution(badCw2.GetValueOrDefault(), averageCw2.GetValueOrDefault(),
+                            goodCw2.GetValueOrDefault(), "cw2", report),
+                        new ReportDistribution(badExam.GetValueOrDefault(), averageExam.GetValueOrDefault(),
+                            goodExam.GetValueOrDefault(), "exam", report)
                     }));
                     _db.SaveChanges();
                     transaction.Commit();
@@ -300,7 +303,6 @@ namespace CMR.Controllers
             }
         }
 
-        
 
         [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Approve(int? id)
@@ -427,7 +429,7 @@ namespace CMR.Controllers
             var years = session.Split('-');
             if (!years.Any()) return View(statisticals);
             try
-            { 
+            {
                 var sYear = Convert.ToInt32(years[0]);
                 statisticals.SYear = sYear;
                 statisticals.Statisticals = new List<StatisticalViewModel>();
@@ -436,10 +438,15 @@ namespace CMR.Controllers
                 {
                     var statistical = new StatisticalViewModel();
                     statistical.Faculty = faculty;
-                    var totalCmr = _db.Reports.Where(r => r.Assignment.Start.Year == sYear).Count(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id));
-                    var approvedCmr = _db.Reports.Where(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id)).Count(r => r.IsApproved);
+                    var totalCmr =
+                        _db.Reports.Where(r => r.Assignment.Start.Year == sYear)
+                            .Count(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id));
+                    var approvedCmr =
+                        _db.Reports.Where(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id))
+                            .Count(r => r.IsApproved);
                     var commentedCmr =
-                        _db.Reports.Count(r => r.Comments.Any(c => c.User.FacultyAssignments.Any(fa => fa.Role == "dlt")));
+                        _db.Reports.Count(
+                            r => r.Comments.Any(c => c.User.FacultyAssignments.Any(fa => fa.Role == "dlt")));
                     statistical.TotalCmr = totalCmr;
                     statistical.ApprovedCmr = approvedCmr;
                     statistical.CommentedCmr = commentedCmr;
@@ -447,13 +454,46 @@ namespace CMR.Controllers
                 }
                 return View(statisticals);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return View(statisticals);
             }
         }
 
-        
+        [AccessDeniedAuthorize(Roles = "Staff,Guest")]
+        public ActionResult Exceptional(string session)
+        {
+            var evm = new ExceptionalViewModel();
+            if (session.IsNullOrWhiteSpace()) return View(evm);
+            var years = session.Split('-');
+            if (!years.Any()) return View(evm);
+            try
+            {
+                var sYear = Convert.ToInt32(years[0]);
+                evm.SYear = sYear;
+                var coursesNoManagers =
+                    _db.Courses.Where(
+                        c =>
+                            !c.CourseAssignments.Any(ca => ca.Start.Year == sYear) || c.CourseAssignments.Any(ca => ca.Start.Year == sYear && ca.Managers.Count < 2))
+                .ToList();
+                var coursesNoCmr =
+                    _db.Courses.Where(
+                        c =>
+                            !c.CourseAssignments.Any(ca => ca.Start.Year == sYear) || c.CourseAssignments.Any(ca => ca.Start.Year == sYear && ca.Reports.Count == 0))
+                        .ToList();
+                var notApprovedReports =
+                    _db.Reports.Where(r => r.Assignment.Start.Year == sYear).Where(r => !r.IsApproved).ToList();
+                evm.CoursesNoManagers = coursesNoManagers;
+                evm.CoursesNoCmr = coursesNoCmr;
+                evm.NotApprovedReports = notApprovedReports;
+                return View(evm);
+            }
+            catch (Exception)
+            {
+                return View(evm);
+            }
+        }
+
 
         public bool CheckCourseManager(CourseAssignment ca)
         {
