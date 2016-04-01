@@ -290,6 +290,10 @@
     <Compile Include="Migrations\201603290535117_AddCourseDescription.Designer.cs">
       <DependentUpon>201603290535117_AddCourseDescription.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201604010831151_AddDescriptionForFaculty.cs" />
+    <Compile Include="Migrations\201604010831151_AddDescriptionForFaculty.Designer.cs">
+      <DependentUpon>201604010831151_AddDescriptionForFaculty.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Course.cs" />
@@ -496,6 +500,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603290535117_AddCourseDescription.resx">
       <DependentUpon>201603290535117_AddCourseDescription.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604010831151_AddDescriptionForFaculty.resx">
+      <DependentUpon>201604010831151_AddDescriptionForFaculty.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
