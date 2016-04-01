@@ -312,9 +312,13 @@
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\AssignViewModel.cs" />
     <Compile Include="ViewModels\CourseIndexViewModel.cs" />
+    <Compile Include="ViewModels\ExceptionalViewModel.cs" />
     <Compile Include="ViewModels\FacultyAssignmentModel.cs" />
     <Compile Include="ViewModels\FacultyCourseModel.cs" />
+    <Compile Include="ViewModels\ReportsViewModel.cs" />
     <Compile Include="ViewModels\ReportViewModel.cs" />
+    <Compile Include="ViewModels\StatisticalsViewModel.cs" />
+    <Compile Include="ViewModels\StatisticalViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -417,6 +421,9 @@
     <Content Include="Views\Emails\Report.Html.cshtml" />
     <Content Include="Views\Emails\ReportCommentNotify.cshtml" />
     <Content Include="Views\Emails\ReportCommentNotify.Html.cshtml" />
+    <Content Include="Views\Reports\Approved.cshtml" />
+    <Content Include="Views\Reports\Statistical.cshtml" />
+    <Content Include="Views\Reports\Exceptional.cshtml" />
     <None Include="Web.Secret.config" />
   </ItemGroup>
   <ItemGroup>
