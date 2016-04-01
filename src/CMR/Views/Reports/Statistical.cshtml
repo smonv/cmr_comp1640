@@ -1,0 +1,88 @@
+﻿@using System.Configuration
+@model CMR.ViewModels.StatisticalsViewModel
+@{
+    ViewBag.Title = "Statistical";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<ol class="breadcrumb">
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Reports")">Reports</a>
+    </li>
+    <li class="active">List Reports</li>
+</ol>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <form method="get">
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <select class="form-control" name="session" id="session">
+                        <option value="" selected>Academic Session</option>
+                        @{
+                            var minYear = Convert.ToInt32(ConfigurationManager.AppSettings["MinYear"]);
+                            var maxYear = Convert.ToInt32(ConfigurationManager.AppSettings["MaxYear"]);
+                        }
+                        @for (var i = minYear; i < maxYear; i++)
+                        {
+                            var cYear = i;
+                            var nYear = cYear + 1;
+                            <option value="@cYear-@nYear" @Html.Raw(Model.SYear.HasValue ? cYear == Model.SYear.Value ? "selected" : "" : "")>@cYear - @nYear</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="submit" class="btn btn-success">View</button>
+                        <a href="@Url.Action("Statistical", "Reports")" class="btn btn-info">Clear</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Faculty</th>
+                <th class="hidden-xs">Total CMR</th>
+                <th>Total Approved CMR</th>
+                <th>Total DLT Commented CMR</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Statisticals != null)
+            {
+                foreach (var s in Model.Statisticals)
+                {
+                    <tr>
+                        <td>@s.Faculty.Name</td>
+                        <td>@s.TotalCmr</td>
+                        <td>
+                            @{
+                                var apercent = s.TotalCmr > 0 ? (s.ApprovedCmr/s.TotalCmr)*100 : 0;
+                            }
+                            @s.ApprovedCmr (@apercent %)
+                        </td>
+                        <td>
+                            @{
+                                var cpercent = s.TotalCmr > 0 ? (s.CommentedCmr / s.TotalCmr) * 100 : 0;
+                            }
+                            @s.CommentedCmr (@cpercent %)
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>Null</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

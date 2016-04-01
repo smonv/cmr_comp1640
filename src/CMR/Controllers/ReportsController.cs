@@ -419,6 +419,39 @@ namespace CMR.Controllers
             }
         }
 
+        [AccessDeniedAuthorize(Roles = "Staff,Guest")]
+        public ActionResult Statistical(string session)
+        {
+            var statisticals = new StatisticalsViewModel();
+            if (session.IsNullOrWhiteSpace()) return View(statisticals);
+            var years = session.Split('-');
+            if (!years.Any()) return View(statisticals);
+            try
+            { 
+                var sYear = Convert.ToInt32(years[0]);
+                statisticals.SYear = sYear;
+                statisticals.Statisticals = new List<StatisticalViewModel>();
+                var faculties = _db.Faculties.ToList();
+                foreach (var faculty in faculties)
+                {
+                    var statistical = new StatisticalViewModel();
+                    statistical.Faculty = faculty;
+                    var totalCmr = _db.Reports.Where(r => r.Assignment.Start.Year == sYear).Count(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id));
+                    var approvedCmr = _db.Reports.Where(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id)).Count(r => r.IsApproved);
+                    var commentedCmr =
+                        _db.Reports.Count(r => r.Comments.Any(c => c.User.FacultyAssignments.Any(fa => fa.Role == "dlt")));
+                    statistical.TotalCmr = totalCmr;
+                    statistical.ApprovedCmr = approvedCmr;
+                    statistical.CommentedCmr = commentedCmr;
+                    statisticals.Statisticals.Add(statistical);
+                }
+                return View(statisticals);
+            }
+            catch (Exception ex)
+            {
+                return View(statisticals);
+            }
+        }
 
         
 
