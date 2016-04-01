@@ -47,7 +47,10 @@ namespace CMR.Controllers
             var fam = new FacultyAssignmentModel();
             fam.Faculty = faculty;
             var roleId = _db.Roles.Single(r => r.Name == "Staff").Id;
-            var staffs = _db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            var staffs =
+                _db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId))
+                    .Where(u => u.CourseAssignments.Any() == false)
+                    .ToList();
             fam.Staffs = staffs;
             return View(fam);
         }
@@ -67,21 +70,18 @@ namespace CMR.Controllers
         [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult Create([Bind(Include = "Id,Name,Description")] Faculty faculty)
         {
-            if (ModelState.IsValid)
-            {
-                if (_db.Faculties.Any(f => f.Name == faculty.Name))
-                {
-                    _errors.Add(faculty.Name + " already exists.");
-                    TempData["errors"] = _errors;
-                    return RedirectToAction("Create");
-                }
+            if (!ModelState.IsValid) return View(faculty);
 
-                _db.Faculties.Add(faculty);
-                _db.SaveChanges();
-                return RedirectToAction("Index");
+            if (_db.Faculties.Any(f => f.Name == faculty.Name))
+            {
+                _errors.Add(faculty.Name + " already exists.");
+                TempData["errors"] = _errors;
+                return RedirectToAction("Create");
             }
 
-            return View(faculty);
+            _db.Faculties.Add(faculty);
+            _db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // GET: Faculties/Edit/5
@@ -126,9 +126,9 @@ namespace CMR.Controllers
         public ActionResult Assigned()
         {
             var cUser = User.Identity.GetUserId();
-            var facultyAssignments = _db.FacultyAssignmentManagers.
-                Include(fam => fam.FacultyAssignment).
-                Where(fam => fam.User.Id == cUser).ToList();
+            var facultyAssignments = _db.FacultyAssignmentManagers
+                .Include(fam => fam.FacultyAssignment)
+                .Where(fam => fam.User.Id == cUser).ToList();
             return View(facultyAssignments);
         }
 
@@ -152,7 +152,7 @@ namespace CMR.Controllers
                 {
                     try
                     {
-                        FacultyAssignment fa = null;
+                        FacultyAssignment fa;
                         if (_db.FacultyAssignments.Any(f => f.Faculty.Id == faculty.Id))
                         {
                             fa = _db.FacultyAssignments.Single(f => f.Faculty.Id == faculty.Id);

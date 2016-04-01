@@ -41,7 +41,7 @@ namespace CMR.Controllers
             }
             if (!string.IsNullOrEmpty(session))
             {
-                string[] years = session.Split('-');
+                var years = session.Split('-');
                 var sYear = Convert.ToInt32(years[0]);
                 civm.SYear = sYear;
             }
@@ -76,7 +76,10 @@ namespace CMR.Controllers
             var am = new AssignViewModel();
             am.Course = course;
             var roleId = _db.Roles.Single(r => r.Name == "Staff").Id;
-            var staffs = _db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            var staffs =
+                _db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId))
+                    .Where(u => u.FacultyAssignments.Any() == false)
+                    .ToList();
             am.Staffs = staffs;
             return View(am);
         }
@@ -224,9 +227,9 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            string[] years = session.Split('-');
-            string start = years[0];
-            string end = years[1];
+            var years = session.Split('-');
+            var start = years[0];
+            var end = years[1];
             ValidateAssignUser(cl, cm);
             ValidateAssignYear(start, end);
             if (_errors.Count == 0)
@@ -242,7 +245,7 @@ namespace CMR.Controllers
                         {
                             var sYear = startYear.GetValueOrDefault().Year;
                             var eYear = endYear.GetValueOrDefault().Year;
-                            CourseAssignment ca = null;
+                            CourseAssignment ca;
                             if (
                                 !_db.CourseAssignments.Where(c => c.Start.Year == sYear)
                                     .Where(c => c.End.Year == eYear)
@@ -300,7 +303,7 @@ namespace CMR.Controllers
                                 transaction.Rollback();
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             transaction.Rollback();
                             _errors.Add("Assign Error");
