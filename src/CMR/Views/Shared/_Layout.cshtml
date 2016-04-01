@@ -1,10 +1,9 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Course management report</title>
-    @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/bootstrap.min.css")
     @Styles.Render("~/Content/css/Site.css")
     @Styles.Render("~/Content/css/custom.css")
@@ -14,142 +13,151 @@
 
 </head>
 <body>
-    <div class="navbar navbar-default navbar-fixed-top">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
-                    <span class="glyphicon glyphicon-search"></span>
-                </button>
-                <a class="navbar-brand" href="#">
-                    <img src="~/Content/images/University-of-Greenwich.png" class="pull-left" id="btn-burger-navbar-left" alt="University Of Greenwich">
-                    <span class="pull-right">Course Management</span>
-                </a>
-                <a class="hidden-md hidden-lg hidden-sm" id="btn-burger-navbar-left-xs">
-                    <span class="glyphicon glyphicon-menu-hamburger"></span>
-                </a>
-            </div>
-            <div class="navbar-collapse collapse" id="navbar-collapse-1">
-                <form class="navbar-form navbar-left" role="search">
-                    <div class="input-group">
-                        <span class="input-group-btn">
+<div class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+                <span class="glyphicon glyphicon-search"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                <img src="~/Content/images/University-of-Greenwich.png" class="pull-left" id="btn-burger-navbar-left" alt="University Of Greenwich">
+                <span class="pull-right">Course Management</span>
+            </a>
+            <a class="hidden-md hidden-lg hidden-sm" id="btn-burger-navbar-left-xs">
+                <span class="glyphicon glyphicon-menu-hamburger"></span>
+            </a>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-collapse-1">
+            <form class="navbar-form navbar-left" role="search">
+                <div class="input-group">
+                    <span class="input-group-btn">
                             <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
-                        <input type="text" class="form-control" placeholder="Search for...">
-                    </div>
-                </form>
-                @Html.Partial("_LoginPartial")
-            </div>
+                    <input type="text" class="form-control" placeholder="Search for...">
+                </div>
+            </form>
+            @Html.Partial("_LoginPartial")
         </div>
     </div>
-    @if (User.Identity.IsAuthenticated)
-    {
-        <div class="container-fluid body-content">
-            <div class="row">
-                <div class="nav-menu" id="nav-menu">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="profiles">
-                                <img src="~/Content/images/Saber-Alter.jpg" alt="" class="img-circle pull-left">
-                                <div class="profile-bar pull-right">
-                                    <div class="row">
-                                        <a class="profile-title">@User.Identity.Name</a>
-                                    </div>
-                                    <div class="row">
-                                        @{
-                                            if (User.IsInRole("Administrator"))
-                                            {
-                                                <a class="profile-role">Administrator</a>
-                                            }
-                                            if (User.IsInRole("Staff"))
-                                            {
-                                                <a class="profile-role">Staff</a>
-                                            }
-
-                                        }
-                                    </div>
+</div>
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="container-fluid body-content">
+        <div class="row">
+            <div class="nav-menu" id="nav-menu">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="profiles">
+                            <img src="~/Content/images/Saber-Alter.jpg" alt="" class="img-circle pull-left">
+                            <div class="profile-bar pull-right">
+                                <div class="row">
+                                    <a class="profile-title">@User.Identity.Name</a>
                                 </div>
-                                <div class="clearfix"></div>
+                                <div class="row">
+                                    @{
+                                        if (User.IsInRole("Administrator"))
+                                        {
+                                            <a class="profile-role">Administrator</a>
+                                        }
+                                        if (User.IsInRole("Staff"))
+                                        {
+                                            <a class="profile-role">Staff</a>
+                                        }
+                                    }
+                                </div>
                             </div>
+                            <div class="clearfix"></div>
                         </div>
                     </div>
-                    <div id='cssmenu'>
-                        <div class="title-menu">
-                            Main
-                        </div>
-                        <ul>
-                            <li><a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a></li>
-                            @if (User.IsInRole("Administrator"))
-                            {
-                                <li class='has-sub'>
-                                    <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
-                                    <ul>
-                                        <li class='has-sub'>
-                                            <a href='#'>Administrators</a>
-                                            <ul>
-                                                <li><a href='#'>Sub CL</a></li>
-                                                <li><a href='#'>Sub CL</a></li>
-                                            </ul>
-                                        </li>
-                                        <li class='has-sub'>
-                                            <a href='#'>Staffs</a>
-                                            <ul>
-                                                <li><a href='#'>Sub Courses</a></li>
-                                                <li><a href='#'>Sub Courses</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class='has-sub'>
-                                    <a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>Faculties</a>
-                                    <ul>
-                                        <li>
-                                            <a href='@Url.Action("Index", "Faculties")'><span class="glyphicon glyphicon-list-alt"></span>List Faculties</a>
-                                        </li>
-                                        <li>
-                                            <a href='@Url.Action("Create", "Faculties")'><span class="glyphicon glyphicon-pencil"></span>Create</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }
+                </div>
+                <div id='cssmenu'>
+                    <div class="title-menu">
+                        Main
+                    </div>
+                    <ul>
+                        <li>
+                            <a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a>
+                        </li>
+                        @if (User.IsInRole("Administrator"))
+                        {
                             <li class='has-sub'>
-                                <a href='#' class="list-item">
-                                    <span class="glyphicon glyphicon-book"></span>Courses
-                                </a>
+                                <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
                                 <ul>
-                                    @if (User.IsInRole("Administrator"))
-                                    {
-                                        <li>
-                                            <a href='@Url.Action("Index", "Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
-                                        </li>
-                                        <li>
-                                            <a href='/Courses/Create'><span class="glyphicon glyphicon-edit"></span>Create Course</a>
-                                        </li>
-                                    }
-                                    @if (User.IsInRole("Staff"))
-                                    {
-                                        <li>
-                                            <a href='/Courses/Assigned'><span class='glyphicon glyphicon-education'></span>Courses Assigned</a>
-                                        </li>
-                                    }
+                                    <li class='has-sub'>
+                                        <a href='#'>Administrators</a>
+                                        <ul>
+                                            <li>
+                                                <a href='#'>Sub CL</a>
+                                            </li>
+                                            <li>
+                                                <a href='#'>Sub CL</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class='has-sub'>
+                                        <a href='#'>Staffs</a>
+                                        <ul>
+                                            <li>
+                                                <a href='#'>Sub Courses</a>
+                                            </li>
+                                            <li>
+                                                <a href='#'>Sub Courses</a>
+                                            </li>
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
-
                             <li class='has-sub'>
-                                @if (User.IsInRole("Staff"))
-                                {
-                                    <a href='#' class="list-item">
-                                        <span class="glyphicon glyphicon-book"></span>Reports
-                                    </a>
-                                    <ul>
-                                        <li>
-                                            <a href='@Url.Action("Index", "Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
-                                        </li>
-                                    </ul>
-                                }
+                                <a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>Faculties</a>
+                                <ul>
+                                    <li>
+                                        <a href='@Url.Action("Index", "Faculties")'><span class="glyphicon glyphicon-list-alt"></span>List Faculties</a>
+                                    </li>
+                                    <li>
+                                        <a href='@Url.Action("Create", "Faculties")'><span class="glyphicon glyphicon-pencil"></span>Create</a>
+                                    </li>
+                                </ul>
                             </li>
-                            <li class='has-sub'>
+                        }
+                        <li class='has-sub'>
+                            <a href='#' class="list-item">
+                                <span class="glyphicon glyphicon-book"></span>Courses
+                            </a>
+                            <ul>
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    <li>
+                                        <a href='@Url.Action("Index", "Courses")'><span class="glyphicon glyphicon-list-alt"></span>List Courses</a>
+                                    </li>
+                                    <li>
+                                        <a href='/Courses/Create'><span class="glyphicon glyphicon-edit"></span>Create Course</a>
+                                    </li>
+                                }
                                 @if (User.IsInRole("Staff"))
                                 {
+                                    <li>
+                                        <a href='/Courses/Assigned'><span class='glyphicon glyphicon-education'></span>Courses Assigned</a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+
+                        <li class='has-sub'>
+                            @if (User.IsInRole("Staff"))
+                            {
+                                <a href='#' class="list-item">
+                                    <span class="glyphicon glyphicon-book"></span>Reports
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href='@Url.Action("Index", "Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
+                                    </li>
+                                </ul>
+                            }
+                        </li>
+                        <li class='has-sub'>
+                            @if (User.IsInRole("Staff"))
+                            {
                                 <a href='#' class="list-item">
                                     <span class="glyphicon glyphicon-briefcase"></span>Faculties
                                 </a>
@@ -158,93 +166,93 @@
                                         <a href='@Url.Action("Assigned", "Faculties")'><span class="glyphicon glyphicon-list-alt"></span>Faculties Assigned</a>
                                     </li>
                                 </ul>
-                                }
-                            </li>
-                        </ul>
-                    </div>
+                            }
+                        </li>
+                    </ul>
                 </div>
-                <div class="container-fluid pull-right container-right">
-                    @{
-                        if (TempData["msgs"] != null)
+            </div>
+            <div class="container-fluid pull-right container-right">
+                @{
+                    if (TempData["msgs"] != null)
+                    {
+                        var msgs = TempData["msgs"] as List<string>;
+                        if (msgs.Any())
                         {
-                            List<string> msgs = TempData["msgs"] as List<string>;
-                            if (msgs.Any())
-                            {
-                                <div class="alert alert-success" role="alert">
-                                    @foreach (string msg in msgs)
-                                    {
-                                        <p>@msg</p>
-                                    }
-                                </div>
-                            }
-                        }
-
-                        if (TempData["errors"] != null)
-                        {
-                            List<string> errors = TempData["errors"] as List<string>;
-                            if (errors.Any()) {
-                                <div class="alert alert-danger" role="alert">
-                                    @foreach (var error in errors)
-                                    {
-                                        <p>@error</p>
-                                    }
-                                </div>
-                            }
+                            <div class="alert alert-success" role="alert">
+                                @foreach (var msg in msgs)
+                                {
+                                    <p>@msg</p>
+                                }
+                            </div>
                         }
                     }
-                    @RenderBody()
+
+                    if (TempData["errors"] != null)
+                    {
+                        var errors = TempData["errors"] as List<string>;
+                        if (errors.Any())
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @foreach (var error in errors)
+                                {
+                                    <p>@error</p>
+                                }
+                            </div>
+                        }
+                    }
+                }
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container body-content">
+        @RenderBody()
+    </div>
+    <hr/>
+    <footer>
+        <div class="col-md-12 footer">
+            <div class="col-md-3">
+                <div class="row">
+                    <h4>Connect with us</h4>
+                </div>
+                <div class="row">
+
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <h4>Students & Staff</h4>
+                </div>
+                <div class="row">
+
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <h4>About us</h4>
+                </div>
+                <div class="row">
+
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <h4>Useful links</h4>
+                </div>
+                <div class="row">
+
                 </div>
             </div>
         </div>
-                        }
-                        else
-                        {
+    </footer>
+}
 
-                            <div class="container body-content">
-                                @RenderBody()
-                            </div>
-                            <hr />
-                            <footer>
-                                <div class="col-md-12 footer">
-                                    <div class="col-md-3">
-                                        <div class="row">
-                                            <h4>Connect with us</h4>
-                                        </div>
-                                        <div class="row">
-                                            
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="row">
-                                            <h4>Students & Staff</h4>
-                                        </div>
-                                        <div class="row">
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="row">
-                                            <h4>About us</h4>
-                                        </div>
-                                        <div class="row">
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="row">
-                                            <h4>Useful links</h4>
-                                        </div>
-                                        <div class="row">
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </footer>
-                        }
-
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/Content/js/custom.js")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/Content/js/custom.js")
+@Scripts.Render("~/bundles/bootstrap")
+@RenderSection("scripts", false)
 </body>
 </html>
