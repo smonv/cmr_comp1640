@@ -32,7 +32,7 @@ namespace CMR.Controllers
         }
 
         // GET: Faculties/Details/5
-        [AccessDeniedAuthorize(Roles = "Administrator")]
+        [AccessDeniedAuthorize(Roles = "Administrator,Staff")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -65,7 +65,7 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Create([Bind(Include = "Id,Name")] Faculty faculty)
+        public ActionResult Create([Bind(Include = "Id,Name,Description")] Faculty faculty)
         {
             if (ModelState.IsValid)
             {
@@ -106,7 +106,7 @@ namespace CMR.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AccessDeniedAuthorize(Roles = "Administrator")]
-        public ActionResult Edit([Bind(Include = "Id,Name")] Faculty faculty)
+        public ActionResult Edit([Bind(Include = "Id,Name,Description")] Faculty faculty)
         {
             if (ModelState.IsValid)
             {
