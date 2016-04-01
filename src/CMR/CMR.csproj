@@ -314,6 +314,7 @@
     <Compile Include="ViewModels\CourseIndexViewModel.cs" />
     <Compile Include="ViewModels\FacultyAssignmentModel.cs" />
     <Compile Include="ViewModels\FacultyCourseModel.cs" />
+    <Compile Include="ViewModels\ReportsViewModel.cs" />
     <Compile Include="ViewModels\ReportViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -417,6 +418,7 @@
     <Content Include="Views\Emails\Report.Html.cshtml" />
     <Content Include="Views\Emails\ReportCommentNotify.cshtml" />
     <Content Include="Views\Emails\ReportCommentNotify.Html.cshtml" />
+    <Content Include="Views\Reports\Approved.cshtml" />
     <None Include="Web.Secret.config" />
   </ItemGroup>
   <ItemGroup>

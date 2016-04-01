@@ -11,12 +11,13 @@ using CMR.Custom;
 using CMR.Models;
 using CMR.ViewModels;
 using Hangfire;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Postal;
 
 namespace CMR.Controllers
 {
-    [AccessDeniedAuthorize(Roles = "Staff")]
+   
     public class ReportsController : Controller
     {
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
@@ -24,6 +25,7 @@ namespace CMR.Controllers
         private readonly List<string> _msgs = new List<string>();
 
         // GET: Reports
+        [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Index()
         {
             var cUser = User.Identity.GetUserId();
@@ -39,6 +41,7 @@ namespace CMR.Controllers
         }
 
         // GET: Reports/Details/5
+        [AccessDeniedAuthorize(Roles = "Staff,Guest")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -59,6 +62,7 @@ namespace CMR.Controllers
         }
 
         // GET: Reports/Create
+        [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Create(int? id)
         {
             if (id == null)
@@ -74,7 +78,7 @@ namespace CMR.Controllers
                 _db.CourseAssignmentManagers.Include(cam => cam.User).Include(cam => cam.CourseAssignment.Course)
                     .Where(cam => cam.CourseAssignment.Id == ca.Id)
                     .ToList();
-            if (CheckCourseManager(ca) || CheckDLT(ca.Course))
+            if (CheckCourseManager(ca) || CheckDlt(ca.Course))
             {
                 _errors.Add("Only Course Leader can create report.");
                 TempData["errors"] = _errors;
@@ -94,11 +98,9 @@ namespace CMR.Controllers
             return View(rvm);
         }
 
-        // POST: Reports/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Create(int id, int? totalStudent, string action,
             int? meanCw1, int? meanCw2, int? meanExam, int? medianCw1, int? medianCw2, int? medianExam,
             int? badCw1, int? averageCw1, int? goodCw1, int? badCw2, int? averageCw2, int? goodCw2, int? badExam,
@@ -113,7 +115,7 @@ namespace CMR.Controllers
                     .Include(cam => cam.CourseAssignment.Course)
                     .Where(cam => cam.CourseAssignment.Id == ca.Id)
                     .ToList();
-            if (CheckCourseManager(ca) || CheckDLT(ca.Course))
+            if (CheckCourseManager(ca) || CheckDlt(ca.Course))
             {
                 _errors.Add("Only Course Leader can create report.");
                 TempData["errors"] = _errors;
@@ -165,7 +167,7 @@ namespace CMR.Controllers
             }
         }
 
-        // GET: Reports/Edit/5
+        [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -186,7 +188,7 @@ namespace CMR.Controllers
                 TempData["errors"] = _errors;
                 return Redirect(Url.Action("Index", "Reports"));
             }
-            if (CheckCourseManager(report.Assignment) || CheckDLT(report.Assignment.Course))
+            if (CheckCourseManager(report.Assignment) || CheckDlt(report.Assignment.Course))
             {
                 _errors.Add("Only Course Leader can edit report.");
                 TempData["errors"] = _errors;
@@ -203,6 +205,7 @@ namespace CMR.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Edit(int id, int? totalStudent, string action,
             int? meanCw1, int? meanCw2, int? meanExam, int? medianCw1, int? medianCw2, int? medianExam,
             int? badCw1, int? averageCw1, int? goodCw1, int? badCw2, int? averageCw2, int? goodCw2, int? badExam,
@@ -223,7 +226,7 @@ namespace CMR.Controllers
                 return Redirect(Url.Action("Index", "Reports"));
             }
 
-            if (CheckCourseManager(report.Assignment) || CheckDLT(report.Assignment.Course))
+            if (CheckCourseManager(report.Assignment) || CheckDlt(report.Assignment.Course))
             {
                 _errors.Add("Only Course Leader can edit report.");
                 TempData["errors"] = _errors;
@@ -297,21 +300,9 @@ namespace CMR.Controllers
             }
         }
 
-        // GET: Reports/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            var report = _db.Reports.Find(id);
-            if (report == null)
-            {
-                return HttpNotFound();
-            }
-            return View(report);
-        }
+        
 
+        [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult Approve(int? id)
         {
             if (id == null)
@@ -343,6 +334,7 @@ namespace CMR.Controllers
             return RedirectToAction("Details", new {id});
         }
 
+        [AccessDeniedAuthorize(Roles = "Staff")]
         public ActionResult UnApprove(int? id)
         {
             if (id == null)
@@ -405,6 +397,31 @@ namespace CMR.Controllers
             return RedirectToAction("Details", new {id = report.Id});
         }
 
+
+        [AccessDeniedAuthorize(Roles = "Staff,Guest")]
+        public ActionResult Approved(string session)
+        {
+            var rvm = new ReportsViewModel();
+            if (session.IsNullOrWhiteSpace()) return View(rvm);
+            var years = session.Split('-');
+            if (!years.Any()) return View(rvm);
+            try
+            {
+                var sYear = Convert.ToInt32(years[0]);
+                rvm.SYear = sYear;
+                var reports = _db.Reports.Where(r => r.IsApproved).Where(r => r.Assignment.Start.Year == sYear).ToList();
+                rvm.Reports = reports;
+                return View(rvm);
+            }
+            catch
+            {
+                return View(rvm);
+            }
+        }
+
+
+        
+
         public bool CheckCourseManager(CourseAssignment ca)
         {
             var cUser = User.Identity.GetUserId();
@@ -415,7 +432,7 @@ namespace CMR.Controllers
                     .Any(m => m.User.Id == cUser);
         }
 
-        public bool CheckDLT(Course course)
+        public bool CheckDlt(Course course)
         {
             var cUser = User.Identity.GetUserId();
             var result =

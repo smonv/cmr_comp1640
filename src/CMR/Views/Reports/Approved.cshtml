@@ -1,0 +1,74 @@
+﻿@using System.Configuration
+@model CMR.ViewModels.ReportsViewModel
+@{
+    ViewBag.Title = "Approved";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Reports")">Reports</a>
+    </li>
+    <li class="active">List Reports</li>
+</ol>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <form method="get">
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <select class="form-control" name="session" id="session">
+                        <option value="" selected>Academic Session</option>
+                        @{
+                            var minYear = Convert.ToInt32(ConfigurationManager.AppSettings["MinYear"]);
+                            var maxYear = Convert.ToInt32(ConfigurationManager.AppSettings["MaxYear"]);
+                        }
+                        @for (var i = minYear; i < maxYear; i++)
+                        {
+                            var cYear = i;
+                            var nYear = cYear + 1;
+                            <option value="@cYear-@nYear" @Html.Raw(Model.SYear.HasValue ? cYear == Model.SYear.Value ? "selected" : "" : "")>@cYear - @nYear</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="submit" class="btn btn-success">View</button>
+                        <a href="@Url.Action("Approved", "Reports")" class="btn btn-info">Clear</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th class="hidden-xs">Academic Session</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Reports)
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("Details", "Reports", new {id = item.Id})">
+                            @item.Assignment.Course.Code - @item.Assignment.Course.Name
+                        </a>
+                    </td>
+                    <td class="hidden-xs">@item.Assignment.Start.Year - @item.Assignment.End.Year</td>
+                    <td style="max-width: 120px;">
+                        <a href="@Url.Action("Details", new {id = item.Id})" class="btn btn-info">View</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
