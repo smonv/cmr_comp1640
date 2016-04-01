@@ -21,8 +21,8 @@
         <table class="table">
             <tr>
                 <th>Course</th>
-                <th>Academic Session</th>
-                <th>Role</th>
+                <th class="hidden-xs">Academic Session</th>
+                <th class="hidden-xs">Role</th>
                 <th></th>
             </tr>
             @if (Model.Any())
@@ -34,11 +34,11 @@
                             @Html.ActionLink(cam.CourseAssignment.Course.Code + " - " + cam.CourseAssignment.Course.Name,
                                 "Details", new {id = cam.CourseAssignment.Course.Id})
                         </td>
-                        <td>@cam.CourseAssignment.Start.Year - @cam.CourseAssignment.End.Year</td>
+                        <td class="hidden-xs">@cam.CourseAssignment.Start.Year - @cam.CourseAssignment.End.Year</td>
                         @switch (cam.Role)
                         {
                             case "cl":
-                                <td>Course Leader</td>
+                                <td class="hidden-xs">Course Leader</td>
                                 ;
                                 if (cam.CourseAssignment.Reports.Any())
                                 {
@@ -54,7 +54,7 @@
                                 }
                                 break;
                             case "cm":
-                                <td>Course Manager</td>
+                                <td class="hidden-xs">Course Manager</td>
                                 ;
                                 if (cam.CourseAssignment.Reports.Any())
                                 {
