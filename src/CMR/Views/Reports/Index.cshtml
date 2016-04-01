@@ -16,7 +16,7 @@
             <thead>
                 <tr>
                     <td>Title</td>
-                    <td>Academic Session</td>
+                    <td class="hidden-xs">Academic Session</td>
                     <td>Approved</td>
                 </tr>
             </thead>
@@ -25,7 +25,7 @@
             {
                     <tr>
                         <td>@item.Assignment.Course.Code - @item.Assignment.Course.Name</td>
-                        <td>@item.Assignment.Start.Year - @item.Assignment.End.Year</td>
+                        <td class="hidden-xs">@item.Assignment.Start.Year - @item.Assignment.End.Year</td>
                         <td>@(item.IsApproved ? "Yes" : "No")</td>
                         <td style="max-width: 120px;">
                             <a href="@Url.Action("Edit", new {id = item.Id})" class="btn btn-warning pull-right">
