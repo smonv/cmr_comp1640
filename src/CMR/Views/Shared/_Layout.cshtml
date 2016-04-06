@@ -17,7 +17,7 @@
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
-                <span class="glyphicon glyphicon-search"></span>
+                <span class="glyphicon glyphicon-user"></span>
             </button>
             <a class="navbar-brand" href="#">
                 <img src="~/Content/images/University-of-Greenwich.png" class="pull-left" id="btn-burger-navbar-left" alt="University Of Greenwich">
@@ -28,14 +28,6 @@
             </a>
         </div>
         <div class="navbar-collapse collapse" id="navbar-collapse-1">
-            <form class="navbar-form navbar-left" role="search">
-                <div class="input-group">
-                    <span class="input-group-btn">
-                            <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
-                        </span>
-                    <input type="text" class="form-control" placeholder="Search for...">
-                </div>
-            </form>
             @Html.Partial("_LoginPartial")
         </div>
     </div>
@@ -48,8 +40,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="profiles">
-                            <img src="~/Content/images/Saber-Alter.jpg" alt="" class="img-circle pull-left">
-                            <div class="profile-bar pull-right">
+                            <div class="profile-bar">
                                 <div class="row">
                                     <a class="profile-title">@User.Identity.Name</a>
                                 </div>
@@ -81,7 +72,7 @@
                         @if (User.IsInRole("Administrator"))
                         {
                             <li class='has-sub'>
-                                <a href='#' class="list-item"><span class="glyphicon glyphicon-user"></span>User</a>
+                                <a href='#' class="list-item menu-user"><span class="glyphicon glyphicon-user"></span>User</a>
                                 <ul>
                                     <li class='has-sub'>
                                         <a href='#'>Administrators</a>
@@ -108,7 +99,7 @@
                                 </ul>
                             </li>
                             <li class='has-sub'>
-                                <a href='#' class="list-item"><span class="glyphicon glyphicon-briefcase"></span>Faculties</a>
+                                <a href='#' class="list-item menu-faculties"><span class="glyphicon glyphicon-briefcase"></span>Faculties</a>
                                 <ul>
                                     <li>
                                         <a href='@Url.Action("Index", "Faculties")'><span class="glyphicon glyphicon-list-alt"></span>List Faculties</a>
@@ -120,7 +111,9 @@
                             </li>
                         }
                         <li class='has-sub'>
-                            <a href='#' class="list-item">
+                            @if (User.IsInRole("Administrator") ||User.IsInRole("Staff"))
+                            {
+                            <a href='#' class="list-item menu-courses">
                                 <span class="glyphicon glyphicon-book"></span>Courses
                             </a>
                             <ul>
@@ -140,17 +133,31 @@
                                     </li>
                                 }
                             </ul>
+                            }
+
                         </li>
 
                         <li class='has-sub'>
-                            @if (User.IsInRole("Staff"))
+                            @if (!User.IsInRole("Administrator"))
                             {
-                                <a href='#' class="list-item">
+                                <a href='#' class="list-item menu-reports">
                                     <span class="glyphicon glyphicon-book"></span>Reports
                                 </a>
                                 <ul>
+                                    @if (User.IsInRole("Staff"))
+                                    {
                                     <li>
                                         <a href='@Url.Action("Index", "Reports")'><span class="glyphicon glyphicon-list-alt"></span>List Reports</a>
+                                    </li>
+                                    }
+                                    <li>
+                                        <a href='@Url.Action("Exceptional", "Reports")'><span class="glyphicon glyphicon-list-alt"></span>Exceptional Reports</a>
+                                    </li>
+                                    <li>
+                                        <a href='@Url.Action("Statistical", "Reports")'><span class="glyphicon glyphicon-list-alt"></span>Statistical Reports</a>
+                                    </li>
+                                    <li>
+                                        <a href='@Url.Action("Approved", "Reports")'><span class="glyphicon glyphicon-list-alt"></span>Approved Reports</a>
                                     </li>
                                 </ul>
                             }

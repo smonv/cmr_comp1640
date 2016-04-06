@@ -35,6 +35,32 @@
 
 })(jQuery);
 
+var p = window.location.pathname.substring(1,3);
+switch(p) {
+    case "Fa":
+        openMenu(".menu-faculties")
+        break;
+    case "Co":
+        openMenu(".menu-courses")
+        break;
+    case "Re":
+        openMenu(".menu-reports")
+        break;
+    default:
+        break;
+}
+
+function openMenu(a) {
+    $(a).removeAttr('href');
+    var element = $(a).parent('li');
+    element.addClass('open');
+    element.children('ul').slideDown(200);
+    element.siblings('li').children('ul').slideUp(200);
+    element.siblings('li').removeClass('open');
+    element.siblings('li').find('li').removeClass('open');
+    element.siblings('li').find('ul').slideUp(200);
+}
+
 $('#btn-burger-navbar-left').on('click', function(){
   if($('#nav-menu').hasClass('hide-nav')){
     $('#nav-menu').removeClass('hide-nav');
@@ -56,3 +82,5 @@ $('#btn-burger-navbar-left-xs').on('click', function(){
 
 
 $(".breadcrumb").addClass("hidden-xs");
+
+
