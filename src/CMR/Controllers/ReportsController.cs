@@ -445,8 +445,9 @@ namespace CMR.Controllers
                         _db.Reports.Where(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id))
                             .Count(r => r.IsApproved);
                     var commentedCmr =
-                        _db.Reports.Count(
-                            r => r.Comments.Any(c => c.User.FacultyAssignments.Any(fa => fa.Role == "dlt")));
+                        _db.Reports.Where(r => r.Assignment.Course.Faculties.Any(f => f.Id == faculty.Id))
+                            .Count(r => r.Comments.Any(c => c.User.FacultyAssignments.Any(fa => fa.Role == "dlt")));
+
                     statistical.TotalCmr = totalCmr;
                     statistical.ApprovedCmr = approvedCmr;
                     statistical.CommentedCmr = commentedCmr;
@@ -474,12 +475,14 @@ namespace CMR.Controllers
                 var coursesNoManagers =
                     _db.Courses.Where(
                         c =>
-                            !c.CourseAssignments.Any(ca => ca.Start.Year == sYear) || c.CourseAssignments.Any(ca => ca.Start.Year == sYear && ca.Managers.Count < 2))
-                .ToList();
+                            !c.CourseAssignments.Any(ca => ca.Start.Year == sYear) ||
+                            c.CourseAssignments.Any(ca => ca.Start.Year == sYear && ca.Managers.Count < 2))
+                        .ToList();
                 var coursesNoCmr =
                     _db.Courses.Where(
                         c =>
-                            !c.CourseAssignments.Any(ca => ca.Start.Year == sYear) || c.CourseAssignments.Any(ca => ca.Start.Year == sYear && ca.Reports.Count == 0))
+                            !c.CourseAssignments.Any(ca => ca.Start.Year == sYear) ||
+                            c.CourseAssignments.Any(ca => ca.Start.Year == sYear && ca.Reports.Count == 0))
                         .ToList();
                 var notApprovedReports =
                     _db.Reports.Where(r => r.Assignment.Start.Year == sYear).Where(r => !r.IsApproved).ToList();
