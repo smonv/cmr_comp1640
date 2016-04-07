@@ -51,11 +51,7 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            var report = _db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
-            report.Assignment.Managers =
-                _db.CourseAssignmentManagers.Include(cam => cam.User)
-                    .Where(cam => cam.CourseAssignment.Id == report.Assignment.Id)
-                    .ToList();
+            var report = _db.Reports.Include(r => r.Assignment.Managers.Select(m => m.User)).Single(r => r.Id == id.Value);
 
             return View(report);
         }
@@ -244,42 +240,42 @@ namespace CMR.Controllers
                     report.Action = action;
                     foreach (var statistical in report.Statisticals)
                     {
-                        if (statistical.Type == "cw1")
+                        switch (statistical.Type)
                         {
-                            statistical.Mean = meanCw1.GetValueOrDefault();
-                            statistical.Median = medianCw1.GetValueOrDefault();
-                        }
-                        else if (statistical.Type == "cw2")
-                        {
-                            statistical.Mean = meanCw2.GetValueOrDefault();
-                            statistical.Median = medianCw2.GetValueOrDefault();
-                        }
-                        else if (statistical.Type == "exam")
-                        {
-                            statistical.Mean = meanExam.GetValueOrDefault();
-                            statistical.Median = medianExam.GetValueOrDefault();
+                            case "cw1":
+                                statistical.Mean = meanCw1.GetValueOrDefault();
+                                statistical.Median = medianCw1.GetValueOrDefault();
+                                break;
+                            case "cw2":
+                                statistical.Mean = meanCw2.GetValueOrDefault();
+                                statistical.Median = medianCw2.GetValueOrDefault();
+                                break;
+                            case "exam":
+                                statistical.Mean = meanExam.GetValueOrDefault();
+                                statistical.Median = medianExam.GetValueOrDefault();
+                                break;
                         }
                     }
 
                     foreach (var distribution in report.Distributions)
                     {
-                        if (distribution.Type == "cw1")
+                        switch (distribution.Type)
                         {
-                            distribution.Bad = badCw1.GetValueOrDefault();
-                            distribution.Average = averageCw1.GetValueOrDefault();
-                            distribution.Good = goodCw1.GetValueOrDefault();
-                        }
-                        else if (distribution.Type == "cw2")
-                        {
-                            distribution.Bad = badCw2.GetValueOrDefault();
-                            distribution.Average = averageCw2.GetValueOrDefault();
-                            distribution.Good = goodCw2.GetValueOrDefault();
-                        }
-                        else if (distribution.Type == "exam")
-                        {
-                            distribution.Bad = badExam.GetValueOrDefault();
-                            distribution.Average = averageExam.GetValueOrDefault();
-                            distribution.Good = goodExam.GetValueOrDefault();
+                            case "cw1":
+                                distribution.Bad = badCw1.GetValueOrDefault();
+                                distribution.Average = averageCw1.GetValueOrDefault();
+                                distribution.Good = goodCw1.GetValueOrDefault();
+                                break;
+                            case "cw2":
+                                distribution.Bad = badCw2.GetValueOrDefault();
+                                distribution.Average = averageCw2.GetValueOrDefault();
+                                distribution.Good = goodCw2.GetValueOrDefault();
+                                break;
+                            case "exam":
+                                distribution.Bad = badExam.GetValueOrDefault();
+                                distribution.Average = averageExam.GetValueOrDefault();
+                                distribution.Good = goodExam.GetValueOrDefault();
+                                break;
                         }
                     }
 
@@ -317,10 +313,7 @@ namespace CMR.Controllers
                 return HttpNotFound();
             }
 
-            var report = _db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
-            report.Assignment.Managers =
-                _db.CourseAssignmentManagers.Include(cam => cam.User).
-                    Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+            var report = _db.Reports.Include(r => r.Assignment.Managers.Select(m => m.User)).Single(r => r.Id == id.Value);
 
             if (!CheckCourseManager(report.Assignment))
             {
@@ -349,10 +342,7 @@ namespace CMR.Controllers
                 return HttpNotFound();
             }
 
-            var report = _db.Reports.Include(r => r.Assignment).Single(r => r.Id == id.Value);
-            report.Assignment.Managers =
-                _db.CourseAssignmentManagers.Include(cam => cam.User).
-                    Where(cam => cam.CourseAssignment.Id == report.Assignment.Id).ToList();
+            var report = _db.Reports.Include(r => r.Assignment.Managers.Select(m => m.User)).Single(r => r.Id == id.Value);
 
             if (!CheckCourseManager(report.Assignment))
             {
