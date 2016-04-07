@@ -310,6 +310,7 @@
     <Compile Include="Models\ReportStatistical.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\AccountIndexViewModel.cs" />
     <Compile Include="ViewModels\AssignViewModel.cs" />
     <Compile Include="ViewModels\CourseIndexViewModel.cs" />
     <Compile Include="ViewModels\ExceptionalViewModel.cs" />
@@ -319,6 +320,7 @@
     <Compile Include="ViewModels\ReportViewModel.cs" />
     <Compile Include="ViewModels\StatisticalsViewModel.cs" />
     <Compile Include="ViewModels\StatisticalViewModel.cs" />
+    <Compile Include="ViewModels\UserRoleViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -424,6 +426,7 @@
     <Content Include="Views\Reports\Approved.cshtml" />
     <Content Include="Views\Reports\Statistical.cshtml" />
     <Content Include="Views\Reports\Exceptional.cshtml" />
+    <Content Include="Views\Account\Index.cshtml" />
     <None Include="Web.Secret.config" />
   </ItemGroup>
   <ItemGroup>

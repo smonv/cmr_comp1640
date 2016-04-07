@@ -1,0 +1,67 @@
+﻿@using CMR.ViewModels
+@model CMR.ViewModels.AccountIndexViewModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="@Url.Action("Index", "Home")">Home</a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Account")">Course</a>
+    </li>
+    <li class="active">Accounts</li>
+</ol>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <form method="get">
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <input type="text" name="username" class="form-control" value="@(Model.FilterUsername.IsEmpty() ?"" : Model.FilterUsername)" placeholder="Username"/>
+                </div>
+                <div class="form-group col-md-3">
+                    @Html.DropDownList("role", Model.Roles.Select(r => new SelectListItem
+                    {
+                        Text = r.Name,
+                        Value = r.Id
+                    }), "Account Role", new {@class = "form-control"})
+                </div>
+                <div class="form-group col-md-3">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="@Url.Action("Index", "Account")" class="btn btn-default">Clear</a>
+                </div>
+                <div class="form-group col-md-3">
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-primary pull-right">New</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+                @foreach (var uvrm in Model.Urvms)
+                {
+                    <tr>
+                        <td>@uvrm.User.UserName</td>
+                        <td>@uvrm.User.Email</td>
+                        <td>@uvrm.Roles.FirstOrDefault()</td>
+                        <td>
+                            <a href="@Url.Action("ResetPassword", "Account", new {id = uvrm.User.Id})">Reset Password</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

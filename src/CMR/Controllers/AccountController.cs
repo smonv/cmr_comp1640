@@ -1,10 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.WebPages;
+using CMR.Custom;
 using CMR.Models;
+using CMR.ViewModels;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Provider;
 
 namespace CMR.Controllers
 {
@@ -13,6 +20,7 @@ namespace CMR.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private List<string> _msgs = new List<string>();
 
         public AccountController()
         {
@@ -34,6 +42,48 @@ namespace CMR.Controllers
         {
             get { return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>(); }
             private set { _userManager = value; }
+        }
+
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        public ActionResult Index(string username, string role)
+        {
+            var aivm = new AccountIndexViewModel();
+            aivm.FilterUsername = username;
+            aivm.FilterRole = role;
+
+            var urvms = new List<UserRoleViewModel>();
+            var users = new List<ApplicationUser>();
+            if (!username.IsEmpty() && !role.IsEmpty())
+            {
+                
+                users =
+                    UserManager.Users.Where(u => u.Roles.Any(r => r.RoleId == role))
+                        .Where(u => u.UserName.Contains(username))
+                        .ToList();
+            }
+            else if (!username.IsEmpty() && role.IsEmpty())
+            {
+                users = UserManager.Users.Where(u => u.UserName.Contains(username)).ToList();
+            }
+            else if (username.IsEmpty() && !role.IsEmpty())
+            {
+                users = UserManager.Users.Where(u => u.Roles.Any(r => r.RoleId == role)).ToList();
+            }
+            else
+                users = UserManager.Users.ToList();
+
+            foreach (var user in users)
+            {
+                var urvm = new UserRoleViewModel();
+                urvm.User = user;
+                urvm.Roles = UserManager.GetRoles(user.Id).ToList();
+                urvms.Add(urvm);
+            }
+            aivm.Urvms = urvms;
+
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
+            aivm.Roles = roleManager.Roles.ToList();
+            return View(aivm);
         }
 
         [AllowAnonymous]
@@ -90,25 +140,23 @@ namespace CMR.Controllers
         //
         // POST: /Account/Register
         [HttpPost]
-        [AllowAnonymous]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
+                var user = new ApplicationUser {UserName = model.Username, Email = model.Email};
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, false, false);
-
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-                    // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-                    return RedirectToAction("Index", "Home");
+                    var addRoleresult = await UserManager.AddToRoleAsync(user.Id, "Guest");
+                    if (addRoleresult.Succeeded)
+                    {
+                        _msgs.Add("New Account Created.");
+                        TempData["msgs"] = _msgs;
+                        return RedirectToAction("Index", "Account");
+                    }
                 }
                 AddErrors(result);
             }
@@ -118,78 +166,46 @@ namespace CMR.Controllers
         }
 
         //
-        // GET: /Account/ForgotPassword
-        [AllowAnonymous]
-        public ActionResult ForgotPassword()
-        {
-            return View();
-        }
-
-        //
-        // POST: /Account/ForgotPassword
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = await UserManager.FindByNameAsync(model.Email);
-                if (user == null || !await UserManager.IsEmailConfirmedAsync(user.Id))
-                {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    return View("ForgotPasswordConfirmation");
-                }
-
-                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-                // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
-            }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        //
-        // GET: /Account/ForgotPasswordConfirmation
-        [AllowAnonymous]
-        public ActionResult ForgotPasswordConfirmation()
-        {
-            return View();
-        }
-
-        //
         // GET: /Account/ResetPassword
         [AllowAnonymous]
-        public ActionResult ResetPassword(string code)
+        public ActionResult ResetPassword(string id)
         {
-            return code == null ? View("Error") : View();
+            if (id == null)
+                return HttpNotFound();
+
+            var user = UserManager.FindById(id);
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+            return View();
         }
 
         //
         // POST: /Account/ResetPassword
         [HttpPost]
-        [AllowAnonymous]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ResetPassword(ResetPasswordViewModel model)
+        public async Task<ActionResult> ResetPassword(string id, ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-            var user = await UserManager.FindByNameAsync(model.Email);
+            var user = await UserManager.FindByIdAsync(id);
             if (user == null)
             {
                 // Don't reveal that the user does not exist
-                return RedirectToAction("ResetPasswordConfirmation", "Account");
+                return HttpNotFound();
             }
-            var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+            var newHashPassword = UserManager.PasswordHasher.HashPassword(model.Password);
+            user.PasswordHash = newHashPassword;
+            var result = await UserManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                return RedirectToAction("ResetPasswordConfirmation", "Account");
+                _msgs.Add("Success reset password for: " + user.UserName);
+                TempData["msgs"] = _msgs;
+                return RedirectToAction("Index", "Account");
             }
             AddErrors(result);
             return View();
