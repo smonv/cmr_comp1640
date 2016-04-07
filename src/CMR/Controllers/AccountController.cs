@@ -104,7 +104,7 @@ namespace CMR.Controllers
         //
         // POST: /Account/Login
         [HttpPost]
-        [AllowAnonymous]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
@@ -167,7 +167,7 @@ namespace CMR.Controllers
 
         //
         // GET: /Account/ResetPassword
-        [AllowAnonymous]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
         public ActionResult ResetPassword(string id)
         {
             if (id == null)
@@ -208,14 +208,6 @@ namespace CMR.Controllers
                 return RedirectToAction("Index", "Account");
             }
             AddErrors(result);
-            return View();
-        }
-
-        //
-        // GET: /Account/ResetPasswordConfirmation
-        [AllowAnonymous]
-        public ActionResult ResetPasswordConfirmation()
-        {
             return View();
         }
 
