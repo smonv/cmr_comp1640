@@ -21,6 +21,7 @@ namespace CMR.Controllers
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
         private List<string> _msgs = new List<string>();
+        private List<string> _errors = new List<string>(); 
 
         public AccountController()
         {
@@ -222,6 +223,71 @@ namespace CMR.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        public ActionResult ChangeRole(string id)
+        {
+            if (id == null)
+            {
+                return HttpNotFound();
+            }
+
+            var user = UserManager.FindById(id);
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+            var crvm = new ChangeRoleViewModel();
+            crvm.User = user;
+            crvm.Roles = new ApplicationDbContext().Roles.ToList();
+            return View(crvm);
+        }
+
+        [HttpPost]
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ChangeRole(string id, string role)
+        {
+            if (id == null)
+            {
+                return HttpNotFound();
+            }
+
+            var user = UserManager.FindById(id);
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+            
+            var cRole = await UserManager.GetRolesAsync(user.Id);
+            if (cRole != null && cRole.Any())
+            {
+                var removeRoleResult = UserManager.RemoveFromRoleAsync(user.Id, cRole.FirstOrDefault());
+                if (!removeRoleResult.Result.Succeeded)
+                {
+                    _errors.Add("Failed to remove old role");
+                    TempData["errors"] = _errors;
+                    return View();
+                }
+            }
+
+            var nRole = new ApplicationDbContext().Roles.Find(role);
+            if(nRole != null) { 
+            var addRoleResult = await UserManager.AddToRoleAsync(user.Id, nRole.Name);
+            if (addRoleResult.Succeeded)
+            {
+                _msgs.Add("Success change role for user: " + user.UserName);
+                TempData["msgs"] = _msgs;
+                return RedirectToAction("Index", "Account");
+            }
+            }
+            else
+            {
+                _errors.Add("Invalid role");
+            }
+
+            TempData["errors"] = _errors;
+            return View();
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
