@@ -105,7 +105,7 @@ namespace CMR.Controllers
         //
         // POST: /Account/Login
         [HttpPost]
-        [AccessDeniedAuthorize(Roles = "Administrator")]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
