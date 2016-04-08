@@ -204,6 +204,12 @@ namespace CMR.Controllers
                 // Don't reveal that the user does not exist
                 return HttpNotFound();
             }
+            var resultValidatePassword = await UserManager.PasswordValidator.ValidateAsync(model.Password);
+            if (!resultValidatePassword.Succeeded)
+            {
+                AddErrors(resultValidatePassword);
+                return View(model);
+            }
             var newHashPassword = UserManager.PasswordHasher.HashPassword(model.Password);
             user.PasswordHash = newHashPassword;
             var result = await UserManager.UpdateAsync(user);
@@ -214,7 +220,7 @@ namespace CMR.Controllers
                 return RedirectToAction("Index", "Account");
             }
             AddErrors(result);
-            return View();
+            return View(model);
         }
 
 
