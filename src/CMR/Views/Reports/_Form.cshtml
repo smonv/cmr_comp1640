@@ -18,7 +18,7 @@
                 <td>Course Leader</td>
                 @if (Model.CourseAssignment.Managers.Any())
                 {
-                    <td>@Model.CourseAssignment.Managers.Single(m => m.Role == "cl").User.UserName</td>
+                    <td>@Model.CourseAssignment.Managers.Single(m => m.Role == "cl").User.Fullname</td>
                 }
 
             </tr>

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -11,17 +12,16 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Provider;
 
 namespace CMR.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        private readonly List<string> _errors = new List<string>();
+        private readonly List<string> _msgs = new List<string>();
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-        private List<string> _msgs = new List<string>();
-        private List<string> _errors = new List<string>(); 
 
         public AccountController()
         {
@@ -56,7 +56,6 @@ namespace CMR.Controllers
             var users = new List<ApplicationUser>();
             if (!username.IsEmpty() && !role.IsEmpty())
             {
-                
                 users =
                     UserManager.Users.Where(u => u.Roles.Any(r => r.RoleId == role))
                         .Where(u => u.UserName.Contains(username))
@@ -147,13 +146,19 @@ namespace CMR.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser {UserName = model.Username, Email = model.Email};
+                var user = new ApplicationUser
+                {
+                    UserName = model.Username,
+                    Fullname = model.Fullname,
+                    Email = model.Email
+                };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     var addRoleresult = await UserManager.AddToRoleAsync(user.Id, "Guest");
                     if (addRoleresult.Succeeded)
                     {
+                        await UserManager.AddClaimAsync(user.Id, new Claim("Fullname", user.Fullname));
                         _msgs.Add("New Account Created.");
                         TempData["msgs"] = _msgs;
                         return RedirectToAction("Index", "Account");
@@ -257,7 +262,7 @@ namespace CMR.Controllers
             {
                 return HttpNotFound();
             }
-            
+
             var cRole = await UserManager.GetRolesAsync(user.Id);
             if (cRole != null && cRole.Any())
             {
@@ -271,14 +276,15 @@ namespace CMR.Controllers
             }
 
             var nRole = new ApplicationDbContext().Roles.Find(role);
-            if(nRole != null) { 
-            var addRoleResult = await UserManager.AddToRoleAsync(user.Id, nRole.Name);
-            if (addRoleResult.Succeeded)
+            if (nRole != null)
             {
-                _msgs.Add("Success change role for user: " + user.UserName);
-                TempData["msgs"] = _msgs;
-                return RedirectToAction("Index", "Account");
-            }
+                var addRoleResult = await UserManager.AddToRoleAsync(user.Id, nRole.Name);
+                if (addRoleResult.Succeeded)
+                {
+                    _msgs.Add("Success change role for user: " + user.UserName);
+                    TempData["msgs"] = _msgs;
+                    return RedirectToAction("Index", "Account");
+                }
             }
             else
             {
@@ -288,6 +294,7 @@ namespace CMR.Controllers
             TempData["errors"] = _errors;
             return View();
         }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

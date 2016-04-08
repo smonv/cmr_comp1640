@@ -1,5 +1,6 @@
 using System.Data.Entity.Migrations;
 using System.Linq;
+using System.Security.Claims;
 using CMR.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -42,9 +43,9 @@ namespace CMR.Migrations
 
             ApplicationUser[] admins =
             {
-                new ApplicationUser {UserName = "admin1", Email = "admin1@test.com"},
-                new ApplicationUser {UserName = "admin2", Email = "admin2@test.com"},
-                new ApplicationUser {UserName = "admin3", Email = "admin3@test.com"}
+                new ApplicationUser {UserName = "admin1", Fullname = "Admin One", Email = "admin1@test.com"},
+                new ApplicationUser {UserName = "admin2", Fullname = "Admin Two", Email = "admin2@test.com"},
+                new ApplicationUser {UserName = "admin3", Fullname = "Admin Three", Email = "admin3@test.com"}
             };
 
             foreach (var admin in from admin in admins let result = manager.Create(admin, "password") where result.Succeeded select admin)
@@ -54,17 +55,18 @@ namespace CMR.Migrations
 
             ApplicationUser[] staffs =
             {
-                new ApplicationUser {UserName = "staff1", Email = "staff1@test.com"},
-                new ApplicationUser {UserName = "staff2", Email = "staff2@test.com"},
-                new ApplicationUser {UserName = "staff3", Email = "staff3@test.com"},
-                new ApplicationUser {UserName = "staff4", Email = "staff4@test.com"},
-                new ApplicationUser {UserName = "staff5", Email = "staff5@test.com"},
-                new ApplicationUser {UserName = "staff6", Email = "staff6@test.com"},
-                new ApplicationUser {UserName = "staff7", Email = "staff7@test.com"},
-                new ApplicationUser {UserName = "staff8", Email = "staff8@test.com"},
-                new ApplicationUser {UserName = "staff9", Email = "staff9@test.com"}
+                new ApplicationUser {UserName = "staff1", Fullname = "Staff One", Email = "staff1@test.com"},
+                new ApplicationUser {UserName = "staff2", Fullname = "Staff Two", Email = "staff2@test.com"},
+                new ApplicationUser {UserName = "staff3", Fullname = "Staff Three", Email = "staff3@test.com"},
+                new ApplicationUser {UserName = "staff4", Fullname = "Staff Four", Email = "staff4@test.com"},
+                new ApplicationUser {UserName = "staff5", Fullname = "Staff Five", Email = "staff5@test.com"},
+                new ApplicationUser {UserName = "staff6", Fullname = "Staff Six", Email = "staff6@test.com"},
+                new ApplicationUser {UserName = "staff7", Fullname = "Staff Seven", Email = "staff7@test.com"},
+                new ApplicationUser {UserName = "staff8", Fullname = "Staff Eight", Email = "staff8@test.com"},
+                new ApplicationUser {UserName = "staff9", Fullname = "Staff Nine", Email = "staff9@test.com"}
             };
 
+  
             foreach (var staff in from staff in staffs let result = manager.Create(staff, "password") where result.Succeeded select staff)
             {
                 manager.AddToRole(staff.Id, "Staff");
@@ -72,9 +74,9 @@ namespace CMR.Migrations
 
             ApplicationUser[] guests =
             {
-                new ApplicationUser {UserName = "guest1", Email = "guest1@test.com"},
-                new ApplicationUser {UserName = "guest2", Email = "guest2@test.com"},
-                new ApplicationUser {UserName = "guest3", Email = "guest3@test.com"}
+                new ApplicationUser {UserName = "guest1", Fullname = "Guest One", Email = "guest1@test.com"},
+                new ApplicationUser {UserName = "guest2", Fullname = "Guest Two", Email = "guest2@test.com"},
+                new ApplicationUser {UserName = "guest3", Fullname = "Guest Three", Email = "guest3@test.com"}
             };
 
             foreach (var guest in from guest in guests let result = manager.Create(guest, "password") where result.Succeeded select guest)

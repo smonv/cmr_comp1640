@@ -1,51 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CMR.Models
 {
-    public class ExternalLoginConfirmationViewModel
-    {
-        [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-    }
-
-    public class ExternalLoginListViewModel
-    {
-        public string ReturnUrl { get; set; }
-    }
-
-    public class SendCodeViewModel
-    {
-        public string SelectedProvider { get; set; }
-        public ICollection<System.Web.Mvc.SelectListItem> Providers { get; set; }
-        public string ReturnUrl { get; set; }
-        public bool RememberMe { get; set; }
-    }
-
-    public class VerifyCodeViewModel
-    {
-        [Required]
-        public string Provider { get; set; }
-
-        [Required]
-        [Display(Name = "Code")]
-        public string Code { get; set; }
-        public string ReturnUrl { get; set; }
-
-        [Display(Name = "Remember this browser?")]
-        public bool RememberBrowser { get; set; }
-
-        public bool RememberMe { get; set; }
-    }
-
-    public class ForgotViewModel
-    {
-        [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-    }
-
     public class LoginViewModel
     {
         [Required]
@@ -69,6 +25,13 @@ namespace CMR.Models
         [DataType(DataType.Text)]
         [StringLength(60, MinimumLength = 4)]
         public string Username { get; set; }
+
+        [Required]
+        [Display(Name = "Fullname")]
+        [DataType(DataType.Text)]
+        [StringLength(100, MinimumLength = 4)]
+        public string Fullname { get; set; }
+
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
@@ -82,13 +45,13 @@ namespace CMR.Models
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Compare("Password",
+            ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
     public class ResetPasswordViewModel
     {
-
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
@@ -97,17 +60,10 @@ namespace CMR.Models
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm new password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Compare("Password",
+            ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
         public string Code { get; set; }
-    }
-
-    public class ForgotPasswordViewModel
-    {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
     }
 }
