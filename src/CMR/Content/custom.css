@@ -184,10 +184,6 @@ body {
 #cssmenu ul ul {
   display: none;
 }
-#cssmenu ul>li>a.home {
-  background-color: #555;
-  color: white
-}
 #cssmenu ul>li>a>span {
   padding-right: 10px;
 }

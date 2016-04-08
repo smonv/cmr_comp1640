@@ -20,7 +20,7 @@
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
                 <span class="glyphicon glyphicon-user"></span>
             </button>
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/Home/Index">
                 <img src="~/Content/images/University-of-Greenwich.png" class="pull-left" id="btn-burger-navbar-left" alt="University Of Greenwich">
                 <span class="pull-right">Course Management</span>
             </a>
@@ -68,36 +68,12 @@
                     </div>
                     <ul>
                         <li>
-                            <a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a>
+                            <a href='/Home/Index' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a>
                         </li>
                         @if (User.IsInRole("Administrator"))
                         {
-                            <li class='has-sub'>
-                                <a href='#' class="list-item menu-user"><span class="glyphicon glyphicon-user"></span>User</a>
-                                <ul>
-                                    <li class='has-sub'>
-                                        <a href='#'>Administrators</a>
-                                        <ul>
-                                            <li>
-                                                <a href='#'>Sub CL</a>
-                                            </li>
-                                            <li>
-                                                <a href='#'>Sub CL</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class='has-sub'>
-                                        <a href='#'>Staffs</a>
-                                        <ul>
-                                            <li>
-                                                <a href='#'>Sub Courses</a>
-                                            </li>
-                                            <li>
-                                                <a href='#'>Sub Courses</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
+                            <li>
+                                <a href='/Account/index' class="list-item menu-account"><span class="glyphicon glyphicon-user"></span>User</a>
                             </li>
                             <li class='has-sub'>
                                 <a href='#' class="list-item menu-faculties"><span class="glyphicon glyphicon-briefcase"></span>Faculties</a>

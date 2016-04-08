@@ -46,11 +46,15 @@ switch(p) {
     case "Re":
         openMenu(".menu-reports")
         break;
+    case "Ac":
+        openMenu(".menu-account")
+        break;
     default:
         break;
 }
 
 function openMenu(a) {
+    $(a).css("background-color", "#eee");
     $(a).removeAttr('href');
     var element = $(a).parent('li');
     element.addClass('open');
