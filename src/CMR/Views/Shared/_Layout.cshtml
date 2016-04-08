@@ -19,7 +19,7 @@
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
                 <span class="glyphicon glyphicon-user"></span>
             </button>
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/Home/Index">
                 <img src="~/Content/images/University-of-Greenwich.png" class="pull-left" id="btn-burger-navbar-left" alt="University Of Greenwich">
                 <span class="pull-right">Course Management</span>
             </a>
@@ -67,7 +67,7 @@
                     </div>
                     <ul>
                         <li>
-                            <a href='#' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a>
+                            <a href='/Home/Index' class="list-item home"><span class="glyphicon glyphicon-home"></span>Home</a>
                         </li>
                         @if (User.IsInRole("Administrator"))
                         {

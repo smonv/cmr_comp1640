@@ -183,7 +183,7 @@ namespace CMR.Controllers
 
             if (report.IsApproved)
             {
-                _errors.Add("You cannot edit approved report");
+                _errors.Add("You don't have permisson to edit approved reports.");
                 TempData["errors"] = _errors;
                 return Redirect(Url.Action("Index", "Reports"));
             }
