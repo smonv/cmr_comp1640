@@ -63,7 +63,19 @@ namespace CMR.Models
         [Compare("Password",
             ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+    }
 
-        public string Code { get; set; }
+    public class EditViewModel
+    {
+        [Required]
+        [Display(Name = "Fullname")]
+        [DataType(DataType.Text)]
+        [StringLength(100, MinimumLength = 4)]
+        public string Fullname { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
     }
 }

@@ -391,7 +391,6 @@
     <Content Include="Views\Account\ResetPassword.cshtml" />
     <Content Include="Views\Manage\ChangePassword.cshtml" />
     <Content Include="Views\Manage\Index.cshtml" />
-    <Content Include="Views\Manage\SetPassword.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Faculties\Create.cshtml" />
@@ -424,6 +423,7 @@
     <Content Include="Views\Reports\Exceptional.cshtml" />
     <Content Include="Views\Account\Index.cshtml" />
     <Content Include="Views\Account\ChangeRole.cshtml" />
+    <Content Include="Views\Account\Edit.cshtml" />
     <None Include="Web.Secret.config" />
   </ItemGroup>
   <ItemGroup>

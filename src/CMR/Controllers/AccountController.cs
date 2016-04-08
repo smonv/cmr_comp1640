@@ -295,6 +295,55 @@ namespace CMR.Controllers
             return View();
         }
 
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        public ActionResult Edit(string id)
+        {
+            if (id == null)
+            {
+                return HttpNotFound();
+            }
+
+            var user = UserManager.FindById(id);
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+            EditViewModel evm = new EditViewModel();
+            evm.Fullname = user.Fullname;
+            evm.Email = user.Email;
+            return View(evm);
+        }
+
+        [AccessDeniedAuthorize(Roles = "Administrator")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(string id, EditViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByIdAsync(id);
+                if (user == null)
+                {
+                    return HttpNotFound();
+                }
+                user.Fullname = model.Fullname;
+                user.Email = model.Email;
+                var result = UserManager.UpdateAsync(user);
+                if (result.Result.Succeeded)
+                {
+                    _msgs.Add("User " + user.UserName + " updated.");
+                    TempData["msgs"] = _msgs;
+                    return RedirectToAction("Index", "Account");
+                }
+            }
+            var errors = ModelState.Where(ms => ms.Value.Errors.Count > 0).ToList();
+            foreach (var error in errors)
+            {
+                _errors.Add(error.Value.ToString());
+            }
+            return View(model);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

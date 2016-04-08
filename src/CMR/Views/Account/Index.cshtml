@@ -59,8 +59,9 @@
                         <td>@uvrm.User.Fullname</td>
                         <td>@uvrm.Roles.FirstOrDefault()</td>
                         <td>
-                            <a href="@Url.Action("ResetPassword", "Account", new {id = uvrm.User.Id})">Reset Password</a>
-                            <a href="@Url.Action("ChangeRole", "Account", new {id = uvrm.User.Id})">Change Role</a>
+                            <a href="@Url.Action("ResetPassword", "Account", new {id = uvrm.User.Id})">Reset Password</a> | 
+                            <a href="@Url.Action("ChangeRole", "Account", new {id = uvrm.User.Id})">Change Role</a> | 
+                            <a href="@Url.Action("Edit", "Account", new {id = uvrm.User.Id})">Edit</a>
                         </td>
                     </tr>
                 }
