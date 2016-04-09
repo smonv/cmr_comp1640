@@ -424,6 +424,7 @@
     <Content Include="Views\Account\Index.cshtml" />
     <Content Include="Views\Account\ChangeRole.cshtml" />
     <Content Include="Views\Account\Edit.cshtml" />
+    <Content Include="smtp.Secret.config" />
     <None Include="Web.Secret.config" />
   </ItemGroup>
   <ItemGroup>
