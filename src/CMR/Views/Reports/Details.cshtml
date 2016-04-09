@@ -14,13 +14,14 @@
         <a href="@Url.Action("Index", "Reports")">Reports</a>
     </li>
     <li class="active">Details</li>
-    @if (!Model.IsApproved)
-    {
-        <li class="pull-right">@Html.ActionLink("Edit", "Edit", new {id = Model.Id}, new {@class = "pull-right"})</li>
-    }
 </ol>
 <div class="panel panel-default">
-    <div class="panel-heading text-center">Course Monitoring Report</div>
+    <div class="panel-heading text-center">Course Monitoring Report
+        @if (!Model.IsApproved)
+        {
+        @Html.ActionLink("Edit", "Edit", new {id = Model.Id}, new {@class = "btn btn-warning pull-right"})
+        }
+    </div>
     <div class="panel-body">
         <table class="table">
             <tr>
