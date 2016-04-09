@@ -352,3 +352,11 @@ label[for="RememberMe"]{
     padding-left: 0px;
     font-size: 12px;
 }
+
+.falculty-heading{
+    min-height: 50px !important;
+}
+
+.falculty-heading>span{
+    line-height: 30px !important;
+}

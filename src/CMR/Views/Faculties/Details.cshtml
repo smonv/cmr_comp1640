@@ -20,6 +20,14 @@
         @Html.ActionLink("Edit", "Edit", new {id = Model.Faculty.Id}, new {@class = "pull-right"})
     </div>
     <div class="panel-body">
+        <div class="row">
+             <div class="form-group">
+                    @Html.LabelFor(m => m.Faculty.Description, new {@class = "control-label col-md-2"})
+                <div class="col-md-10">
+                        @Html.DisplayFor(m => m.Faculty.Description, new {@class = "form-control"})
+                </div>
+             </div>
+        </div>
         @if (User.IsInRole("Administrator"))
         {
             <form method="post" action="@Url.Action("Assign", "Faculties", new {id = Model.Faculty.Id})">

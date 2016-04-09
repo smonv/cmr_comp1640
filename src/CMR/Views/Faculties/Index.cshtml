@@ -15,9 +15,9 @@
     <li class="active">List</li>
 </ol>
 <div class="panel panel-default">
-    <div class="panel-heading">
-        List Faculties
-        @Html.ActionLink("Add New", "Create", new {}, new {@class = "pull-right"})
+    <div class="panel-heading falculty-heading">
+        <span>List Faculties</span>
+        @Html.ActionLink("Add New", "Create", new {}, new {@class = "btn btn-primary pull-right"})
     </div>
     <table class="table table-bordered">
         <tr>
@@ -33,7 +33,10 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    <a href="@Url.Action("Details", new {id=item.Id})">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </a>
+              
                 </td>
                 <td>
                     @foreach (var fa in item.FacultyAssignment)
@@ -64,8 +67,8 @@
                     }
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new {id = item.Id}, new {@class = "btn btn-warning"})
-                    @Html.ActionLink("Assign", "Details", new {id = item.Id}, new {@class = "btn btn-info"}) 
+                    @Html.ActionLink("Edit", "Edit", new {id = item.Id}, new {@class = "btn btn-warning pull-right"})
+                    @Html.ActionLink("Assign", "Details", new {id = item.Id}, new {@class = "btn btn-info pull-right"}) 
                 </td>
             </tr>
         }
