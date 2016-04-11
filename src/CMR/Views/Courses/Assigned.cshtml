@@ -55,12 +55,15 @@
                                 break;
                             case "cm":
                                 <td class="hidden-xs">Course Manager</td>
-                                ;
                                 if (cam.CourseAssignment.Reports.Any())
                                 {
                                     <td>
                                         <a href="@Url.Action("Details", "Reports", new {id = cam.CourseAssignment.Reports.First().Id})"> View report</a>
                                     </td>
+                                }
+                                else
+                                {
+                                    <td>No Reports</td>
                                 }
                                 break;
                         }

@@ -38,7 +38,7 @@
                         @Html.DropDownList("pvc",
                             Model.Staffs.Select(u => new SelectListItem
                             {
-                                Text = u.UserName,
+                                Text = u.Fullname,
                                 Value = u.Id
                             }), "Please select", new {@class = "form-control"})
                     </div>
@@ -47,7 +47,7 @@
                         @Html.DropDownList("dlt",
                             Model.Staffs.Select(u => new SelectListItem
                             {
-                                Text = u.UserName,
+                                Text = u.Fullname,
                                 Value = u.Id
                             }),
                             "Please select", new {@class = "form-control"})
@@ -76,11 +76,11 @@
                         {
                             if (manager.Role == "pvc")
                             {
-                                <td>@manager.User.UserName</td>
+                                <td>@manager.User.Fullname</td>
                             }
                             if (manager.Role == "dlt")
                             {
-                                <td>@manager.User.UserName</td>
+                                <td>@manager.User.Fullname</td>
                             }
                         }
                     </tr>

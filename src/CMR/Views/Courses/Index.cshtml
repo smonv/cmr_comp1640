@@ -95,7 +95,7 @@
                             if (ca.Managers.Any(m => m.Role == "cl"))
                             {
                                 var cl = ca.Managers.Single(m => m.Role == "cl");
-                                <p>@cl.User.UserName</p>
+                                <p>@cl.User.Fullname</p>
                             }
                             else
                             {
@@ -109,7 +109,7 @@
                             if (ca.Managers.Any(m => m.Role == "cm"))
                             {
                                 var cm = ca.Managers.Single(m => m.Role == "cm");
-                                <p>@cm.User.UserName</p>
+                                <p>@cm.User.Fullname</p>
                             }
                             else
                             {
