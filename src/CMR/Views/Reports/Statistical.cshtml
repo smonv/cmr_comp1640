@@ -61,16 +61,13 @@
                         <td>@s.Faculty.Name</td>
                         <td>@s.TotalCmr</td>
                         <td>
-                            @{
-                                var apercent = s.TotalCmr > 0 ? (s.ApprovedCmr/s.TotalCmr)*100 : 0;
-                            }
-                            @s.ApprovedCmr (@apercent %)
+                                    @s.ApprovedCmr (@s.ApprovedPercent %)
                         </td>
                         <td>
                             @{
                                 var cpercent = s.TotalCmr > 0 ? (s.CommentedCmr / s.TotalCmr) * 100 : 0;
                             }
-                            @s.CommentedCmr (@cpercent %)
+                            @s.CommentedCmr (@s.CommentedPercent %)
                         </td>
                     </tr>
                 }

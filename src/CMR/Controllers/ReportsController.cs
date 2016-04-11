@@ -441,6 +441,11 @@ namespace CMR.Controllers
                     statistical.TotalCmr = totalCmr;
                     statistical.ApprovedCmr = approvedCmr;
                     statistical.CommentedCmr = commentedCmr;
+                    if (statistical.TotalCmr > 0)
+                    {
+                        statistical.ApprovedPercent = Math.Round((double)(statistical.ApprovedCmr*100) / statistical.TotalCmr, 2);
+                        statistical.CommentedPercent = Math.Round((double)(statistical.CommentedCmr*100) / statistical.TotalCmr, 2);
+                    }
                     statisticals.Statisticals.Add(statistical);
                 }
                 return View(statisticals);
